@@ -22,7 +22,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                 <div class="hidden"> <!-- Remova essa div para mostrar as opções de personalizção de cor e tema-->
                     <button type="button" class="layout-topbar-action " @click="toggleDarkMode">
                         <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
-                    </button>
+                    </button>mock
                     <div class="relative">
                         <button
                             v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'animate-scalein', leaveToClass: 'hidden', leaveActiveClass: 'animate-fadeout', hideOnOutsideClick: true }"
