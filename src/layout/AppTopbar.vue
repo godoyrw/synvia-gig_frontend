@@ -1,5 +1,5 @@
 <script setup>
-import Logo from '@/assets/images/logos/synvia_positivo.png';
+import Logo from '@/assets/images/logos/synvia_negativo.png';
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
@@ -13,7 +13,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <img :src="Logo" alt="SynviaLogo" class="w-40 mt-0" />
+                <img :src="Logo" alt="SynviaLogo" class="w-35 mt-0" />
             </router-link>
         </div>
 
