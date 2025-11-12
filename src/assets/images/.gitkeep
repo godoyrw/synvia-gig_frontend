@@ -1,0 +1,19 @@
+# Esta pasta contém imagens que serão processadas pelo Vite
+
+## Estrutura:
+- `icons/` - Ícones pequenos (SVG, PNG pequenos)
+- `logos/` - Logos da aplicação
+- `illustrations/` - Ilustrações e gráficos
+- `backgrounds/` - Imagens de fundo
+
+## Como usar:
+```vue
+<script setup>
+import logo from '@/assets/images/logos/logo.png'
+</script>
+
+<template>
+  <img :src="logo" alt="Logo" />
+</template>
+```
+
