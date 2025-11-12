@@ -1,0 +1,12 @@
+# Esta pasta contém imagens estáticas acessadas diretamente
+
+## Estrutura:
+- `static/` - Imagens que não precisam ser processadas pelo Vite
+
+## Como usar:
+```vue
+<template>
+  <img src="/images/static/banner.jpg" alt="Banner" />
+</template>
+```
+
