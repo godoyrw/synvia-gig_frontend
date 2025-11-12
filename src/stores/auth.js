@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem('auth_token') || null,
-    user: JSON.parse(localStorage.getItem('auth_user') || 'null'),
+    token: sessionStorage.getItem('auth_token') || null,
+    user: JSON.parse(sessionStorage.getItem('auth_user') || 'null'),
   }),
   getters: {
     isAuthenticated: (s) => !!s.token,
@@ -16,14 +16,14 @@ export const useAuthStore = defineStore('auth', {
 
       this.token = result.token;
       this.user = result.user;
-      localStorage.setItem('auth_token', this.token);
-      localStorage.setItem('auth_user', JSON.stringify(this.user));
+      sessionStorage.setItem('auth_token', this.token);
+      sessionStorage.setItem('auth_user', JSON.stringify(this.user));
     },
     logout() {
       this.token = null;
       this.user = null;
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+      sessionStorage.removeItem('auth_token');
+      sessionStorage.removeItem('auth_user');
     },
   },
 });
