@@ -1,5 +1,5 @@
 <script setup>
-import Logo from '@/assets/images/logos/synvia_positivo.png';
+import Logo from '@/assets/images/logos/synvia_negativo.png';
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
@@ -13,7 +13,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <img :src="Logo" alt="SynviaLogo" class="w-40 mt-0" />
+                <img :src="Logo" alt="SynviaLogo" class="w-35 mt-0" />
             </router-link>
         </div>
 
@@ -22,7 +22,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                 <div class="hidden"> <!-- Remova essa div para mostrar as opções de personalizção de cor e tema-->
                     <button type="button" class="layout-topbar-action " @click="toggleDarkMode">
                         <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
-                    </button>
+                    </button>mock
                     <div class="relative">
                         <button
                             v-styleclass="{ selector: '@next', enterFromClass: 'hidden', enterActiveClass: 'animate-scalein', leaveToClass: 'hidden', leaveActiveClass: 'animate-fadeout', hideOnOutsideClick: true }"
