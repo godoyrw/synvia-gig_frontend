@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Login usando o mock
      */
-    async loginWithCredentials(username, password, durationMinutes = 1) {
+    async loginWithCredentials(username, password, durationMinutes = 15) {
       const result = await mockLogin(username, password);
 
       if (!result.ok) {
