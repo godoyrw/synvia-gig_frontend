@@ -8,17 +8,13 @@ const router = createRouter({
     {
       path: '/',
       component: AppLayout,
-      meta: {
-        requiresAuth: true
-      },
+      meta: { requiresAuth: true },
       children: [
         { path: '', redirect: '/synvia-gig' },
         {
           path: '/synvia-gig',
           name: 'synvia-gig',
-          component: () => import('@/views/SynviaGig.vue'),
-          // (opcional) roles: descomente se quiser restringir por perfil
-          // meta: { requiresAuth: true, roles: ['admin', 'user'] }
+          component: () => import('@/views/SynviaGig.vue')
         }
       ]
     },
@@ -45,16 +41,22 @@ const router = createRouter({
   ]
 });
 
-// 🔐 Guard global
+// Guard global
 router.beforeEach((to, from, next) => {
-  const auth = useAuthStore(); // espera que Pinia já esteja registrado no main.js
+  const auth = useAuthStore();
 
-  // exige autenticação?
-  if (to.matched.some(r => r.meta?.requiresAuth) && !auth.isAuthenticated) {
-    return next({ name: 'login', query: { redirect: to.fullPath } });
+  if (auth.isExpired) {
+    auth.logout(true);
+    return;
   }
 
-  // (opcional) checagem de roles
+  if (to.matched.some(r => r.meta?.requiresAuth) && !auth.isAuthenticated) {
+    return next({
+      name: 'login',
+      query: { redirect: to.fullPath }
+    });
+  }
+
   const requiredRoles = to.matched
     .flatMap(r => r.meta?.roles || [])
     .filter(Boolean);
@@ -62,9 +64,7 @@ router.beforeEach((to, from, next) => {
   if (requiredRoles.length) {
     const userRole = auth.user?.role;
     if (!userRole || !requiredRoles.includes(userRole)) {
-      return next({
-        name: 'accessDenied'
-      });
+      return next({ name: 'accessDenied' });
     }
   }
 

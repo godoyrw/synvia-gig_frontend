@@ -1,6 +1,6 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // 👈 aqui
 
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
@@ -27,13 +27,19 @@ const handleLogin = async () => {
     alert(err.message || 'Erro ao autenticar');
   }
 };
+
+onMounted(() => {
+  if (route.query.expired) {
+    alert('Sua sessão expirou. Faça login novamente.');
+  }
+});
 </script>
 
 
 <template>
     <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
-            <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
+            <div style="border-radius: 56px; padding: 0.3rem;">
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                     <div class="text-center mb-8">
                         <img
@@ -45,20 +51,20 @@ const handleLogin = async () => {
                     </div>
 
                     <div>
-                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-                        <InputText id="email1" type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8" v-model="email" />
+                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Usuário</label>
+                        <InputText id="email1" type="text" placeholder="Digite o seu email" class="w-full md:w-[30rem] mb-8" v-model="email" />
 
-                        <label for="password1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Password</label>
-                        <Password id="password1" v-model="password" placeholder="Password" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
+                        <label for="password1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Senha</label>
+                        <Password id="password1" v-model="password" placeholder="Digite a sua senha" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
 
                         <div class="flex items-center justify-between mt-2 mb-8 gap-8">
                             <div class="flex items-center">
                                 <Checkbox v-model="checked" id="rememberme1" binary class="mr-2"></Checkbox>
-                                <label for="rememberme1">Remember me</label>
+                                <label for="rememberme1">Lembrar-me</label>
                             </div>
-                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
+                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Esqueceu a senha?</span>
                         </div>
-                        <Button label="Sign In" class="w-full" @click="handleLogin" />
+                        <Button label="Entrar" class="w-full" @click="handleLogin" />
                     </div>
                 </div>
             </div>
