@@ -6,7 +6,6 @@ import App from './App.vue';
 import router from './router';
 
 import { useAuthStore } from '@/stores/auth';
-
 import { $t } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
@@ -21,19 +20,19 @@ document.documentElement.classList.add('app-dark');
 
 const app = createApp(App);
 
-// 1) Cria UMA instância de Pinia e registra no app
+// 🔹 UM ÚNICO Pinia
 const pinia = createPinia();
 app.use(pinia);
 
-// 2) Watchdog de expiração usando SEMPRE o store global
+// agora já podemos pegar a store
+const auth = useAuthStore();
+
+// checagem periódica (a cada 5 segundos só pra testar rápido)
 setInterval(() => {
-    const auth = useAuthStore(); // pega sempre o mesmo store da instância global
     auth.checkExpiration();
-}, 15000); // checa a cada 15s
+}, 5000);
 
-// 3) Router + PrimeVue
 app.use(router);
-
 app.use(PrimeVue, {
     theme: {
         preset: Aura,
@@ -43,7 +42,7 @@ app.use(PrimeVue, {
     }
 });
 
-// 4) Tema Synvia
+// 🔹 Aplica a paleta "synvia" como primary (global)
 $t()
     .preset(Aura)
     .preset({

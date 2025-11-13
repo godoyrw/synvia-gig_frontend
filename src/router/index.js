@@ -1,3 +1,4 @@
+// src/router/index.js
 import AppLayout from '@/layout/AppLayout.vue';
 import { useAuthStore } from '@/stores/auth';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -8,7 +9,9 @@ const router = createRouter({
     {
       path: '/',
       component: AppLayout,
-      meta: { requiresAuth: true },
+      meta: {
+        requiresAuth: true
+      },
       children: [
         { path: '', redirect: '/synvia-gig' },
         {
@@ -45,27 +48,20 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const auth = useAuthStore();
 
-  if (auth.isExpired) {
+  const now = Date.now();
+
+  // 1️⃣ Se tiver expiração e já passou → logout + redirect
+  if (auth.expiresAt && now >= auth.expiresAt) {
     auth.logout(true);
     return;
   }
 
+  // 2️⃣ Se a rota exige auth e não está autenticado
   if (to.matched.some(r => r.meta?.requiresAuth) && !auth.isAuthenticated) {
     return next({
       name: 'login',
       query: { redirect: to.fullPath }
     });
-  }
-
-  const requiredRoles = to.matched
-    .flatMap(r => r.meta?.roles || [])
-    .filter(Boolean);
-
-  if (requiredRoles.length) {
-    const userRole = auth.user?.role;
-    if (!userRole || !requiredRoles.includes(userRole)) {
-      return next({ name: 'accessDenied' });
-    }
   }
 
   next();
