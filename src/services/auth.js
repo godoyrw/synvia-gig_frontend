@@ -3,9 +3,7 @@ export async function login(username, password) {
         const response = await fetch('/src/mock/data-users.json');
         const data = await response.json();
 
-        const user = data.users.find(
-            (u) => u.username === username && u.password === password
-        );
+        const user = data.users.find((u) => u.username === username && u.password === password);
 
         if (!user) {
             return { ok: false, message: 'Usuário ou senha inválidos.' };

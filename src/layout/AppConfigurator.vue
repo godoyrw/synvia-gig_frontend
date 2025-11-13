@@ -203,7 +203,7 @@ onMounted(() => {
     const presetValue = presets[layoutConfig.preset];
     const surfacePalette = surfaces.value.find((s) => s.name === layoutConfig.surface)?.palette;
     const primaryColor = primaryColors.value.find((c) => c.name === layoutConfig.primary);
-    
+
     if (primaryColor && primaryColor.name !== 'noir') {
         $t().preset(presetValue).preset(getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
     }
