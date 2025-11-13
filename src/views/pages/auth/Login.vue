@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'; // 👈 aqui
 
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
+import { useDialogStore } from '@/stores/dialog';
 
 const email = ref('');
 const password = ref('');
@@ -12,41 +13,43 @@ const checked = ref(false);
 const isDarkTheme = false;
 
 const router = useRouter();
-const route  = useRoute();                            // 👈 e aqui
+const route = useRoute();
 const auth = useAuthStore();
+const dialog = useDialogStore();
 
 const handleLogin = async () => {
-  try {
-    await auth.loginWithCredentials(email.value, password.value);
-    
-    // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
-    const redirect = route.query.redirect || '/synvia-gig';
-    router.push(redirect);
+    try {
+        await auth.loginWithCredentials(email.value, password.value);
 
-  } catch (err) {
-    alert(err.message || 'Erro ao autenticar');
-  }
+        // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
+        const redirect = route.query.redirect || '/synvia-gig';
+        router.push(redirect);
+    } catch (err) {
+        dialog.open(err.message || 'Erro ao autenticar');
+    }
 };
 
 onMounted(() => {
-  if (route.query.expired) {
-    alert('Sua sessão expirou. Faça login novamente.');
-  }
+    if (route.query.expired) {
+        dialog.open('Sua sessão expirou. Faça login novamente.');
+    }
 });
 </script>
-
 
 <template>
     <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
-            <div style="border-radius: 56px; padding: 0.3rem;">
+            <Dialog v-model:visible="dialog.visible" header="Autenticação" :modal="true">
+                <div class="p-4">{{ dialog.payload }}</div>
+                <template #footer>
+                    <Button label="Fechar" class="p-button-text" @click="dialog.close" />
+                </template>
+            </Dialog>
+
+            <div style="border-radius: 56px; padding: 0.3rem">
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                     <div class="text-center mb-8">
-                        <img
-                            :src="isDarkTheme ? SynviaLogoNegativo : SynviaLogoPositivo"
-                            alt="SynviaLogo"
-                            class="w-80 m-auto mb-8"
-                        />
+                        <img :src="isDarkTheme ? SynviaLogoNegativo : SynviaLogoPositivo" alt="SynviaLogo" class="w-80 m-auto mb-8" />
                         <span class="text-muted-color block font-medium">Autenticação de Usuário</span>
                     </div>
 
