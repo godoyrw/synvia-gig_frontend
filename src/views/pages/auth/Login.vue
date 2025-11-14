@@ -19,12 +19,16 @@ const dialog = useDialogStore();
 
 const handleLogin = async () => {
     try {
+        console.log('[Login] 🔐 Tentando autenticar...', { email: email.value });
         await auth.loginWithCredentials(email.value, password.value);
 
+        console.log('[Login] ✅ Autenticação realizada!');
         // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
         const redirect = route.query.redirect || '/synvia-gig';
+        console.log('[Login] 🔄 Redirecionando para:', redirect);
         router.push(redirect);
     } catch (err) {
+        console.error('[Login] ❌ Erro:', err.message);
         dialog.open(err.message || 'Erro ao autenticar');
     }
 };
