@@ -26,7 +26,7 @@ jobs:
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
-      - name: Build Vue
+      - name: Build VueJs
         run: pnpm build
 
       - name: Configurar acesso SSH
