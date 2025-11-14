@@ -4,7 +4,7 @@ import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import Lara from '@primeuix/themes/lara';
 import Nora from '@primeuix/themes/nora';
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const { layoutConfig, isDarkTheme } = useLayout();
 
@@ -203,7 +203,7 @@ onMounted(() => {
     const presetValue = presets[layoutConfig.preset];
     const surfacePalette = surfaces.value.find((s) => s.name === layoutConfig.surface)?.palette;
     const primaryColor = primaryColors.value.find((c) => c.name === layoutConfig.primary);
-    
+
     if (primaryColor && primaryColor.name !== 'noir') {
         $t().preset(presetValue).preset(getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
     }
