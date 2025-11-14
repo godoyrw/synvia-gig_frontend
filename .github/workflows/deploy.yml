@@ -3,7 +3,7 @@ name: Deploy Vue para EC2
 on:
   push:
     branches:
-      - production   # troca se usar outra branch de produção
+      - production   # ou a branch que você escolheu pro deploy
 
 jobs:
   deploy:
@@ -18,11 +18,16 @@ jobs:
         with:
           node-version: 20
 
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9   # ou a versão que você usa aí
+
       - name: Instalar dependências
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build Vue
-        run: npm run build
+        run: pnpm build
 
       - name: Configurar acesso SSH
         run: |
