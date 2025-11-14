@@ -27,6 +27,11 @@ app.use(pinia);
 // agora já podemos pegar a store
 const auth = useAuthStore();
 
+// Inicia heartbeat se usuário já está autenticado (ex.: page refresh com token válido)
+if (auth.isAuthenticated) {
+    auth.startHeartbeat(10000, 0.3); // verifica a cada 10 segundos, renova a 30% do tempo restante
+}
+
 // checagem periódica (a cada 5 segundos só pra testar rápido)
 setInterval(() => {
     auth.checkExpiration();
