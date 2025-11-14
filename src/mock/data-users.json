@@ -1,0 +1,25 @@
+{
+    "users": [
+        {
+            "id": "u-0001",
+            "username": "admin@synvia.com.br",
+            "password": "admin",
+            "displayName": "Roberto Godoy",
+            "role": "admin",
+            "permissions": [
+                "*"
+            ]
+        },
+        {
+            "id": "u-0002",
+            "username": "analista@synvia.com.br",
+            "password": "analista",
+            "displayName": "Ana Paula",
+            "role": "analyst",
+            "permissions": [
+                "synvia-gig:read",
+                "synvia-gig:imports"
+            ]
+        }
+    ]
+}

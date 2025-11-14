@@ -1,5 +1,5 @@
 <script setup>
-    import synviaGigLogo from '@/assets/images/logos/synvia_gig_positivo.png';
+import synviaGigLogo from '@/assets/images/logos/synvia_gig_positivo.png';
 </script>
 
 <template>
@@ -8,7 +8,4 @@
             <img :src="synviaGigLogo" alt="Logo" class="w-60 mt-0" />
         </div>
     </div>
-    
-
 </template>
-
