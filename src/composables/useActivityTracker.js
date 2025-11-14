@@ -25,27 +25,14 @@ export function useActivityTracker() {
             // Renova token quando há atividade
             if (auth.isAuthenticated && auth.expiresAt) {
                 const now = Date.now();
-                const oldExpiresAt = auth.expiresAt;
                 // Usa o durationMinutes do login, não fixo
                 const newExpiresAt = now + auth.durationMinutes * 60 * 1000;
                 auth.expiresAt = newExpiresAt;
                 sessionStorage.setItem('auth_expires', String(newExpiresAt));
-
-                const timeExtended = (newExpiresAt - oldExpiresAt) / 1000; // em segundos
-                console.log('[ActivityTracker] ⏰ Atividade detectada:', {
-                    timestamp: new Date(now).toLocaleTimeString(),
-                    tokenRenovado: new Date(newExpiresAt).toLocaleTimeString(),
-                    extensaoSegundos: timeExtended,
-                    durationMinutos: auth.durationMinutes
-                });
-            } else {
-                console.log('[ActivityTracker] ⚠️ Não autenticado ou expiresAt não existe');
             }
 
             // Define novo timer de inatividade
             activityTimeout = setTimeout(() => {
-                const agora = new Date().toLocaleTimeString();
-                console.log('[ActivityTracker] ❌ Inativo por', inactivityDurationMs / 1000, 'segundos. Logout em:', agora);
                 auth.logout(true);
             }, inactivityDurationMs);
         }
@@ -65,12 +52,6 @@ export function useActivityTracker() {
         // Inicia o timer - NO PRIMEIRO CALL, JÁ RENOVA O TOKEN
         resetInactivityTimer();
 
-        console.log('[ActivityTracker] 🎯 Rastreamento iniciado:', {
-            inividadeMaximaSegundos: inactivityDurationMs / 1000,
-            usuario: auth.user?.name || 'Desconhecido',
-            tokenExpiresAt: new Date(auth.expiresAt).toLocaleTimeString()
-        });
-
         // Retorna função para parar o rastreamento
         return () => stopTracking();
     }
@@ -87,7 +68,6 @@ export function useActivityTracker() {
         if (activityTimeout) clearTimeout(activityTimeout);
 
         isTracking = false;
-        console.log('[ActivityTracker] 🛑 Rastreamento parado em', new Date().toLocaleTimeString());
     }
 
     return {

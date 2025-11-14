@@ -43,11 +43,6 @@ export const useAuthStore = defineStore('auth', {
             sessionStorage.setItem('auth_expires', String(expiresAt));
             sessionStorage.setItem('auth_duration', String(durationMinutes));
 
-            // Log com tempo de expiração
-            console.log('[Auth] Login realizado com sucesso');
-            console.log('[Auth] Token expira em:', new Date(expiresAt).toLocaleString());
-            console.log('[Auth] Tempo até expiração:', `${durationMinutes} minutos`);
-
             // Inicia heartbeat ao fazer login
             this.startHeartbeat();
         },
@@ -56,10 +51,6 @@ export const useAuthStore = defineStore('auth', {
          * Logout clássico + por expiração
          */
         logout(expired = false) {
-            const logoutType = expired ? '⏰ Expiração' : '🚪 Logout Manual';
-            const agora = new Date().toLocaleTimeString();
-            console.log(`[Auth] ${logoutType} em ${agora}`);
-
             this.isLoggedOut = true;
             this.stopHeartbeat();
             this.token = null;
@@ -98,11 +89,10 @@ export const useAuthStore = defineStore('auth', {
          * Renovação principal feita pelo ActivityTracker (atividade do usuário)
          * @param {number} intervalMs - intervalo em ms (padrão: 120000 = 2 minutos)
          */
-        startHeartbeat(intervalMs = 120000) {
+        startHeartbeat(intervalMs = 50000) {
             if (this.heartbeatEnabled) return;
 
             this.heartbeatEnabled = true;
-            console.log('[Heartbeat] ✅ Iniciado. Intervalo:', intervalMs / 1000, 'segundos');
 
             this.heartbeatInterval = setInterval(() => {
                 const now = Date.now();
@@ -112,13 +102,9 @@ export const useAuthStore = defineStore('auth', {
                 }
 
                 const timeRemaining = this.expiresAt - now;
-                const timeRemainingSeconds = Math.round(timeRemaining / 1000);
-
-                console.log('[Heartbeat] 💓 Check em', new Date(now).toLocaleTimeString(), '- Tempo restante:', timeRemainingSeconds, 'segundos');
 
                 // Apenas logout se token expirou (backup)
                 if (timeRemaining <= 0) {
-                    console.log('[Heartbeat] ❌ Token expirado! Fazendo logout...');
                     this.logout(true);
                 }
             }, intervalMs);
@@ -131,7 +117,6 @@ export const useAuthStore = defineStore('auth', {
             if (this.heartbeatInterval) {
                 clearInterval(this.heartbeatInterval);
                 this.heartbeatInterval = null;
-                console.log('[Heartbeat] ⏹️  Parado em', new Date().toLocaleTimeString());
             }
             this.heartbeatEnabled = false;
         },
@@ -144,7 +129,6 @@ export const useAuthStore = defineStore('auth', {
             try {
                 // Não renova se já fez logout
                 if (this.isLoggedOut || !this.token) {
-                    console.log('[Auth] 🚫 Renovação bloqueada: usuário deslogado');
                     return;
                 }
 
@@ -153,8 +137,6 @@ export const useAuthStore = defineStore('auth', {
 
                 this.expiresAt = newExpiresAt;
                 sessionStorage.setItem('auth_expires', String(newExpiresAt));
-
-                console.log('[Auth] 🔄 Token renovado. Novo tempo:', new Date(newExpiresAt).toLocaleTimeString());
             } catch (err) {
                 console.error('[Auth] ❌ Erro ao renovar token:', err);
                 this.logout(true);

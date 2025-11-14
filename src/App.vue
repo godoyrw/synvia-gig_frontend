@@ -13,21 +13,12 @@ onMounted(() => {
         // Inatividade máxima = exatamente o durationMinutes
         const inactivityDurationMs = auth.durationMinutes * 60 * 1000;
 
-        console.log('[App] 🚀 Montado. Iniciando rastreamento...', {
-            autenticado: auth.isAuthenticated,
-            usuario: auth.user?.name,
-            invidadeMinutos: auth.durationMinutes
-        });
-
         stopActivityTracker = startTracking(inactivityDurationMs);
-    } else {
-        console.log('[App] ⚠️ Não autenticado. ActivityTracker não iniciado.');
     }
 });
 
 onUnmounted(() => {
     // Para rastreamento ao desmontar
-    console.log('[App] 👋 Desmontando. Parando rastreamento...');
     if (stopActivityTracker) stopActivityTracker();
     else stopTracking();
 });
