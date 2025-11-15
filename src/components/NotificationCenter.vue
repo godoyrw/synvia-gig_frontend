@@ -7,7 +7,7 @@ const notificationStore = useNotificationStore();
 const notifications = computed(() => notificationStore.notifications);
 
 const getNotificationClasses = (notification) => {
-    const baseClasses = 'fixed right-4 top-4 max-w-sm rounded-lg shadow-xl p-4 backdrop-blur-sm animate-slidedown transition-all duration-300 flex items-start gap-3';
+    const baseClasses = 'fixed right-4 top-20 max-w-sm rounded-lg shadow-xl backdrop-blur-sm animate-slidedown transition-all duration-300 flex items-start gap-3 pl-16 pr-4 py-4 relative cursor-pointer hover:shadow-2xl';
 
     const typeClasses = {
         success: 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800',
@@ -21,17 +21,41 @@ const getNotificationClasses = (notification) => {
     return `${baseClasses} ${typeClasses[notification.type]} ${closingClass}`;
 };
 
-const getIconClasses = (notification) => {
-    const baseClasses = 'flex-shrink-0 text-lg mt-0.5';
-
-    const typeClasses = {
-        success: 'text-green-600 dark:text-green-400',
-        error: 'text-red-600 dark:text-red-400',
-        warning: 'text-yellow-600 dark:text-yellow-400',
-        info: 'text-blue-600 dark:text-blue-400'
+const getIconBackgroundStyle = (type) => {
+    const iconSymbols = {
+        success: '✓',
+        error: '✕',
+        warning: '!',
+        info: 'ⓘ'
     };
 
-    return `${baseClasses} ${typeClasses[notification.type]}`;
+    const colors = {
+        success: 'rgb(22, 163, 74)',
+        error: 'rgb(220, 38, 38)',
+        warning: 'rgb(202, 138, 4)',
+        info: 'rgb(37, 99, 235)'
+    };
+
+    const fontSize = {
+        success: '18',
+        error: '20',
+        warning: '16',
+        info: '18'
+    };
+
+    return {
+        backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(colors[type])}"><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="${fontSize[type]}" font-family="system-ui" font-weight="bold">${iconSymbols[type]}</text></svg>')`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        width: '34px',
+        height: '34px',
+        flexShrink: 0,
+        position: 'absolute',
+        left: '12px',
+        top: '50%',
+        transform: 'translateY(-50%)'
+    };
 };
 
 const getTitleClasses = (notification) => {
@@ -48,7 +72,7 @@ const getTitleClasses = (notification) => {
 };
 
 const getMessageClasses = (notification) => {
-    const baseClasses = 'text-xs mt-1';
+    const baseClasses = 'text-xs';
 
     const typeClasses = {
         success: 'text-green-700 dark:text-green-300',
@@ -60,54 +84,37 @@ const getMessageClasses = (notification) => {
     return `${baseClasses} ${typeClasses[notification.type]}`;
 };
 
-const getCloseButtonClasses = (notification) => {
-    const baseClasses = 'flex-shrink-0 text-lg cursor-pointer transition-opacity hover:opacity-70';
-
-    const typeClasses = {
-        success: 'text-green-400 dark:text-green-600',
-        error: 'text-red-400 dark:text-red-600',
-        warning: 'text-yellow-400 dark:text-yellow-600',
-        info: 'text-blue-400 dark:text-blue-600'
-    };
-
-    return `${baseClasses} ${typeClasses[notification.type]}`;
-};
-
 const handleClose = (id) => {
     notificationStore.remove(id);
 };
 </script>
 
 <template>
-    <div class="fixed top-4 right-4 z-50 pointer-events-none">
-        <TransitionGroup name="list" tag="div">
-            <div v-for="notification in notifications" :key="notification.id" :class="getNotificationClasses(notification)" class="pointer-events-auto">
-                <!-- Ícone -->
-                <div :class="getIconClasses(notification)" v-if="notification.icon">
-                    <i :class="`pi ${notification.icon}`"></i>
-                </div>
-
-                <!-- Conteúdo -->
-                <div class="flex-1">
-                    <p v-if="notification.title" :class="getTitleClasses(notification)">
-                        {{ notification.title }}
-                    </p>
-                    <p v-if="notification.message" :class="getMessageClasses(notification)">
-                        {{ notification.message }}
-                    </p>
-                </div>
-
-                <!-- Botão de fechar -->
-                <button
+    <div class="fixed top-0 right-0 z-[9999] pointer-events-none w-full px-4 pt-4">
+        <div class="flex justify-end">
+            <TransitionGroup name="list" tag="div" class="flex flex-col gap-3">
+                <div 
+                    v-for="notification in notifications" 
+                    :key="notification.id" 
+                    :class="getNotificationClasses(notification)" 
+                    class="pointer-events-auto w-full max-w-sm"
                     @click="handleClose(notification.id)"
-                    :class="getCloseButtonClasses(notification)"
-                    class="flex-shrink-0 mt-0.5"
-                    aria-label="Fechar notificação"
                 >
-                    <i class="pi pi-times"></i>
-                </button>
-            </div>
-        </TransitionGroup>
+                    <!-- Ícone como background -->
+                    <div :style="getIconBackgroundStyle(notification.type)"></div>
+
+                    <!-- Conteúdo -->
+                    <div class="flex-1">
+                        <p v-if="notification.title" :class="getTitleClasses(notification)">
+                            {{ notification.title }}
+                        </p>
+                        <p v-if="notification.message" :class="getMessageClasses(notification)">
+                            {{ notification.message }}
+                        </p>
+                    </div>
+                </div>
+            </TransitionGroup>
+        </div>
     </div>
 </template>
 

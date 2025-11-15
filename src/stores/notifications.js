@@ -1,3 +1,4 @@
+import { NOTIFICATION_DURATION } from '@/config/constants';
 import { defineStore } from 'pinia';
 
 /**
@@ -73,7 +74,7 @@ export const useNotificationStore = defineStore('notifications', {
                 const notification = this.notifications[index];
                 notification.isClosing = true;
 
-                // Delay para animação de saída
+                // Remover imediatamente ao clicar (sem delay extra)
                 setTimeout(() => {
                     const currentIndex = this.notifications.findIndex((n) => n.id === id);
                     if (currentIndex > -1) {
@@ -82,7 +83,7 @@ export const useNotificationStore = defineStore('notifications', {
                             removed.onClose();
                         }
                     }
-                }, 300);
+                }, 100); // Apenas 100ms para animação de saída
             }
         },
 
@@ -104,7 +105,7 @@ export const useNotificationStore = defineStore('notifications', {
                 type: 'success',
                 title,
                 message,
-                duration: 4000,
+                duration: NOTIFICATION_DURATION.SUCCESS,
                 icon: 'pi-check-circle',
                 ...options
             });
@@ -118,7 +119,7 @@ export const useNotificationStore = defineStore('notifications', {
                 type: 'error',
                 title,
                 message,
-                duration: 6000,
+                duration: NOTIFICATION_DURATION.ERROR,
                 icon: 'pi-exclamation-circle',
                 ...options
             });
@@ -132,7 +133,7 @@ export const useNotificationStore = defineStore('notifications', {
                 type: 'warning',
                 title,
                 message,
-                duration: 5000,
+                duration: NOTIFICATION_DURATION.WARNING,
                 icon: 'pi-exclamation-triangle',
                 ...options
             });
@@ -146,7 +147,7 @@ export const useNotificationStore = defineStore('notifications', {
                 type: 'info',
                 title,
                 message,
-                duration: 4000,
+                duration: NOTIFICATION_DURATION.INFO,
                 icon: 'pi-info-circle',
                 ...options
             });

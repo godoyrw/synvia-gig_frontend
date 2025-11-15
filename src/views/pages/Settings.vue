@@ -19,12 +19,19 @@ const privacySettings = ref({
 
 const handleSaveNotifications = () => {
     // TODO: Chamar API para salvar notificações
+    notify.info('Preferências ativadas', 'Suas preferências de notificações foram ativadas com sucesso.');
     notify.success('Preferências salvas', 'Suas preferências de notificações foram atualizadas com sucesso.');
+    notify.error('Privacidade não atualizada', 'Erro em salvar suas configurações de privacidade.');
+    notify.warning('Ação Irreversível', 'Você está prestes a deletar sua conta permanentemente. Esta ação não pode ser desfeita.');
 };
 
 const handleSavePrivacy = () => {
     // TODO: Chamar API para salvar privacidade
-    notify.success('Privacidade atualizada', 'Suas configurações de privacidade foram salvas.');
+    notify.error('Privacidade não atualizada', 'Erro em salvar suas configurações de privacidade.');
+};
+
+const handleDeleteAccount = () => {
+    notify.warning('Ação Irreversível', 'Você está prestes a deletar sua conta permanentemente. Esta ação não pode ser desfeita.');
 };
 </script>
 
@@ -141,7 +148,7 @@ const handleSavePrivacy = () => {
 
                 <p class="text-sm text-red-600 dark:text-red-300 mb-4">As ações nesta seção são irreversíveis. Proceda com cuidado.</p>
 
-                <button type="button" class="px-4 py-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center gap-2">
+                <button type="button" @click="handleDeleteAccount" class="px-4 py-2 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-colors cursor-pointer flex items-center gap-2">
                     <i class="pi pi-trash text-sm"></i>
                     <span>Deletar Conta</span>
                 </button>
