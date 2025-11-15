@@ -1,4 +1,5 @@
 <script setup>
+import NotificationCenter from '@/components/NotificationCenter.vue';
 import { useActivityTracker } from '@/composables';
 import { useLayout } from '@/layout/composables/layout';
 import { useAuthStore } from '@/stores/auth';
@@ -18,19 +19,12 @@ onMounted(() => {
     // Inicia rastreamento de atividade (AppLayout só monta se autenticado)
     if (auth.isAuthenticated && auth.expiresAt) {
         const inactivityDurationMs = auth.durationMinutes * 60 * 1000;
-
-        console.log('[AppLayout] 🚀 Montado. Iniciando ActivityTracker...', {
-            usuario: auth.user?.displayName,
-            invidadeMinutos: auth.durationMinutes
-        });
-
         stopActivityTracker = startTracking(inactivityDurationMs);
     }
 });
 
 onUnmounted(() => {
     // Para rastreamento ao desmontar
-    console.log('[AppLayout] 👋 Desmontando. Parando ActivityTracker...');
     if (stopActivityTracker) stopActivityTracker();
     else stopTracking();
 });
@@ -93,5 +87,6 @@ function isOutsideClicked(event) {
         </div>
         <div class="layout-mask animate-fadein"></div>
     </div>
+    <NotificationCenter />
     <Toast />
 </template>

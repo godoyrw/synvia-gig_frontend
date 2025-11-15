@@ -15,6 +15,7 @@ import ToastService from 'primevue/toastservice';
 
 import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
+import 'primeicons/primeicons.css';
 
 // Força dark-mode baseado no seletor configurado no PrimeVue
 document.documentElement.classList.add('app-dark');
