@@ -5,6 +5,8 @@ import { ref } from 'vue';
 const auth = useAuthStore();
 const showMenu = ref(false);
 
+console.log('[AppUserMenu] User data:', auth.user);
+
 const handleLogout = () => {
     auth.logout(false);
     showMenu.value = false;
@@ -22,13 +24,16 @@ const handleLogout = () => {
         <Transition enter-active-class="animate-scalein" leave-active-class="animate-fadeout" @click-outside="showMenu = false">
             <div v-if="showMenu" class="absolute right-0 mt-2 w-48 bg-surface-0 dark:bg-surface-900 rounded-lg shadow-lg z-50 border border-surface-200 dark:border-surface-800">
                 <!-- Informações do Usuário -->
-                <div class="px-4 py-3 border-b border-surface-200 dark:border-surface-800">
-                    <p class="text-sm font-semibold text-surface-900 dark:text-surface-0">
-                        {{ auth.user?.displayName || 'Usuário' }}
-                    </p>
-                    <p class="text-xs text-surface-500 dark:text-surface-400">
-                        {{ auth.user?.role || 'N/A' }}
-                    </p>
+                <div class="px-4 py-4 border-b border-surface-200 dark:border-surface-800 flex flex-col items-center gap-3 text-center">
+                    <img v-if="auth.user?.avatar" :src="auth.user.avatar" :alt="auth.user?.displayName" class="w-14 h-14 rounded-full object-cover border-2 border-primary-500" />
+                    <div class="w-full">
+                        <p class="text-sm font-semibold text-surface-900 dark:text-surface-0">
+                            {{ auth.user?.displayName || 'Usuário' }}
+                        </p>
+                        <p class="text-xs text-surface-500 dark:text-surface-400 capitalize">
+                            {{ auth.user?.role || 'N/A' }}
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Opções do Menu -->
