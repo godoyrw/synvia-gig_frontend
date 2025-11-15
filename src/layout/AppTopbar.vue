@@ -3,6 +3,8 @@ import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
+import AppUserMenu from './AppUserMenu.vue';
+
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
 
@@ -50,10 +52,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
-                    </button>
+                    <AppUserMenu />
                 </div>
             </div>
         </div>
