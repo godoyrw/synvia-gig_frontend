@@ -25,14 +25,23 @@ export function useActivityTracker() {
             // Renova token quando há atividade
             if (auth.isAuthenticated && auth.expiresAt) {
                 const now = Date.now();
+                const oldExpires = auth.expiresAt;
                 // Usa o durationMinutes do login, não fixo
                 const newExpiresAt = now + auth.durationMinutes * 60 * 1000;
                 auth.expiresAt = newExpiresAt;
                 sessionStorage.setItem('auth_expires', String(newExpiresAt));
+
+                const extensao = (newExpiresAt - oldExpires) / 1000;
+                console.log('[ActivityTracker] ⏰ Atividade detectada:', {
+                    hora: new Date(now).toLocaleTimeString(),
+                    novoExpira: new Date(newExpiresAt).toLocaleTimeString(),
+                    extensaoSegundos: extensao
+                });
             }
 
             // Define novo timer de inatividade
             activityTimeout = setTimeout(() => {
+                console.log('[ActivityTracker] ❌ Inatividade por', inactivityDurationMs / 1000, 'segundos');
                 auth.logout(true);
             }, inactivityDurationMs);
         }
@@ -52,6 +61,13 @@ export function useActivityTracker() {
         // Inicia o timer - NO PRIMEIRO CALL, JÁ RENOVA O TOKEN
         resetInactivityTimer();
 
+        console.log('[ActivityTracker] 🎯 Rastreamento iniciado:', {
+            invidadeMaximaSegundos: inactivityDurationMs / 1000,
+            usuario: auth.user?.displayName,
+            role: auth.user?.role,
+            tokenExpira: new Date(auth.expiresAt).toLocaleTimeString()
+        });
+
         // Retorna função para parar o rastreamento
         return () => stopTracking();
     }
@@ -68,6 +84,7 @@ export function useActivityTracker() {
         if (activityTimeout) clearTimeout(activityTimeout);
 
         isTracking = false;
+        console.log('[ActivityTracker] 🛑 Rastreamento parado em', new Date().toLocaleTimeString());
     }
 
     return {

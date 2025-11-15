@@ -5,13 +5,13 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 
+import { EXPIRATION_CHECK_INTERVAL_MS } from '@/config/constants';
 import { useAuthStore } from '@/stores/auth';
 import { $t } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
-import { EXPIRATION_CHECK_INTERVAL_MS } from '@/config/constants';
 
 import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
