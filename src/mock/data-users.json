@@ -6,6 +6,7 @@
             "password": "R0b19G0d81",
             "displayName": "Roberto Godoy",
             "role": "admin",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
             "permissions": [
                 "*"
             ]
@@ -16,6 +17,7 @@
             "password": "dev1234",
             "displayName": "Desenvolvimento Synvia",
             "role": "analyst",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/ionibowcher.png",
             "permissions": [
                 "*"
             ]
@@ -26,6 +28,7 @@
             "password": "analista",
             "displayName": "Ana Paula",
             "role": "analyst",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png",
             "permissions": [
                 "synvia-gig:read",
                 "synvia-gig:imports"

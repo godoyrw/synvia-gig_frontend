@@ -1,4 +1,5 @@
 // src/stores/auth.js
+import { HEARTBEAT_INTERVAL_MS, SESSION_DURATION_MINUTES } from '@/config/constants';
 import router from '@/router';
 import { login as mockLogin } from '@/services/auth';
 import { defineStore } from 'pinia';
@@ -8,7 +9,7 @@ export const useAuthStore = defineStore('auth', {
         token: sessionStorage.getItem('auth_token') || null,
         user: JSON.parse(sessionStorage.getItem('auth_user') || 'null'),
         expiresAt: Number(sessionStorage.getItem('auth_expires')) || null,
-        durationMinutes: Number(sessionStorage.getItem('auth_duration')) || 2,
+        durationMinutes: Number(sessionStorage.getItem('auth_duration')) || SESSION_DURATION_MINUTES,
         heartbeatInterval: null,
         heartbeatEnabled: false,
         isLoggedOut: false
@@ -23,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
         /**
          * Login usando o mock
          */
-        async loginWithCredentials(username, password, durationMinutes = 2) {
+        async loginWithCredentials(username, password, durationMinutes = SESSION_DURATION_MINUTES) {
             const result = await mockLogin(username, password);
 
             if (!result.ok) {
@@ -56,7 +57,7 @@ export const useAuthStore = defineStore('auth', {
             this.token = null;
             this.user = null;
             this.expiresAt = null;
-            this.durationMinutes = 2;
+            this.durationMinutes = SESSION_DURATION_MINUTES;
 
             sessionStorage.removeItem('auth_token');
             sessionStorage.removeItem('auth_user');
@@ -87,9 +88,9 @@ export const useAuthStore = defineStore('auth', {
         /**
          * Inicia heartbeat: monitora sessão como backup
          * Renovação principal feita pelo ActivityTracker (atividade do usuário)
-         * @param {number} intervalMs - intervalo em ms (padrão: 120000 = 2 minutos)
+         * @param {number} intervalMs - intervalo em ms (padrão: HEARTBEAT_INTERVAL_MS)
          */
-        startHeartbeat(intervalMs = 50000) {
+        startHeartbeat(intervalMs = HEARTBEAT_INTERVAL_MS) {
             if (this.heartbeatEnabled) return;
 
             this.heartbeatEnabled = true;
@@ -102,6 +103,7 @@ export const useAuthStore = defineStore('auth', {
                 }
 
                 const timeRemaining = this.expiresAt - now;
+                const segundos = Math.round(timeRemaining / 1000);
 
                 // Apenas logout se token expirou (backup)
                 if (timeRemaining <= 0) {

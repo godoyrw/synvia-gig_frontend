@@ -18,6 +18,16 @@ const router = createRouter({
                     path: '/synvia-gig',
                     name: 'synvia-gig',
                     component: () => import('@/views/SynviaGig.vue')
+                },
+                {
+                    path: '/profile',
+                    name: 'profile',
+                    component: () => import('@/views/pages/Profile.vue')
+                },
+                {
+                    path: '/settings',
+                    name: 'settings',
+                    component: () => import('@/views/pages/Settings.vue')
                 }
             ]
         },
@@ -40,6 +50,11 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'notFound',
+            component: () => import('@/views/pages/NotFound.vue')
         }
     ]
 });

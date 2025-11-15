@@ -5,6 +5,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 
+import { EXPIRATION_CHECK_INTERVAL_MS } from '@/config/constants';
 import { useAuthStore } from '@/stores/auth';
 import { $t } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
@@ -14,6 +15,7 @@ import ToastService from 'primevue/toastservice';
 
 import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
+import 'primeicons/primeicons.css';
 
 // Força dark-mode baseado no seletor configurado no PrimeVue
 document.documentElement.classList.add('app-dark');
@@ -29,13 +31,13 @@ const auth = useAuthStore();
 
 // Inicia heartbeat se usuário já está autenticado (ex.: page refresh com token válido)
 if (auth.isAuthenticated) {
-    auth.startHeartbeat(10000, 0.3); // verifica a cada 10 segundos, renova a 30% do tempo restante
+    auth.startHeartbeat();
 }
 
-// checagem periódica (a cada 5 segundos só pra testar rápido)
+// checagem periódica de expiração
 setInterval(() => {
     auth.checkExpiration();
-}, 5000);
+}, EXPIRATION_CHECK_INTERVAL_MS);
 
 app.use(router);
 app.use(PrimeVue, {
