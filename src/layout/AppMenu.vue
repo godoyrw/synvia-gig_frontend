@@ -11,6 +11,11 @@ const model = ref([
                 label: 'SYNVIA - GIG',
                 icon: 'pi pi-fw pi-home',
                 to: '/synvia-gig'
+            },
+            {
+                label: 'Documentação',
+                icon: 'pi pi-fw pi-book',
+                to: '/documentation'
             }
         ]
     }
