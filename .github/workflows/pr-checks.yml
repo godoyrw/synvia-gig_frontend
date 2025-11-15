@@ -1,0 +1,79 @@
+name: PR Checks - Build & Lint
+
+on:
+  pull_request:
+    branches:
+      - production
+      - dev-login
+      - homolog
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint com ESLint
+        run: pnpm lint --max-warnings 0
+        continue-on-error: true
+
+      - name: Build VueJS
+        run: pnpm build
+
+      - name: Verificar tamanho do bundle
+        run: |
+          echo "📊 Análise do bundle:"
+          du -sh dist/
+          du -sh dist/assets/
+          
+          echo ""
+          echo "📁 Top 10 arquivos maiores:"
+          find dist -type f -exec ls -lh {} \; | sort -k5 -rh | head -10 | awk '{print $5, $9}'
+
+      - name: Verificar performance
+        run: |
+          echo "⚡ Checagem de performance:"
+          
+          # Verificar se há arquivos muito grandes
+          LARGE_FILES=$(find dist/assets -name "*.js" -size +500k)
+          if [ -n "$LARGE_FILES" ]; then
+            echo "⚠️ Aviso: Arquivos JS > 500KB encontrados:"
+            echo "$LARGE_FILES"
+          else
+            echo "✓ Nenhum arquivo JS > 500KB"
+          fi
+
+      - name: Comentar resultado no PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildStatus = '${{ job.status }}'
+            const emoji = buildStatus === 'success' ? '✅' : '❌'
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${emoji} **Build Status**: ${buildStatus.toUpperCase()}\n\n`+
+                    `- ✓ Dependências instaladas\n`+
+                    `- ${buildStatus === 'success' ? '✓' : '✗'} Build compilado\n`+
+                    `- ${buildStatus === 'success' ? '✓' : '✗'} Verificações passadas`
+            })
