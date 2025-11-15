@@ -3,7 +3,7 @@
         {
             "id": "u-0001",
             "username": "admin@synvia.com.br",
-            "password": "admin",
+            "password": "R0b19G0d81",
             "displayName": "Roberto Godoy",
             "role": "admin",
             "permissions": [
@@ -12,6 +12,16 @@
         },
         {
             "id": "u-0002",
+            "username": "dev@synvia.com.br",
+            "password": "dev1234",
+            "displayName": "Desenvolvimento Synvia",
+            "role": "analyst",
+            "permissions": [
+                "*"
+            ]
+        },
+        {
+            "id": "u-0003",
             "username": "analista@synvia.com.br",
             "password": "analista",
             "displayName": "Ana Paula",
