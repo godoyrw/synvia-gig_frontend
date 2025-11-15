@@ -1,14 +1,24 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const auth = useAuthStore();
+const router = useRouter();
 const showMenu = ref(false);
-
-console.log('[AppUserMenu] User data:', auth.user);
 
 const handleLogout = () => {
     auth.logout(false);
+    showMenu.value = false;
+};
+
+const goToProfile = () => {
+    router.push('/profile');
+    showMenu.value = false;
+};
+
+const goToSettings = () => {
+    router.push('/settings');
     showMenu.value = false;
 };
 </script>
@@ -16,7 +26,7 @@ const handleLogout = () => {
 <template>
     <div class="relative">
         <!-- Ícone de Usuário -->
-        <button type="button" class="layout-topbar-action" @click="showMenu = !showMenu" :aria-expanded="showMenu">
+        <button type="button" class="layout-topbar-action cursor-pointer" @click="showMenu = !showMenu" :aria-expanded="showMenu">
             <i class="pi pi-user"></i>
         </button>
 
@@ -38,12 +48,12 @@ const handleLogout = () => {
 
                 <!-- Opções do Menu -->
                 <div class="py-2">
-                    <button type="button" class="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors flex items-center gap-2">
+                    <button type="button" @click="goToProfile" class="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer flex items-center gap-2">
                         <i class="pi pi-user text-sm"></i>
                         <span>Perfil</span>
                     </button>
 
-                    <button type="button" class="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors flex items-center gap-2">
+                    <button type="button" @click="goToSettings" class="w-full px-4 py-2 text-left text-sm text-surface-700 dark:text-surface-200 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer flex items-center gap-2">
                         <i class="pi pi-cog text-sm"></i>
                         <span>Configurações</span>
                     </button>
@@ -54,7 +64,7 @@ const handleLogout = () => {
 
                 <!-- Logout -->
                 <div class="py-2">
-                    <button type="button" class="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors flex items-center gap-2" @click="handleLogout">
+                    <button type="button" class="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors cursor-pointer flex items-center gap-2" @click="handleLogout">
                         <i class="pi pi-sign-out text-sm"></i>
                         <span>Sair</span>
                     </button>
