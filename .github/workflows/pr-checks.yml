@@ -64,21 +64,3 @@ jobs:
           else
             echo "✓ Nenhum arquivo JS > 500KB"
           fi
-
-      - name: Comentar resultado no PR
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const buildStatus = '${{ job.status }}'
-            const emoji = buildStatus === 'success' ? '✅' : '❌'
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `${emoji} **Build Status**: ${buildStatus.toUpperCase()}\n\n`+
-                    `- ✓ Dependências instaladas\n`+
-                    `- ${buildStatus === 'success' ? '✓' : '✗'} Build compilado\n`+
-                    `- ${buildStatus === 'success' ? '✓' : '✗'} Verificações passadas`
-            })
