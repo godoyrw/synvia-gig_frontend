@@ -1,7 +1,7 @@
 <script setup>
+import ToggleSwitch from '@/components/ToggleSwitch.vue';
 import { useLayout } from '@/layout/composables/layout';
 import { ref } from 'vue';
-import ToggleSwitch from '@/components/ToggleSwitch.vue';
 
 const { layoutConfig, toggleDarkMode } = useLayout();
 
