@@ -1,9 +1,11 @@
 <script setup>
 import ToggleSwitch from '@/components/ToggleSwitch.vue';
+import { useNotifications } from '@/composables';
 import { useLayout } from '@/layout/composables/layout';
 import { ref } from 'vue';
 
 const { layoutConfig, toggleDarkMode } = useLayout();
+const notify = useNotifications();
 
 const notificationSettings = ref({
     emailNotifications: true,
@@ -17,10 +19,12 @@ const privacySettings = ref({
 
 const handleSaveNotifications = () => {
     // TODO: Chamar API para salvar notificações
+    notify.success('Preferências salvas', 'Suas preferências de notificações foram atualizadas com sucesso.');
 };
 
 const handleSavePrivacy = () => {
     // TODO: Chamar API para salvar privacidade
+    notify.success('Privacidade atualizada', 'Suas configurações de privacidade foram salvas.');
 };
 </script>
 
