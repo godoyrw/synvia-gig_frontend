@@ -13,7 +13,7 @@ const model = ref([
                 to: '/synvia-gig'
             },
             {
-                label: 'Documentação',
+                label: 'Documentação | Front-end',
                 icon: 'pi pi-fw pi-book',
                 to: '/documentation'
             }

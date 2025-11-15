@@ -2,16 +2,34 @@
     <div class="documentation-container">
         <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-4xl font-bold mb-2 dark:text-surface-0">📋 Implementações Realizadas</h1>
-            <p class="text-surface-600 dark:text-surface-400">Histórico completo de features e desenvolvimento</p>
+            <h1 class="text-4xl font-bold mb-2 dark:text-surface-0">📋 Documentação</h1>
+            <p class="text-surface-600 dark:text-surface-400">Guias, protocolos e referências técnicas</p>
         </div>
 
-        <!-- Search/Filter -->
+        <!-- Tabs/Navigation -->
+        <div class="mb-6 flex gap-2 flex-wrap border-b border-surface-200 dark:border-surface-700">
+            <button
+                v-for="doc in docs"
+                :key="doc.id"
+                @click="currentDoc = doc.id"
+                :class="[
+                    'px-4 py-2 font-semibold transition-colors',
+                    currentDoc === doc.id
+                        ? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
+                        : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'
+                ]"
+            >
+                {{ doc.icon }} {{ doc.name }}
+            </button>
+        </div>
+
+        <!-- Search -->
         <div class="mb-6">
-            <InputText 
-                v-model="searchQuery" 
+            <input
+                v-model="searchQuery"
+                type="text"
                 placeholder="Buscar na documentação..."
-                class="w-full"
+                class="w-full px-4 py-2 border rounded-lg bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0"
             />
         </div>
 
@@ -30,63 +48,101 @@
 </template>
 
 <script setup>
-import InputText from 'primevue/inputtext';
-import { computed, onMounted, ref } from 'vue';
-import markdownContent from '../../assets/docs/LOGS_IMPLEMENTADOS.md?raw';
+import deploymentContent from '@/assets/docs/DEPLOYMENT_SETUP.md?raw';
+import dialogContent from '@/assets/docs/DIALOG_SYSTEM.md?raw';
+import logsContent from '@/assets/docs/LOGS_IMPLEMENTADOS.md?raw';
+import notificationContent from '@/assets/docs/NOTIFICATION_SYSTEM.md?raw';
+import sessionContent from '@/assets/docs/SYNVIA_SESSION_MANAGEMENT_REPORT.md?raw';
+import { computed, ref } from 'vue';
 
+const docs = [
+    { id: 'logs', name: 'Implementações', icon: '📋' },
+    { id: 'dialog', name: 'Dialogs', icon: '🗨️' },
+    { id: 'notification', name: 'Notificações', icon: '🔔' },
+    { id: 'deployment', name: 'Deploy', icon: '🚀' },
+    { id: 'session', name: 'Sessão', icon: '👤' }
+];
+
+const currentDoc = ref('logs');
 const searchQuery = ref('');
 
+const markdownContents = {
+    logs: logsContent,
+    dialog: dialogContent,
+    notification: notificationContent,
+    deployment: deploymentContent,
+    session: sessionContent
+};
+
+// Renderizar markdown em HTML
+const renderMarkdown = (markdown) => {
+    if (!markdown) return '';
+
+    let html = markdown
+        // Headings
+        .replace(/^# (.*?)$/gm, '<h1 class="text-4xl font-bold my-4 mt-6 text-primary-600 dark:text-primary-400">$1</h1>')
+        .replace(/^## (.*?)$/gm, '<h2 class="text-3xl font-bold my-3 mt-5 text-primary-700 dark:text-primary-300">$1</h2>')
+        .replace(/^### (.*?)$/gm, '<h3 class="text-2xl font-bold my-2 mt-4 text-surface-800 dark:text-surface-200">$1</h3>')
+        .replace(/^#### (.*?)$/gm, '<h4 class="text-xl font-semibold my-2 mt-3 text-surface-700 dark:text-surface-300">$1</h4>')
+        
+        // Code blocks
+        .replace(/```([\s\S]*?)```/g, (match, code) => {
+            return `<pre class="bg-surface-800 dark:bg-surface-950 p-4 rounded my-2 overflow-x-auto"><code class="text-surface-100 font-mono text-sm">${escapeHtml(code.trim())}</code></pre>`;
+        })
+        
+        // Inline code
+        .replace(/`([^`]+)`/g, '<code class="bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded font-mono text-sm text-primary-600 dark:text-primary-400">$1</code>')
+        
+        // Bold
+        .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-surface-900 dark:text-surface-100">$1</strong>')
+        
+        // Italic
+        .replace(/\*([^*]+)\*/g, '<em class="italic text-surface-700 dark:text-surface-300">$1</em>')
+        
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300">$1</a>')
+        
+        // Horizontal lines
+        .replace(/^---$/gm, '<hr class="my-3 border-surface-300 dark:border-surface-600" />')
+        
+        // Lists
+        .replace(/^\- (.*?)$/gm, '<li class="ml-6 my-1">$1</li>')
+        .replace(/^\d+\. (.*?)$/gm, '<li class="ml-6 my-1">$1</li>')
+        
+        // Paragraphs - Replace double newlines with <br>
+        .replace(/\n\n+/g, '<br><br>')
+        .replace(/^([^<].*?)$/gm, (match) => {
+            if (!match.match(/^<|^\|/) && match.trim()) {
+                return `<p class="my-4">${match}</p>`;
+            }
+            return match;
+        });
+
+    return html;
+};
+
+const escapeHtml = (text) => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+};
+
 const renderedMarkdown = computed(() => {
-    let html = markdownContent;
+    const markdown = markdownContents[currentDoc.value] || '';
+    let html = renderMarkdown(markdown);
 
-    // Converter heading 1
-    html = html.replace(/^# (.*?)$/gm, '<h1 class="text-3xl font-bold my-4 text-primary-600 dark:text-primary-400">$1</h1>');
-
-    // Converter heading 2
-    html = html.replace(/^## (.*?)$/gm, '<h2 class="text-2xl font-bold my-3 text-primary-700 dark:text-primary-300 mt-6">$2</h2>');
-
-    // Converter heading 3
-    html = html.replace(/^### (.*?)$/gm, '<h3 class="text-xl font-bold my-2 text-surface-800 dark:text-surface-200">$3</h3>');
-
-    // Converter heading 4
-    html = html.replace(/^#### (.*?)$/gm, '<h4 class="text-lg font-semibold my-2 text-surface-700 dark:text-surface-300">$4</h4>');
-
-    // Converter listas numeradas
-    html = html.replace(/^\d+\. (.*?)$/gm, '<li class="ml-6 my-1">$1</li>');
-
-    // Converter bold
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-surface-900 dark:text-surface-100">$1</strong>');
-
-    // Converter italic
-    html = html.replace(/\*(.*?)\*/g, '<em class="italic text-surface-700 dark:text-surface-300">$1</em>');
-
-    // Converter código inline
-    html = html.replace(/`(.*?)`/g, '<code class="bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded font-mono text-sm text-primary-600 dark:text-primary-400">$1</code>');
-
-    // Converter blocos de código
-    html = html.replace(/```(.*?)```/gs, '<pre class="bg-surface-800 dark:bg-surface-950 p-4 rounded my-4 overflow-x-auto"><code class="text-surface-100 font-mono text-sm">$1</code></pre>');
-
-    // Converter links
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300">$1</a>');
-
-    // Converter linhas horizontais
-    html = html.replace(/^---$/gm, '<hr class="my-6 border-surface-300 dark:border-surface-600" />');
-
-    // Filtro de busca
+    // Aplicar filtro de busca
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase();
-        const lines = html.split('<br>');
+        const lines = html.split('\n');
         const filtered = lines.filter(line => line.toLowerCase().includes(query));
-        html = filtered.join('<br>');
+        html = filtered.join('\n');
     }
 
     return html;
 });
-
-onMounted(() => {
-    console.log('[Documentation] 📖 Página de documentação carregada');
-});
 </script>
+
 
 <style scoped lang="scss">
 .documentation-container {
@@ -99,57 +155,127 @@ onMounted(() => {
 
 .markdown-content {
     font-size: 1rem;
-    line-height: 1.6;
+    line-height: 1.8;
+    word-break: break-word;
 
-    ::v-deep {
-        h1, h2, h3, h4 {
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
+    :deep(h1), :deep(h2), :deep(h3), :deep(h4) {
+        font-weight: 700;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
 
-        p {
-            margin-bottom: 1rem;
-        }
+    :deep(h1) {
+        font-size: 2.25rem;
+    }
 
-        li {
-            margin-left: 1.5rem;
-            margin-bottom: 0.5rem;
+    :deep(h2) {
+        font-size: 1.875rem;
+        border-bottom: 2px solid var(--surface-200);
+        padding-bottom: 0.5rem;
+
+        @media (prefers-color-scheme: dark) {
+            border-color: var(--surface-700);
         }
+    }
+
+    :deep(h3) {
+        font-size: 1.5rem;
+    }
+
+    :deep(h4) {
+        font-size: 1.25rem;
+    }
+
+    :deep(p) {
+        margin-bottom: 1rem;
+        line-height: 1.8;
+    }
+
+    :deep(li) {
+        margin-left: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    :deep(ul), :deep(ol) {
+        margin: 1rem 0;
+    }
+
+    :deep(code) {
+        font-family: 'Fira Code', 'Monaco', 'Courier New', monospace;
+        word-break: break-word;
+    }
+
+    :deep(pre) {
+        overflow-x: auto;
+        max-width: 100%;
+        margin: 1.5rem 0;
 
         code {
-            font-family: 'Monaco', 'Courier New', monospace;
+            display: block;
+            padding: 1rem;
         }
+    }
 
-        pre {
-            overflow-x: auto;
-            max-width: 100%;
+    :deep(a) {
+        text-decoration: underline;
+        font-weight: 500;
+        transition: color 0.2s;
+
+        &:hover {
+            opacity: 0.8;
         }
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
+    :deep(hr) {
+        margin: 2rem 0;
+    }
 
-            th, td {
-                padding: 0.75rem;
-                border: 1px solid var(--surface-300);
-                text-align: left;
-            }
+    :deep(table) {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
 
-            thead {
-                background-color: var(--primary-100);
-            }
+        th {
+            background-color: var(--primary-100);
+            font-weight: 600;
 
             @media (prefers-color-scheme: dark) {
-                th, td {
-                    border-color: var(--surface-700);
-                }
-
-                thead {
-                    background-color: var(--surface-800);
-                }
+                background-color: var(--surface-800);
             }
         }
+
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid var(--surface-300);
+            text-align: left;
+
+            @media (prefers-color-scheme: dark) {
+                border-color: var(--surface-700);
+            }
+        }
+
+        tr:hover {
+            background-color: var(--surface-50);
+
+            @media (prefers-color-scheme: dark) {
+                background-color: var(--surface-800);
+            }
+        }
+    }
+
+    :deep(blockquote) {
+        border-left: 4px solid var(--primary-500);
+        padding-left: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+    }
+
+    :deep(strong) {
+        font-weight: 700;
+    }
+
+    :deep(em) {
+        font-style: italic;
     }
 }
 </style>
