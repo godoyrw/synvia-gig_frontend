@@ -17,12 +17,10 @@ const privacySettings = ref({
 
 const handleSaveNotifications = () => {
     // TODO: Chamar API para salvar notificações
-    console.log('Notificações salvas:', notificationSettings.value);
 };
 
 const handleSavePrivacy = () => {
     // TODO: Chamar API para salvar privacidade
-    console.log('Privacidade salva:', privacySettings.value);
 };
 </script>
 
