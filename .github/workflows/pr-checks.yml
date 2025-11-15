@@ -3,9 +3,7 @@ name: PR Checks - Build & Lint
 on:
   pull_request:
     branches:
-      - production
-      - dev-login
-      - homolog
+      - '**'  # Rodará em qualquer PR, independente da branch
 
 jobs:
   build-and-test:
@@ -14,6 +12,13 @@ jobs:
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+
+      - name: Mostrar informações da PR
+        run: |
+          echo "🔍 Informações da PR:"
+          echo "Branch de origem: ${{ github.head_ref }}"
+          echo "Branch destino: ${{ github.base_ref }}"
+          echo "PR #${{ github.event.pull_request.number }}"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
