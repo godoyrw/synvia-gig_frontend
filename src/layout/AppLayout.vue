@@ -1,13 +1,39 @@
 <script setup>
+import { useActivityTracker } from '@/composables';
 import { useLayout } from '@/layout/composables/layout';
-import { computed, ref, watch } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
 
 const { layoutConfig, layoutState, isSidebarActive } = useLayout();
+const auth = useAuthStore();
+const { startTracking, stopTracking } = useActivityTracker();
+let stopActivityTracker = null;
 
 const outsideClickListener = ref(null);
+
+onMounted(() => {
+    // Inicia rastreamento de atividade (AppLayout só monta se autenticado)
+    if (auth.isAuthenticated && auth.expiresAt) {
+        const inactivityDurationMs = auth.durationMinutes * 60 * 1000;
+
+        console.log('[AppLayout] 🚀 Montado. Iniciando ActivityTracker...', {
+            usuario: auth.user?.displayName,
+            invidadeMinutos: auth.durationMinutes
+        });
+
+        stopActivityTracker = startTracking(inactivityDurationMs);
+    }
+});
+
+onUnmounted(() => {
+    // Para rastreamento ao desmontar
+    console.log('[AppLayout] 👋 Desmontando. Parando ActivityTracker...');
+    if (stopActivityTracker) stopActivityTracker();
+    else stopTracking();
+});
 
 watch(isSidebarActive, (newVal) => {
     if (newVal) {

@@ -3,7 +3,7 @@
  */
 
 // Duração padrão da sessão em minutos
-export const SESSION_DURATION_MINUTES = 2;
+export const SESSION_DURATION_MINUTES = 5;
 
 // Intervalo do heartbeat em ms
 export const HEARTBEAT_INTERVAL_MS = 50000;

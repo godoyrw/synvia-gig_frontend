@@ -145,6 +145,7 @@ export const useAuthStore = defineStore('auth', {
             try {
                 // Não renova se já fez logout
                 if (this.isLoggedOut || !this.token) {
+                    console.log('[Auth] 🚫 Renovação bloqueada:', { isLoggedOut: this.isLoggedOut, hasToken: !!this.token });
                     return;
                 }
 
@@ -153,6 +154,8 @@ export const useAuthStore = defineStore('auth', {
 
                 this.expiresAt = newExpiresAt;
                 sessionStorage.setItem('auth_expires', String(newExpiresAt));
+
+                console.log('[Auth] 🔄 Token renovado. Novo expira:', new Date(newExpiresAt).toLocaleTimeString());
             } catch (err) {
                 console.error('[Auth] ❌ Erro ao renovar token:', err);
                 this.logout(true);
