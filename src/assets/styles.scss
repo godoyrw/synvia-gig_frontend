@@ -2,10 +2,10 @@
 @use 'primeicons/primeicons.css';
 @use '@/assets/layout/layout.scss';
 /* Bridge de compatibilidade para o token novo do PrimeUI */
-/* Bridge de compatibilidade para o token novo do PrimeUI */
 :root {
     --primary-color: var(--p-primary-color);
-  }
-  .app-dark {
+}
+
+.app-dark {
     --primary-color: var(--p-primary-color);
-  }
+}
