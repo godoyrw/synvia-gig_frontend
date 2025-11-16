@@ -2,119 +2,10 @@
 import synviaGigLogo from '@/assets/images/logos/synvia_gig_positivo.png';
 import BaseChart from '@/components/charts/BaseChart.vue';
 import dashboardData from '@/mock/data-dashboard.json';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed } from 'vue';
 
 const statusDataset = dashboardData.rankingStatusItem.data;
 const prestadorDataset = dashboardData.rankingPrestadorStatusItem.data;
-const operadoraDataset = dashboardData.rankingOperadora?.data ?? [];
-const operadoraStatusDataset = dashboardData.rankingOperadoraStatus?.data ?? [];
-const prestadorOperadoraStatusDataset = dashboardData.rankingPrestadorOperadoraStatus?.data ?? [];
-const codAnsDataset = dashboardData.rankingCodAns?.data ?? [];
-const codTabelaDataset = dashboardData.rankingCodTabela?.data ?? [];
-
-const defaultLightChartTokens = {
-  text: '#0f172a',
-  subtle: '#475569',
-  grid: 'rgba(15, 23, 42, 0.12)'
-};
-
-const defaultDarkChartTokens = {
-  text: '#C7E6E7',
-  subtle: '#8BCBCD',
-  grid: 'rgba(139, 203, 205, 0.2)'
-};
-
-const chartColors = ref(defaultLightChartTokens);
-const themeObserver = ref(null);
-
-const computeChartColors = () => {
-  if (typeof window === 'undefined' || typeof document === 'undefined') {
-    return chartColors.value;
-  }
-
-  const isDark = detectDarkTheme();
-  const defaults = isDark ? defaultDarkChartTokens : defaultLightChartTokens;
-  const styles = getComputedStyle(document.documentElement);
-
-  const text = (styles.getPropertyValue('--text-color') || '').trim() || defaults.text;
-  const subtle = (styles.getPropertyValue('--text-color-secondary') || '').trim() || defaults.subtle;
-  const border = (styles.getPropertyValue('--surface-border') || '').trim() || defaults.grid;
-
-  const grid = applyAlpha(border, isDark ? 0.4 : 0.2);
-
-  return {
-    text,
-    subtle,
-    grid
-  };
-};
-
-const detectDarkTheme = () => {
-  if (typeof document === 'undefined') return false;
-  const root = document.documentElement;
-  const themeAttr = root.getAttribute('data-theme') ?? '';
-  const classList = root.className ?? '';
-  return /dark/i.test(themeAttr) || /dark/i.test(classList);
-};
-
-const applyAlpha = (rawColor, alpha) => {
-  if (!rawColor) return `rgba(15, 23, 42, ${alpha})`;
-  const color = rawColor.trim();
-
-  if (color.startsWith('rgba')) {
-    return color.replace(/rgba\(([^)]+)\)/, (_, inner) => {
-      const [r, g, b] = inner.split(',').slice(0, 3).map((value) => value.trim());
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    });
-  }
-
-  if (color.startsWith('rgb')) {
-    return color.replace(/rgb\(([^)]+)\)/, (_, inner) => {
-      const [r, g, b] = inner.split(',').map((value) => value.trim());
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    });
-  }
-
-  if (!color.startsWith('#')) {
-    return color;
-  }
-
-  let hex = color.replace('#', '');
-  if (hex.length === 3) {
-    hex = hex
-      .split('')
-      .map((char) => char + char)
-      .join('');
-  }
-
-  if (hex.length !== 6) return color;
-
-  const bigint = parseInt(hex, 16);
-  const r = (bigint >> 16) & 255;
-  const g = (bigint >> 8) & 255;
-  const b = bigint & 255;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
-chartColors.value = computeChartColors();
-
-onMounted(() => {
-  chartColors.value = computeChartColors();
-  if (typeof MutationObserver !== 'undefined') {
-    themeObserver.value = new MutationObserver(() => {
-      chartColors.value = computeChartColors();
-    });
-
-    themeObserver.value.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class', 'data-theme']
-    });
-  }
-});
-
-onBeforeUnmount(() => {
-  themeObserver.value?.disconnect();
-});
 
 const totals = computed(() =>
     statusDataset.reduce(
@@ -168,7 +59,7 @@ const statusOption = computed(() => {
   const statuses = statusDataset.map((item) => item['Status Item']);
 
   return {
-    textStyle: { color: chartColors.value.text },
+    textStyle: { color: '#C7E6E7' },
     color: ['#34d399', '#f87171', '#fbbf24'],
     tooltip: {
       trigger: 'axis',
@@ -180,29 +71,29 @@ const statusOption = computed(() => {
     },
     legend: {
       top: 16,
-      textStyle: { color: chartColors.value.subtle }
+      textStyle: { color: '#C7E6E7' }
     },
     grid: { left: 48, right: 48, top: 80, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
       data: statuses,
-      axisLabel: { interval: 0, color: chartColors.value.subtle },
-      axisLine: { lineStyle: { color: chartColors.value.grid } },
+      axisLabel: { interval: 0, color: '#8BCBCD' },
+      axisLine: { lineStyle: { color: '#083033' } },
       axisTick: { show: false }
     },
     yAxis: [
       {
         type: 'value',
         axisLabel: {
-          color: chartColors.value.subtle,
+          color: '#8BCBCD',
           formatter: (value) => formatCompact(value)
         },
-        splitLine: { lineStyle: { color: chartColors.value.grid } }
+        splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
       },
       {
         type: 'value',
         axisLabel: {
-          color: chartColors.value.subtle,
+          color: '#8BCBCD',
           formatter: (value) => value.toLocaleString('pt-BR')
         },
         splitLine: { show: false }
@@ -276,7 +167,7 @@ const prestadorHeatmapOption = computed(() => {
     });
 
   return {
-    textStyle: { color: chartColors.value.text },
+    textStyle: { color: '#C7E6E7' },
     tooltip: {
       position: 'top',
       backgroundColor: 'rgba(5,31,33,0.95)',
@@ -290,13 +181,13 @@ const prestadorHeatmapOption = computed(() => {
     xAxis: {
       type: 'category',
       data: heatmapStatuses,
-      axisLabel: { rotate: 30, color: chartColors.value.subtle },
+      axisLabel: { rotate: 30, color: '#8BCBCD' },
       splitArea: { show: true }
     },
     yAxis: {
       type: 'category',
       data: topPrestadores.value,
-      axisLabel: { color: chartColors.value.text },
+      axisLabel: { color: '#C7E6E7' },
       inverse: true,
       splitArea: { show: true }
     },
@@ -318,7 +209,7 @@ const prestadorHeatmapOption = computed(() => {
         data: matrix,
         label: {
           show: true,
-          color: chartColors.value.text,
+          color: '#E8F5F5',
           formatter: ({ value }) => formatCompact(value[2])
         },
         emphasis: {
@@ -327,337 +218,6 @@ const prestadorHeatmapOption = computed(() => {
             shadowColor: 'rgba(0,0,0,0.35)'
           }
         }
-      }
-    ]
-  };
-});
-
-const operadoraTotals = computed(() =>
-  operadoraDataset.reduce(
-    (acc, item) => {
-      acc.liberado += item['Valor Liberado Item'] ?? 0;
-      acc.glosa += item['Valor Glosa Item'] ?? 0;
-      acc.qtd += item.Qtd ?? 0;
-      return acc;
-    },
-    { liberado: 0, glosa: 0, qtd: 0 }
-  )
-);
-
-const operadoraOption = computed(() => {
-  const categorias = operadoraDataset.map((item) => item.Operadora);
-  const liberadoSerie = operadoraDataset.map((item) => item['Valor Liberado Item']);
-  const glosaSerie = operadoraDataset.map((item) => item['Valor Glosa Item']);
-
-  return {
-    textStyle: { color: chartColors.value.text },
-    color: ['#22d3ee', '#f87171'],
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(5,31,33,0.95)',
-      borderWidth: 0,
-      formatter: (params = []) => {
-        const index = params[0]?.dataIndex ?? 0;
-        const row = operadoraDataset[index];
-        if (!row) return '';
-        const qtd = Number(row.Qtd ?? 0).toLocaleString('pt-BR');
-        return [
-          `<strong>${row.Operadora}</strong>`,
-          `Qtd: ${qtd}`,
-          `Valor Liberado: ${formatCurrency(row['Valor Liberado Item'])}`,
-          `Valor Glosa: ${formatCurrency(row['Valor Glosa Item'])}`
-        ].join('<br/>');
-      }
-    },
-    legend: {
-      top: 16,
-      textStyle: { color: chartColors.value.subtle }
-    },
-    grid: { left: 140, right: 32, top: 80, bottom: 32, containLabel: true },
-    xAxis: {
-      type: 'value',
-      axisLabel: {
-        color: chartColors.value.subtle,
-        formatter: (value) => formatCompact(value)
-      },
-      splitLine: { lineStyle: { color: chartColors.value.grid } }
-    },
-    yAxis: {
-      type: 'category',
-      data: categorias,
-      axisLabel: { color: chartColors.value.text }
-    },
-    series: [
-      {
-        name: 'Valor Liberado',
-        type: 'bar',
-        stack: 'valor',
-        barWidth: 22,
-        itemStyle: { borderRadius: [0, 6, 6, 0] },
-        data: liberadoSerie
-      },
-      {
-        name: 'Valor Glosa',
-        type: 'bar',
-        stack: 'valor',
-        barWidth: 22,
-        itemStyle: { borderRadius: [0, 6, 6, 0] },
-        data: glosaSerie
-      }
-    ]
-  };
-});
-
-const operadoraStatusOption = computed(() => {
-  const operadoras = [...new Set(operadoraStatusDataset.map((item) => item.Operadora))];
-  const statuses = [...new Set(operadoraStatusDataset.map((item) => item['Status Item']))];
-
-  return {
-    textStyle: { color: chartColors.value.text },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(5,31,33,0.95)',
-      borderWidth: 0,
-      valueFormatter: (value) => formatCurrency(value)
-    },
-    legend: {
-      top: 12,
-      textStyle: { color: chartColors.value.subtle }
-    },
-    grid: { left: 80, right: 24, top: 72, bottom: 24, containLabel: true },
-    xAxis: {
-      type: 'category',
-      data: operadoras,
-      axisLabel: { color: chartColors.value.subtle }
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: {
-        color: chartColors.value.subtle,
-        formatter: (value) => formatCompact(value)
-      },
-      splitLine: { lineStyle: { color: chartColors.value.grid } }
-    },
-    series: statuses.map((status) => ({
-      name: status,
-      type: 'bar',
-      stack: 'operadora-status',
-      barWidth: 18,
-      emphasis: { focus: 'series' },
-      data: operadoras.map((operadora) => {
-        const match = operadoraStatusDataset.find(
-          (item) => item.Operadora === operadora && item['Status Item'] === status
-        );
-        return match ? match['Valor Glosa Item'] : 0;
-      })
-    }))
-  };
-});
-
-const prestadorOperadoraTop = computed(() => {
-  const aggregated = prestadorOperadoraStatusDataset.reduce((acc, item) => {
-    const key = `${item.Prestador} · ${item.Operadora}`;
-    if (!acc[key]) {
-      acc[key] = {
-        label: key,
-        prestador: item.Prestador,
-        operadora: item.Operadora,
-        statuses: {},
-        total: 0
-      };
-    }
-    const status = item['Status Item'];
-    acc[key].statuses[status] = (acc[key].statuses[status] ?? 0) + item['Valor Glosa Item'];
-    acc[key].total += item['Valor Glosa Item'];
-    return acc;
-  }, {});
-
-  return Object.values(aggregated)
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 8);
-});
-
-const prestadorOperadoraOption = computed(() => {
-  const combos = prestadorOperadoraTop.value;
-  const statuses = [...new Set(combos.flatMap((combo) => Object.keys(combo.statuses)))];
-  const categories = combos.map((combo) => combo.label);
-
-  return {
-    textStyle: { color: chartColors.value.text },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(5,31,33,0.95)',
-      borderWidth: 0,
-      formatter: (params = []) => {
-        if (!params.length) return '';
-        const combo = combos[params[0].dataIndex];
-        return [
-          `<strong>${combo.prestador}</strong>`,
-          combo.operadora,
-          ...params
-            .filter((p) => p.value)
-            .map((p) => `${p.seriesName}: ${formatCurrency(p.value)}`)
-        ].join('<br/>');
-      }
-    },
-    legend: {
-      top: 12,
-      textStyle: { color: chartColors.value.subtle }
-    },
-    grid: { left: 190, right: 24, top: 72, bottom: 24 },
-    xAxis: {
-      type: 'value',
-      axisLabel: {
-        color: chartColors.value.subtle,
-        formatter: (value) => formatCompact(value)
-      },
-      splitLine: { lineStyle: { color: chartColors.value.grid } }
-    },
-    yAxis: {
-      type: 'category',
-      data: categories,
-      axisLabel: {
-        color: chartColors.value.text,
-        formatter: (value) => value.length > 32 ? `${value.slice(0, 32)}…` : value
-      }
-    },
-    series: statuses.map((status) => ({
-      name: status,
-      type: 'bar',
-      stack: 'prestador-operadora',
-      barWidth: 18,
-      emphasis: { focus: 'series' },
-      data: combos.map((combo) => combo.statuses[status] ?? 0)
-    }))
-  };
-});
-
-const codAnsTop = computed(() => codAnsDataset.slice(0, 15));
-
-const codAnsOption = computed(() => {
-  const categorias = codAnsTop.value.map((item) => item['Glosa Item - Cód. ANS'] ?? 'Não informado');
-  const quantidades = codAnsTop.value.map((item) => item.Qtd ?? 0);
-
-  return {
-    textStyle: { color: chartColors.value.text },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(5,31,33,0.95)',
-      borderWidth: 0,
-      formatter: (params = []) => {
-        const idx = params[0]?.dataIndex ?? 0;
-        const row = codAnsTop.value[idx];
-        if (!row) return '';
-        return [
-          `<strong>Cód. ANS ${row['Glosa Item - Cód. ANS'] ?? 'N/A'}</strong>`,
-          `Qtd: ${row.Qtd.toLocaleString('pt-BR')}`,
-          `Participação: ${row.Percentual}`
-        ].join('<br/>');
-      }
-    },
-    grid: { left: 150, right: 24, top: 32, bottom: 24 },
-    xAxis: {
-      type: 'value',
-      axisLabel: { color: chartColors.value.subtle },
-      splitLine: { lineStyle: { color: chartColors.value.grid } }
-    },
-    yAxis: {
-      type: 'category',
-      data: categorias,
-      axisLabel: { color: chartColors.value.text }
-    },
-    series: [
-      {
-        name: 'Quantidade',
-        type: 'bar',
-        barWidth: 16,
-        itemStyle: {
-          borderRadius: [0, 6, 6, 0],
-          color: '#34d399'
-        },
-        data: quantidades
-      }
-    ]
-  };
-});
-
-const codTabelaOption = computed(() => {
-  const categorias = codTabelaDataset.map((item) => item['Cód. Tabela'] ?? 'N/A');
-  const liberadoSerie = codTabelaDataset.map((item) => item['Valor Liberado Item'] ?? 0);
-  const glosaSerie = codTabelaDataset.map((item) => item['Valor Glosa Item'] ?? 0);
-  const qtdSerie = codTabelaDataset.map((item) => item.Qtd ?? 0);
-
-  return {
-    textStyle: { color: chartColors.value.text },
-    color: ['#34d399', '#f87171', '#60a5fa'],
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
-      backgroundColor: 'rgba(5,31,33,0.95)',
-      borderWidth: 0,
-      formatter: (params = []) => {
-        const idx = params[0]?.dataIndex ?? 0;
-        const row = codTabelaDataset[idx];
-        if (!row) return '';
-        return [
-          `<strong>Tabela ${row['Cód. Tabela'] ?? 'N/A'}</strong>`,
-          `Qtd: ${row.Qtd.toLocaleString('pt-BR')}`,
-          `Liberado: ${formatCurrency(row['Valor Liberado Item'])}`,
-          `Glosa: ${formatCurrency(row['Valor Glosa Item'])}`
-        ].join('<br/>');
-      }
-    },
-    legend: {
-      top: 12,
-      textStyle: { color: chartColors.value.subtle }
-    },
-    grid: { left: 80, right: 32, top: 72, bottom: 32, containLabel: true },
-    xAxis: {
-      type: 'category',
-      data: categorias,
-      axisLabel: { color: chartColors.value.subtle }
-    },
-    yAxis: [
-      {
-        type: 'value',
-        axisLabel: {
-          color: chartColors.value.subtle,
-          formatter: (value) => formatCompact(value)
-        },
-        splitLine: { lineStyle: { color: chartColors.value.grid } }
-      },
-      {
-        type: 'value',
-        axisLabel: { color: chartColors.value.subtle },
-        splitLine: { show: false }
-      }
-    ],
-    series: [
-      {
-        name: 'Valor Liberado',
-        type: 'bar',
-        stack: 'valor-tabela',
-        barWidth: 20,
-        data: liberadoSerie
-      },
-      {
-        name: 'Valor Glosa',
-        type: 'bar',
-        stack: 'valor-tabela',
-        barWidth: 20,
-        data: glosaSerie
-      },
-      {
-        name: 'Quantidade',
-        type: 'line',
-        yAxisIndex: 1,
-        smooth: true,
-        symbolSize: 6,
-        data: qtdSerie
       }
     ]
   };
@@ -820,71 +380,6 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
             </header>
             <BaseChart :option="prestadorHeatmapOption" height="420px" theme="dark" />
         </section>
-
-    <section v-if="operadoraDataset.length" class="panel panel--operators">
-      <header>
-        <div>
-          <p class="panel__eyebrow">Operadoras</p>
-          <h3>{{ dashboardData.rankingOperadora.title }}</h3>
-          <p class="panel__subtitle">
-            {{ formatCurrency(operadoraTotals.liberado) }} liberado ·
-            {{ formatCurrency(operadoraTotals.glosa) }} em glosa
-          </p>
-        </div>
-        <div class="panel__actions">
-          <button class="panel__chip">{{ operadoraDataset.length }} operadoras</button>
-        </div>
-      </header>
-      <BaseChart :option="operadoraOption" height="320px" theme="dark" />
-    </section>
-
-    <div v-if="operadoraStatusDataset.length || codAnsDataset.length" class="panel-grid panel-grid--equal">
-      <section v-if="operadoraStatusDataset.length" class="panel">
-        <header>
-          <div>
-            <p class="panel__eyebrow">Operadora x Status</p>
-            <h3>{{ dashboardData.rankingOperadoraStatus.title }}</h3>
-            <p class="panel__subtitle">Distribuição do valor glosado por operadora e status</p>
-          </div>
-        </header>
-        <BaseChart :option="operadoraStatusOption" height="360px" theme="dark" />
-      </section>
-
-      <section v-if="codAnsDataset.length" class="panel">
-        <header>
-          <div>
-            <p class="panel__eyebrow">Códigos ANS</p>
-            <h3>{{ dashboardData.rankingCodAns.title }}</h3>
-            <p class="panel__subtitle">Top 15 códigos por ocorrência em glosas</p>
-          </div>
-        </header>
-        <BaseChart :option="codAnsOption" height="360px" theme="dark" />
-      </section>
-    </div>
-
-    <div v-if="prestadorOperadoraStatusDataset.length || codTabelaDataset.length" class="panel-grid panel-grid--equal">
-      <section v-if="prestadorOperadoraStatusDataset.length" class="panel">
-        <header>
-          <div>
-            <p class="panel__eyebrow">Prestador · Operadora</p>
-            <h3>{{ dashboardData.rankingPrestadorOperadoraStatus.title }}</h3>
-            <p class="panel__subtitle">Maiores combinações por valor de glosa</p>
-          </div>
-        </header>
-        <BaseChart :option="prestadorOperadoraOption" height="420px" theme="dark" />
-      </section>
-
-      <section v-if="codTabelaDataset.length" class="panel">
-        <header>
-          <div>
-            <p class="panel__eyebrow">Códigos de Tabela</p>
-            <h3>{{ dashboardData.rankingCodTabela.title }}</h3>
-            <p class="panel__subtitle">Comparativo de valor liberado, glosa e quantidade</p>
-          </div>
-        </header>
-        <BaseChart :option="codTabelaOption" height="360px" theme="dark" />
-      </section>
-    </div>
     </div>
 </template>
 
@@ -894,20 +389,19 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   flex-direction: column;
   gap: 1.5rem;
   padding: 1.5rem;
-  background: var(--surface-ground);
+  background: #0b0c0f;
   min-height: calc(100vh - 6rem);
-  color: var(--text-color);
+  color: #f1f5f9;
 }
 
 .gig-dashboard__hero {
-  background: var(--surface-card);
+  background: #16181d;
   border-radius: 1rem;
   padding: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
-  
 }
 
 .gig-dashboard__hero h1 {
@@ -916,18 +410,19 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 }
 
 .gig-dashboard__hero p {
-  color: var(--text-color-secondary);
+  color: rgba(255, 255, 255, 0.7);
   max-width: 560px;
 }
 
 .gig-dashboard__logo {
   width: 200px;
+  filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.5));
 }
 
 .gig-dashboard__label {
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--text-color);
+  color: var(--primary-color);
   font-size: 0.75rem;
   margin-bottom: 0.75rem;
 }
@@ -942,11 +437,12 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   position: relative;
   border-radius: 1rem;
   padding: 1.25rem;
-  background: var(--surface-card);
+  background: #181a1f;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
 }
 
 .kpi-card__spark {
@@ -983,7 +479,7 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 .kpi-card small {
   position: relative;
   z-index: 1;
-  color: var(--text-color-secondary);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .panel-grid {
@@ -992,17 +488,14 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   gap: 1.5rem;
 }
 
-.panel-grid--equal {
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-}
-
 .panel {
-  background: var(--surface-card);
+  background: #181a1f;
   border-radius: 1rem;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
 }
 
 .panel header {
@@ -1011,16 +504,10 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   align-items: center;
 }
 
-.panel__subtitle {
-  margin: 0.35rem 0 0;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-}
-
 .panel__eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--text-color);
+  color: var(--primary-color);
   font-size: 0.75rem;
   margin-bottom: 0.25rem;
 }
@@ -1031,9 +518,9 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 }
 
 .panel__chip {
-  border: 1px solid var(--surface-border);
-  background: var(--surface-hover);
-  color: var(--text-color);
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
   border-radius: 999px;
   padding: 0.35rem 0.9rem;
   font-size: 0.85rem;
@@ -1041,8 +528,12 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 
 .panel__chip--ghost {
   background: transparent;
-  color: var(--text-color-secondary);
+  color: rgba(255, 255, 255, 0.6);
   border: none;
+}
+
+.panel--timeline {
+  background: #181a1f;
 }
 
 .timeline {
@@ -1068,8 +559,8 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-hover);
-  border: 1px solid var(--surface-border);
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
 }
 
 .timeline__item--positive .timeline__icon {
@@ -1095,12 +586,12 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 }
 
 .timeline__content span {
-  color: var(--text-color-secondary);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.85rem;
 }
 
 .timeline__status {
-  color: var(--text-color-secondary);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
 }
 
@@ -1116,7 +607,9 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   color: #f87171;
 }
 
-
+.panel--heatmap {
+  background: #181a1f;
+}
 
 .gig-dashboard h1,
 .gig-dashboard h2,

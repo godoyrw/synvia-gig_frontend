@@ -62,34 +62,11 @@ const props = defineProps({
   }
 });
 
-const THEME_TOKENS = {
-  light: {
-    backgroundColor: 'var(--surface-card, #ffffff)',
-    textColor: 'var(--text-color, #0f172a)',
-    subtitleColor: 'var(--text-color-secondary, #64748b)',
-    tooltipBackground: 'rgba(15,23,42,0.92)',
-    tooltipText: '#f8fafc'
-  },
-  dark: {
-    backgroundColor: 'transparent',
-    textColor: '#C7E6E7',
-    subtitleColor: '#8BCBCD',
-    tooltipBackground: 'rgba(5,31,33,0.95)',
-    tooltipText: '#E8F5F5'
-  }
-};
-
-const themeTokens = computed(() => {
-  const themeName = resolveThemeName(props.theme);
-  return THEME_TOKENS[themeName] ?? THEME_TOKENS.light;
-});
-
-const baseOption = computed(() => ({
+const baseOption = Object.freeze({
   animationDuration: 500,
-  backgroundColor: themeTokens.value.backgroundColor,
   textStyle: {
     fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-    color: themeTokens.value.textColor
+    color: '#475569'
   },
   grid: {
     left: 32,
@@ -102,18 +79,18 @@ const baseOption = computed(() => ({
     top: 8,
     itemGap: 16,
     textStyle: {
-      color: themeTokens.value.subtitleColor,
+      color: '#475569',
       fontSize: 12
     }
   },
   tooltip: {
     trigger: 'item',
     borderWidth: 0,
-    backgroundColor: themeTokens.value.tooltipBackground,
-    textStyle: { color: themeTokens.value.tooltipText, fontSize: 12 },
+    backgroundColor: 'rgba(15,23,42,0.92)',
+    textStyle: { color: '#f8fafc', fontSize: 12 },
     padding: 12
   }
-}));
+});
 
 const attrs = useAttrs();
 
@@ -122,7 +99,7 @@ const chartStyle = computed(() => ({
   width: props.width
 }));
 
-const mergedOption = computed(() => deepMerge(baseOption.value, props.option ?? {}));
+const mergedOption = computed(() => deepMerge(baseOption, props.option ?? {}));
 
 function isObject(value) {
   return Object.prototype.toString.call(value) === '[object Object]';
@@ -165,18 +142,6 @@ function deepMerge(target, source) {
   });
 
   return result;
-}
-
-function resolveThemeName(themeProp) {
-  if (typeof themeProp === 'string') {
-    return themeProp.toLowerCase().includes('dark') ? 'dark' : 'light';
-  }
-
-  if (isObject(themeProp) && typeof themeProp.themeName === 'string') {
-    return themeProp.themeName.toLowerCase().includes('dark') ? 'dark' : 'light';
-  }
-
-  return 'light';
 }
 </script>
 
