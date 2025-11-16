@@ -2,7 +2,7 @@
 import synviaGigLogo from '@/assets/images/logos/synvia_gig_positivo.png';
 import BaseChart from '@/components/charts/BaseChart.vue';
 import dashboardData from '@/mock/data-dashboard.json';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const statusDataset = dashboardData.rankingStatusItem.data;
 const prestadorDataset = dashboardData.rankingPrestadorStatusItem.data;
@@ -11,6 +11,110 @@ const operadoraStatusDataset = dashboardData.rankingOperadoraStatus?.data ?? [];
 const prestadorOperadoraStatusDataset = dashboardData.rankingPrestadorOperadoraStatus?.data ?? [];
 const codAnsDataset = dashboardData.rankingCodAns?.data ?? [];
 const codTabelaDataset = dashboardData.rankingCodTabela?.data ?? [];
+
+const defaultLightChartTokens = {
+  text: '#0f172a',
+  subtle: '#475569',
+  grid: 'rgba(15, 23, 42, 0.12)'
+};
+
+const defaultDarkChartTokens = {
+  text: '#C7E6E7',
+  subtle: '#8BCBCD',
+  grid: 'rgba(139, 203, 205, 0.2)'
+};
+
+const chartColors = ref(defaultLightChartTokens);
+const themeObserver = ref(null);
+
+const computeChartColors = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return chartColors.value;
+  }
+
+  const isDark = detectDarkTheme();
+  const defaults = isDark ? defaultDarkChartTokens : defaultLightChartTokens;
+  const styles = getComputedStyle(document.documentElement);
+
+  const text = (styles.getPropertyValue('--text-color') || '').trim() || defaults.text;
+  const subtle = (styles.getPropertyValue('--text-color-secondary') || '').trim() || defaults.subtle;
+  const border = (styles.getPropertyValue('--surface-border') || '').trim() || defaults.grid;
+
+  const grid = applyAlpha(border, isDark ? 0.4 : 0.2);
+
+  return {
+    text,
+    subtle,
+    grid
+  };
+};
+
+const detectDarkTheme = () => {
+  if (typeof document === 'undefined') return false;
+  const root = document.documentElement;
+  const themeAttr = root.getAttribute('data-theme') ?? '';
+  const classList = root.className ?? '';
+  return /dark/i.test(themeAttr) || /dark/i.test(classList);
+};
+
+const applyAlpha = (rawColor, alpha) => {
+  if (!rawColor) return `rgba(15, 23, 42, ${alpha})`;
+  const color = rawColor.trim();
+
+  if (color.startsWith('rgba')) {
+    return color.replace(/rgba\(([^)]+)\)/, (_, inner) => {
+      const [r, g, b] = inner.split(',').slice(0, 3).map((value) => value.trim());
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    });
+  }
+
+  if (color.startsWith('rgb')) {
+    return color.replace(/rgb\(([^)]+)\)/, (_, inner) => {
+      const [r, g, b] = inner.split(',').map((value) => value.trim());
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    });
+  }
+
+  if (!color.startsWith('#')) {
+    return color;
+  }
+
+  let hex = color.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex
+      .split('')
+      .map((char) => char + char)
+      .join('');
+  }
+
+  if (hex.length !== 6) return color;
+
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+chartColors.value = computeChartColors();
+
+onMounted(() => {
+  chartColors.value = computeChartColors();
+  if (typeof MutationObserver !== 'undefined') {
+    themeObserver.value = new MutationObserver(() => {
+      chartColors.value = computeChartColors();
+    });
+
+    themeObserver.value.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+  }
+});
+
+onBeforeUnmount(() => {
+  themeObserver.value?.disconnect();
+});
 
 const totals = computed(() =>
     statusDataset.reduce(
@@ -64,7 +168,7 @@ const statusOption = computed(() => {
   const statuses = statusDataset.map((item) => item['Status Item']);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     color: ['#34d399', '#f87171', '#fbbf24'],
     tooltip: {
       trigger: 'axis',
@@ -76,29 +180,29 @@ const statusOption = computed(() => {
     },
     legend: {
       top: 16,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 48, right: 48, top: 80, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
       data: statuses,
-      axisLabel: { interval: 0, color: '#8BCBCD' },
-      axisLine: { lineStyle: { color: '#083033' } },
+      axisLabel: { interval: 0, color: chartColors.value.subtle },
+      axisLine: { lineStyle: { color: chartColors.value.grid } },
       axisTick: { show: false }
     },
     yAxis: [
       {
         type: 'value',
         axisLabel: {
-          color: '#8BCBCD',
+          color: chartColors.value.subtle,
           formatter: (value) => formatCompact(value)
         },
-        splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+        splitLine: { lineStyle: { color: chartColors.value.grid } }
       },
       {
         type: 'value',
         axisLabel: {
-          color: '#8BCBCD',
+          color: chartColors.value.subtle,
           formatter: (value) => value.toLocaleString('pt-BR')
         },
         splitLine: { show: false }
@@ -172,7 +276,7 @@ const prestadorHeatmapOption = computed(() => {
     });
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       position: 'top',
       backgroundColor: 'rgba(5,31,33,0.95)',
@@ -186,13 +290,13 @@ const prestadorHeatmapOption = computed(() => {
     xAxis: {
       type: 'category',
       data: heatmapStatuses,
-      axisLabel: { rotate: 30, color: '#8BCBCD' },
+      axisLabel: { rotate: 30, color: chartColors.value.subtle },
       splitArea: { show: true }
     },
     yAxis: {
       type: 'category',
       data: topPrestadores.value,
-      axisLabel: { color: '#C7E6E7' },
+      axisLabel: { color: chartColors.value.text },
       inverse: true,
       splitArea: { show: true }
     },
@@ -214,7 +318,7 @@ const prestadorHeatmapOption = computed(() => {
         data: matrix,
         label: {
           show: true,
-          color: '#E8F5F5',
+          color: chartColors.value.text,
           formatter: ({ value }) => formatCompact(value[2])
         },
         emphasis: {
@@ -246,7 +350,7 @@ const operadoraOption = computed(() => {
   const glosaSerie = operadoraDataset.map((item) => item['Valor Glosa Item']);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     color: ['#22d3ee', '#f87171'],
     tooltip: {
       trigger: 'axis',
@@ -268,21 +372,21 @@ const operadoraOption = computed(() => {
     },
     legend: {
       top: 16,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 140, right: 32, top: 80, bottom: 32, containLabel: true },
     xAxis: {
       type: 'value',
       axisLabel: {
-        color: '#8BCBCD',
+        color: chartColors.value.subtle,
         formatter: (value) => formatCompact(value)
       },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     yAxis: {
       type: 'category',
       data: categorias,
-      axisLabel: { color: '#C7E6E7' }
+      axisLabel: { color: chartColors.value.text }
     },
     series: [
       {
@@ -310,7 +414,7 @@ const operadoraStatusOption = computed(() => {
   const statuses = [...new Set(operadoraStatusDataset.map((item) => item['Status Item']))];
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -320,21 +424,21 @@ const operadoraStatusOption = computed(() => {
     },
     legend: {
       top: 12,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 80, right: 24, top: 72, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
       data: operadoras,
-      axisLabel: { color: '#8BCBCD' }
+      axisLabel: { color: chartColors.value.subtle }
     },
     yAxis: {
       type: 'value',
       axisLabel: {
-        color: '#8BCBCD',
+        color: chartColors.value.subtle,
         formatter: (value) => formatCompact(value)
       },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     series: statuses.map((status) => ({
       name: status,
@@ -381,7 +485,7 @@ const prestadorOperadoraOption = computed(() => {
   const categories = combos.map((combo) => combo.label);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -401,22 +505,22 @@ const prestadorOperadoraOption = computed(() => {
     },
     legend: {
       top: 12,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 190, right: 24, top: 72, bottom: 24 },
     xAxis: {
       type: 'value',
       axisLabel: {
-        color: '#8BCBCD',
+        color: chartColors.value.subtle,
         formatter: (value) => formatCompact(value)
       },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     yAxis: {
       type: 'category',
       data: categories,
       axisLabel: {
-        color: '#C7E6E7',
+        color: chartColors.value.text,
         formatter: (value) => value.length > 32 ? `${value.slice(0, 32)}…` : value
       }
     },
@@ -438,7 +542,7 @@ const codAnsOption = computed(() => {
   const quantidades = codAnsTop.value.map((item) => item.Qtd ?? 0);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -458,13 +562,13 @@ const codAnsOption = computed(() => {
     grid: { left: 150, right: 24, top: 32, bottom: 24 },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#8BCBCD' },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      axisLabel: { color: chartColors.value.subtle },
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     yAxis: {
       type: 'category',
       data: categorias,
-      axisLabel: { color: '#C7E6E7' }
+      axisLabel: { color: chartColors.value.text }
     },
     series: [
       {
@@ -488,7 +592,7 @@ const codTabelaOption = computed(() => {
   const qtdSerie = codTabelaDataset.map((item) => item.Qtd ?? 0);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     color: ['#34d399', '#f87171', '#60a5fa'],
     tooltip: {
       trigger: 'axis',
@@ -509,26 +613,26 @@ const codTabelaOption = computed(() => {
     },
     legend: {
       top: 12,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 80, right: 32, top: 72, bottom: 32, containLabel: true },
     xAxis: {
       type: 'category',
       data: categorias,
-      axisLabel: { color: '#8BCBCD' }
+      axisLabel: { color: chartColors.value.subtle }
     },
     yAxis: [
       {
         type: 'value',
         axisLabel: {
-          color: '#8BCBCD',
+          color: chartColors.value.subtle,
           formatter: (value) => formatCompact(value)
         },
-        splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+        splitLine: { lineStyle: { color: chartColors.value.grid } }
       },
       {
         type: 'value',
-        axisLabel: { color: '#8BCBCD' },
+        axisLabel: { color: chartColors.value.subtle },
         splitLine: { show: false }
       }
     ],
@@ -818,7 +922,6 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 
 .gig-dashboard__logo {
   width: 200px;
-  filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.5));
 }
 
 .gig-dashboard__label {
@@ -844,7 +947,6 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   flex-direction: column;
   gap: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
 }
 
 .kpi-card__spark {
@@ -901,7 +1003,6 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
 }
 
 .panel header {
