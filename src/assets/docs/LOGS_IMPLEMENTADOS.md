@@ -149,7 +149,7 @@ info('Aguarde carregamento...')
 **Benefícios:**
 - Wrapper mais limpo sobre o store
 - Menos imports necessários
-- API amigável e consistente
+- API amigável e consistenteext install Vue.volar
 
 ---
 
@@ -393,7 +393,21 @@ const formData = reactive({
 
 ---
 
-## 📊 Commits Realizados
+## �️ Organização dos Diretórios de Interface
+
+Para manter o reuso e a previsibilidade dos imports, a estrutura foi padronizada da seguinte forma:
+
+| Diretório | Conteúdo | Observações |
+|-----------|----------|-------------|
+| `src/layout` | Shell global da aplicação (AppLayout, AppSidebar, AppTopbar, AppUserMenu, etc.) | Componentes exclusivos do layout padrão permanecem aqui. Inclui `src/layout/composables/layout.js` para controlar tema, sidebar e demais estados estruturais. |
+| `src/components` | Componentes visuais reutilizáveis e agnósticos de layout (`NotificationCenter.vue`, `ToggleSwitch.vue`, futuros widgets) | Podem ser importados por qualquer página ou layout. Mantidos fora de `layout` para evitar dependências circulares. |
+| `src/composables` | Hooks globais (`useNotifications`, `useActivityTracker`, etc.) | Compartilham lógica entre páginas, serviços e layouts; continuam na raiz para refletir o escopo amplo. |
+
+> **Regra prática:** tudo que só faz sentido dentro do shell padrão fica em `src/layout`. Qualquer recurso reaproveitável em outras telas ou futuros layouts permanece em `src/components` / `src/composables`.
+
+---
+
+## �📊 Commits Realizados
 
 | Hash | Mensagem | Tipo | Detalhes |
 |------|----------|------|----------|
