@@ -150,7 +150,7 @@ info('Aguarde carregamento...')
 - Wrapper mais limpo sobre o store
 - Menos imports necessários
 - API amigável e consistenteext install Vue.volar
-/**documentation**
+
 ---
 
 #### 5. `src/config/constants.js`

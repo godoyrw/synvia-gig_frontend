@@ -48,13 +48,12 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-
 import deploymentContent from '@/assets/docs/DEPLOYMENT_SETUP.md?raw';
 import dialogContent from '@/assets/docs/DIALOG_SYSTEM.md?raw';
 import logsContent from '@/assets/docs/LOGS_IMPLEMENTADOS.md?raw';
 import notificationContent from '@/assets/docs/NOTIFICATION_SYSTEM.md?raw';
 import sessionContent from '@/assets/docs/SYNVIA_SESSION_MANAGEMENT_REPORT.md?raw';
+import { computed, ref } from 'vue';
 
 const DOCS = [
     { id: 'logs', name: 'Implementações', icon: '📋', content: logsContent },
@@ -86,7 +85,6 @@ const layoutRules = [
 
 const currentDoc = ref(DOCS[0].id);
 const searchQuery = ref('');
-
 const escapeHtml = (text) => {
     const div = document.createElement('div');
     div.textContent = text;
