@@ -1,7 +1,7 @@
 {
     "rankingStatusItem": {
         "title": "Ranking de Valor por Status do Item",
-        "sql": "Select `Status Item`,\n       Count(*)                    As Qtd,\n       Sum(`Valor Liberado Item`)  As 'Valor Liberado Item',\n       Sum(`Valor Glosa Item`)     As 'Valor Glosa Item'\nFrom KORA\nGroup By `Status Item`\nOrder By 2 Desc",
+        "sql": "Select `Status Item`, Count(*) As Qtd, Sum(`Valor Liberado Item`) As 'Valor Liberado Item', Sum(`Valor Glosa Item`) As 'Valor Glosa Item' From KORA Group By `Status Item` Order By 2 Desc",
         "data": [
             {
                 "Status Item": "Recursado",
@@ -37,7 +37,7 @@
     },
     "rankingPrestadorStatusItem": {
         "title": "Ranking de Valor por Prestador e Status do Item",
-        "sql": "Select `Prestador`,\n       `Status Item`,\n       Count(*)                     As Qtd,\n       Sum(`Valor Liberado Item`)   As 'Valor Liberado Item',\n       Sum(`Valor Glosa Item`)      As 'Valor Glosa Item'\nFrom KORA\nGroup By `Prestador`,\n         `Status Item`\nOrder By 1, 2, 3 Desc",
+        "sql": "Select `Prestador`, `Status Item`, Count(*) As Qtd, Sum(`Valor Liberado Item`) As 'Valor Liberado Item', Sum(`Valor Glosa Item`) As 'Valor Glosa Item' From KORA Group By `Prestador`, `Status Item` Order By 1, 2, 3 Desc",
         "data": [
             {
                 "Prestador": "Kora Hub Ceara: Gastroclinica",
@@ -517,6 +517,1456 @@
                 "Qtd": 23168,
                 "Valor Liberado Item": 95368328.0,
                 "Valor Glosa Item": 228743310.0
+            }
+        ]
+    },
+    "rankingOperadoraStatus": {
+        "title": "Ranking de Valor: Operadora + Status Item",
+        "sql": "Select `Operadora`, `Status Item`, Count(*) As Qtd, Sum(`Valor Liberado Item`) As 'Valor Liberado Item', Sum(`Valor Glosa Item`) As 'Valor Glosa Item' From KORA Group By `Operadora`, `Status Item`",
+        "data": [
+            {
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Recursado",
+                "Qtd": 8091,
+                "Valor Liberado Item": 4297832.00,
+                "Valor Glosa Item": 80623825.00
+            },
+            {
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 5693,
+                "Valor Liberado Item": 45303916.00,
+                "Valor Glosa Item": 8531228.00
+            },
+            {
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Não processado",
+                "Qtd": 72,
+                "Valor Liberado Item": 72228.00,
+                "Valor Glosa Item": 282304.00
+            },
+            {
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 5793,
+                "Valor Liberado Item": 39334883.00,
+                "Valor Glosa Item": 158567831.00
+            },
+            {
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 1274,
+                "Valor Liberado Item": 20411362.00,
+                "Valor Glosa Item": 13126407.00
+            },
+            {
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 440,
+                "Valor Liberado Item": 3457636.00,
+                "Valor Glosa Item": 52445878.00
+            },
+            {
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 17294,
+                "Valor Liberado Item": 26092894.00,
+                "Valor Glosa Item": 172860628.00
+            },
+            {
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 5527,
+                "Valor Liberado Item": 69271687.00,
+                "Valor Glosa Item": 50991230.00
+            },
+            {
+                "Operadora": "SulAmérica",
+                "Status Item": "Tratativas Cliente",
+                "Qtd": 347,
+                "Valor Liberado Item": 3747.00,
+                "Valor Glosa Item": 4891452.00
+            }
+        ]
+    },
+    "rankingPrestadorOperadoraStatus": {
+        "title": "Ranking de Valor: Prestador + Operadora + Status Item",
+        "sql": "Select `Prestador`, `Operadora`, `Status Item`, Count(*) As Qtd, Sum(`Valor Liberado Item`) As 'Valor Liberado Item', Sum(`Valor Glosa Item`) As 'Valor Glosa Item' From KORA Group By `Prestador`, `Operadora`, `Status Item` Order By 1, 2, 3 Desc",
+        "data": [
+            {
+                "Prestador": "Kora Hub Ceara: Gastroclinica",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 430,
+                "Valor Liberado Item": 7054357.0,
+                "Valor Glosa Item": 8203708.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Gastroclinica",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 145,
+                "Valor Liberado Item": 58501.0,
+                "Valor Glosa Item": 111735.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Gastroclinica",
+                "Operadora": "SulAmérica",
+                "Status Item": "Tratativas Cliente",
+                "Qtd": 11,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 1536090.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Gastroclinica",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 1709,
+                "Valor Liberado Item": 1597956.0,
+                "Valor Glosa Item": 11922485.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Gastroclinica",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 1270,
+                "Valor Liberado Item": 21588115.0,
+                "Valor Glosa Item": 4959978.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: GDI",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 20,
+                "Valor Liberado Item": 54905.0,
+                "Valor Glosa Item": 662932.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: GDI",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 26,
+                "Valor Liberado Item": 262744.0,
+                "Valor Glosa Item": 111442.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: GDI",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 37,
+                "Valor Liberado Item": 131957.0,
+                "Valor Glosa Item": 467767.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: GDI",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 33,
+                "Valor Liberado Item": 327083.0,
+                "Valor Glosa Item": 105773.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Hospital Sao Mateus",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 1768,
+                "Valor Liberado Item": 8092287.0,
+                "Valor Glosa Item": 18539271.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Hospital Sao Mateus",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 71,
+                "Valor Liberado Item": 556494.0,
+                "Valor Glosa Item": 700670.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Hospital Sao Mateus",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 14,
+                "Valor Liberado Item": 39439.0,
+                "Valor Glosa Item": 90882.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Hospital Sao Mateus",
+                "Operadora": "SulAmérica",
+                "Status Item": "Tratativas Cliente",
+                "Qtd": 23,
+                "Valor Liberado Item": 24.0,
+                "Valor Glosa Item": 117205.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Hospital Sao Mateus",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 4349,
+                "Valor Liberado Item": 3907203.0,
+                "Valor Glosa Item": 20127199.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Hospital Sao Mateus",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 618,
+                "Valor Liberado Item": 8294344.0,
+                "Valor Glosa Item": 2728610.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otocardio",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 9,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 194037.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otocardio",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 3,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 64245.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoclinica Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 510,
+                "Valor Liberado Item": 6032791.0,
+                "Valor Glosa Item": 21897059.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoclinica Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 176,
+                "Valor Liberado Item": 2703016.0,
+                "Valor Glosa Item": 1110109.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoclinica Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 22,
+                "Valor Liberado Item": 46061.0,
+                "Valor Glosa Item": 231129.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoclinica Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Tratativas Cliente",
+                "Qtd": 309,
+                "Valor Liberado Item": 3723.0,
+                "Valor Glosa Item": 3226794.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoclinica Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 5567,
+                "Valor Liberado Item": 4501435.0,
+                "Valor Glosa Item": 21972990.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoclinica Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 608,
+                "Valor Liberado Item": 9507876.0,
+                "Valor Glosa Item": 3319870.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoimagem Caucaia",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 1,
+                "Valor Liberado Item": 3025.0,
+                "Valor Glosa Item": 1296.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoimagem Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 308,
+                "Valor Liberado Item": 1686953.0,
+                "Valor Glosa Item": 7414867.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoimagem Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 82,
+                "Valor Liberado Item": 222493.0,
+                "Valor Glosa Item": 2482345.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoimagem Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 96,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 752920.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otoimagem Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 142,
+                "Valor Liberado Item": 734280.0,
+                "Valor Glosa Item": 46895.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otolab Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 147,
+                "Valor Liberado Item": 5676.0,
+                "Valor Glosa Item": 289266.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otolab Matriz",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 17,
+                "Valor Liberado Item": 49138.0,
+                "Valor Glosa Item": 3730.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otolab Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 492,
+                "Valor Liberado Item": 37860.0,
+                "Valor Glosa Item": 1804066.0
+            },
+            {
+                "Prestador": "Kora Hub Ceara: Oto: Otolab Matriz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 420,
+                "Valor Liberado Item": 599154.0,
+                "Valor Glosa Item": 349915.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: CGOT Ressonancia Magnetica",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 22,
+                "Valor Liberado Item": 2076.0,
+                "Valor Glosa Item": 9637.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: CGOT Ressonancia Magnetica",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 31,
+                "Valor Liberado Item": 394.0,
+                "Valor Glosa Item": 120.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Recursado",
+                "Qtd": 1060,
+                "Valor Liberado Item": 1809942.0,
+                "Valor Glosa Item": 14948157.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 1435,
+                "Valor Liberado Item": 24521149.0,
+                "Valor Glosa Item": 3741444.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 610,
+                "Valor Liberado Item": 3245340.0,
+                "Valor Glosa Item": 43049462.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 272,
+                "Valor Liberado Item": 504709.0,
+                "Valor Glosa Item": 4696509.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 21,
+                "Valor Liberado Item": 8438.0,
+                "Valor Glosa Item": 124392.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 689,
+                "Valor Liberado Item": 774106.0,
+                "Valor Glosa Item": 21703696.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Anchieta",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 441,
+                "Valor Liberado Item": 6448416.0,
+                "Valor Glosa Item": 3666967.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Encore",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 216,
+                "Valor Liberado Item": 56460.0,
+                "Valor Glosa Item": 255308.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Encore",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 103,
+                "Valor Liberado Item": 153932.0,
+                "Valor Glosa Item": 233583.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Recursado",
+                "Qtd": 6966,
+                "Valor Liberado Item": 2228240.0,
+                "Valor Glosa Item": 65636987.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Não processado",
+                "Qtd": 72,
+                "Valor Liberado Item": 72228.0,
+                "Valor Glosa Item": 282304.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 4072,
+                "Valor Liberado Item": 20346423.0,
+                "Valor Glosa Item": 4714907.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 258,
+                "Valor Liberado Item": 588048.0,
+                "Valor Glosa Item": 14176944.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 41,
+                "Valor Liberado Item": 376324.0,
+                "Valor Glosa Item": 189835.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "SulAmérica",
+                "Status Item": "Tratativas Cliente",
+                "Qtd": 2,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 6287.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 681,
+                "Valor Liberado Item": 6122198.0,
+                "Valor Glosa Item": 38325518.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Hospital Sao Francisco Ceilandia",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 261,
+                "Valor Liberado Item": 2531037.0,
+                "Valor Glosa Item": 21861156.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Angiocardis",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 21,
+                "Valor Liberado Item": 176466.0,
+                "Valor Glosa Item": 137568.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Angiocardis",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 7,
+                "Valor Liberado Item": 6660.0,
+                "Valor Glosa Item": 8718.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Neurológico",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 65,
+                "Valor Liberado Item": 722743.0,
+                "Valor Glosa Item": 7767539.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Neurológico",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 66,
+                "Valor Liberado Item": 24082.0,
+                "Valor Glosa Item": 1260020.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Neurológico",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 16,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 356724.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Neurológico",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 1662,
+                "Valor Liberado Item": 2835671.0,
+                "Valor Glosa Item": 9708933.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: ING: Neurológico",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 447,
+                "Valor Liberado Item": 4062281.0,
+                "Valor Glosa Item": 2516659.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Instituto Radioterapia Taguatinga",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Recursado",
+                "Qtd": 65,
+                "Valor Liberado Item": 259650.0,
+                "Valor Glosa Item": 38681.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Instituto Radioterapia Taguatinga",
+                "Operadora": "Central Nacional Unimed",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 186,
+                "Valor Liberado Item": 436344.0,
+                "Valor Glosa Item": 74877.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Instituto Radioterapia Taguatinga",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 2,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 20914.0
+            },
+            {
+                "Prestador": "Kora Hub Centro-Oeste: Instituto Radioterapia Taguatinga",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 1,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 1208804.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital e Maternidade Sao Francisco",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 40,
+                "Valor Liberado Item": 111504.0,
+                "Valor Glosa Item": 290686.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital e Maternidade Sao Francisco",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 4,
+                "Valor Liberado Item": 59390.0,
+                "Valor Glosa Item": 121566.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital e Maternidade Sao Francisco",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 58,
+                "Valor Liberado Item": 33285.0,
+                "Valor Glosa Item": 370404.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital e Maternidade Sao Francisco",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 46,
+                "Valor Liberado Item": 516383.0,
+                "Valor Glosa Item": 164760.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 310,
+                "Valor Liberado Item": 2382450.0,
+                "Valor Glosa Item": 5553273.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 60,
+                "Valor Liberado Item": 32191.0,
+                "Valor Glosa Item": 66100.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 68,
+                "Valor Liberado Item": 443560.0,
+                "Valor Glosa Item": 1215748.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 431,
+                "Valor Liberado Item": 1118744.0,
+                "Valor Glosa Item": 11203244.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 210,
+                "Valor Liberado Item": 4970237.0,
+                "Valor Glosa Item": 3367543.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Sao Mateus",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 90,
+                "Valor Liberado Item": 198859.0,
+                "Valor Glosa Item": 880201.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Sao Mateus",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 25,
+                "Valor Liberado Item": 88442.0,
+                "Valor Glosa Item": 91036.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Sao Mateus",
+                "Operadora": "SulAmérica",
+                "Status Item": "Tratativas Cliente",
+                "Qtd": 2,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 5076.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Sao Mateus",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 147,
+                "Valor Liberado Item": 43266.0,
+                "Valor Glosa Item": 1765091.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Sao Mateus",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 103,
+                "Valor Liberado Item": 936366.0,
+                "Valor Glosa Item": 708236.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Vitoria",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 152,
+                "Valor Liberado Item": 633558.0,
+                "Valor Glosa Item": 1734053.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Vitoria",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 13,
+                "Valor Liberado Item": 118798.0,
+                "Valor Glosa Item": 43708.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Vitoria",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 248,
+                "Valor Liberado Item": 1104372.0,
+                "Valor Glosa Item": 2443732.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Meridional Vitoria",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 233,
+                "Valor Liberado Item": 2478161.0,
+                "Valor Glosa Item": 303251.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Metropolitano",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 75,
+                "Valor Liberado Item": 290520.0,
+                "Valor Glosa Item": 1328535.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Metropolitano",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 5,
+                "Valor Liberado Item": 8958.0,
+                "Valor Glosa Item": 30549.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Metropolitano",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 59,
+                "Valor Liberado Item": 2607406.0,
+                "Valor Glosa Item": 34753887.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Metropolitano",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 268,
+                "Valor Liberado Item": 901836.0,
+                "Valor Glosa Item": 13319144.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Metropolitano",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 163,
+                "Valor Liberado Item": 1585012.0,
+                "Valor Glosa Item": 1345467.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Praia da Costa",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 137,
+                "Valor Liberado Item": 821405.0,
+                "Valor Glosa Item": 1628348.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Praia da Costa",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 18,
+                "Valor Liberado Item": 71665.0,
+                "Valor Glosa Item": 1137377.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Praia da Costa",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 240,
+                "Valor Liberado Item": 719674.0,
+                "Valor Glosa Item": 3988805.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Praia da Costa",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 187,
+                "Valor Liberado Item": 2238120.0,
+                "Valor Glosa Item": 1619038.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Sao Luiz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 241,
+                "Valor Liberado Item": 35112.0,
+                "Valor Glosa Item": 916487.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Hospital Sao Luiz",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 16,
+                "Valor Liberado Item": 8218.0,
+                "Valor Glosa Item": 223812.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Metropolitano Imagem",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 25,
+                "Valor Liberado Item": 122346.0,
+                "Valor Glosa Item": 390702.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Metropolitano Imagem",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 1,
+                "Valor Liberado Item": 236.0,
+                "Valor Glosa Item": 96.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Metropolitano Imagem",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 36,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 347501.0
+            },
+            {
+                "Prestador": "Kora Hub ES: Meridional: Metropolitano Imagem",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 35,
+                "Valor Liberado Item": 92371.0,
+                "Valor Glosa Item": 482953.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Palmas",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 67,
+                "Valor Liberado Item": 4284755.0,
+                "Valor Glosa Item": 9431773.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Palmas",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 49,
+                "Valor Liberado Item": 14973850.0,
+                "Valor Glosa Item": 541974.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Palmas",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 176,
+                "Valor Liberado Item": 0.0,
+                "Valor Glosa Item": 15267371.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Palmas",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 141,
+                "Valor Liberado Item": 884958.0,
+                "Valor Glosa Item": 709481.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Palmas",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 125,
+                "Valor Liberado Item": 1312600.0,
+                "Valor Glosa Item": 428492.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Santa Thereza",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 141,
+                "Valor Liberado Item": 1009642.0,
+                "Valor Glosa Item": 1377550.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Santa Thereza",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 40,
+                "Valor Liberado Item": 112693.0,
+                "Valor Glosa Item": 36289.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Medical: Santa Thereza",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Cancelado",
+                "Qtd": 64,
+                "Valor Liberado Item": 312732.0,
+                "Valor Glosa Item": 405745.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Sao Mateus Cuiaba",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Recursado",
+                "Qtd": 371,
+                "Valor Liberado Item": 1758717.0,
+                "Valor Glosa Item": 13353816.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Sao Mateus Cuiaba",
+                "Operadora": "Saúde Caixa",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 19,
+                "Valor Liberado Item": 26652.0,
+                "Valor Glosa Item": 84651.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Sao Mateus Cuiaba",
+                "Operadora": "SulAmérica",
+                "Status Item": "Recursado",
+                "Qtd": 200,
+                "Valor Liberado Item": 1343261.0,
+                "Valor Glosa Item": 10990251.0
+            },
+            {
+                "Prestador": "Kora Hub Norte: Sao Mateus Cuiaba",
+                "Operadora": "SulAmérica",
+                "Status Item": "Glosa Aceita",
+                "Qtd": 168,
+                "Valor Liberado Item": 1041633.0,
+                "Valor Glosa Item": 1583051.0
+            }
+        ]
+    },
+    "rankingCodAns": {
+        "title": "Ranking de Cód. ANS",
+        "sql": "With CTE As ( Select `Glosa Item - Cód. ANS`, Count(*) As Qtd From KORA Group By `Glosa Item - Cód. ANS` ) Select CTE.*, Concat(Round(Qtd * 100.0 / (Select Sum(Qtd) From CTE),2), '%') As Percentual From CTE Order By 2 Desc",
+        "data": [
+            {
+                "Glosa Item - Cód. ANS": 1705,
+                "Qtd": 21661,
+                "Percentual": "48.64%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2610,
+                "Qtd": 2221,
+                "Percentual": "4.99%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1707,
+                "Qtd": 2120,
+                "Percentual": "4.76%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2006,
+                "Qtd": 1988,
+                "Percentual": "4.46%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1714,
+                "Qtd": 1767,
+                "Percentual": "3.97%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1702,
+                "Qtd": 1257,
+                "Percentual": "2.82%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2009,
+                "Qtd": 1102,
+                "Percentual": "2.47%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1402,
+                "Qtd": 1087,
+                "Percentual": "2.44%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1818,
+                "Qtd": 1051,
+                "Percentual": "2.36%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2514,
+                "Qtd": 936,
+                "Percentual": "2.10%"
+            },
+            {
+                "Glosa Item - Cód. ANS": null,
+                "Qtd": 849,
+                "Percentual": "1.91%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 3040,
+                "Qtd": 758,
+                "Percentual": "1.70%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2010,
+                "Qtd": 616,
+                "Percentual": "1.38%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1601,
+                "Qtd": 595,
+                "Percentual": "1.34%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1014,
+                "Qtd": 591,
+                "Percentual": "1.33%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2007,
+                "Qtd": 504,
+                "Percentual": "1.13%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2605,
+                "Qtd": 374,
+                "Percentual": "0.84%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1807,
+                "Qtd": 371,
+                "Percentual": "0.83%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2001,
+                "Qtd": 368,
+                "Percentual": "0.83%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2106,
+                "Qtd": 325,
+                "Percentual": "0.73%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1318,
+                "Qtd": 274,
+                "Percentual": "0.62%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1817,
+                "Qtd": 241,
+                "Percentual": "0.54%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2108,
+                "Qtd": 230,
+                "Percentual": "0.52%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1408,
+                "Qtd": 217,
+                "Percentual": "0.49%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1615,
+                "Qtd": 217,
+                "Percentual": "0.49%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2203,
+                "Qtd": 189,
+                "Percentual": "0.42%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2101,
+                "Qtd": 181,
+                "Percentual": "0.41%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1305,
+                "Qtd": 163,
+                "Percentual": "0.37%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1801,
+                "Qtd": 160,
+                "Percentual": "0.36%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1833,
+                "Qtd": 155,
+                "Percentual": "0.35%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1816,
+                "Qtd": 143,
+                "Percentual": "0.32%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1727,
+                "Qtd": 135,
+                "Percentual": "0.30%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1420,
+                "Qtd": 127,
+                "Percentual": "0.29%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1403,
+                "Qtd": 113,
+                "Percentual": "0.25%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1703,
+                "Qtd": 111,
+                "Percentual": "0.25%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1711,
+                "Qtd": 107,
+                "Percentual": "0.24%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1827,
+                "Qtd": 96,
+                "Percentual": "0.22%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1612,
+                "Qtd": 91,
+                "Percentual": "0.20%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1409,
+                "Qtd": 89,
+                "Percentual": "0.20%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2604,
+                "Qtd": 70,
+                "Percentual": "0.16%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 3108,
+                "Qtd": 70,
+                "Percentual": "0.16%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1207,
+                "Qtd": 69,
+                "Percentual": "0.15%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1713,
+                "Qtd": 66,
+                "Percentual": "0.15%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2008,
+                "Qtd": 50,
+                "Percentual": "0.11%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1820,
+                "Qtd": 50,
+                "Percentual": "0.11%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1311,
+                "Qtd": 39,
+                "Percentual": "0.09%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 5034,
+                "Qtd": 36,
+                "Percentual": "0.08%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1831,
+                "Qtd": 33,
+                "Percentual": "0.07%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1913,
+                "Qtd": 32,
+                "Percentual": "0.07%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1704,
+                "Qtd": 31,
+                "Percentual": "0.07%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1749,
+                "Qtd": 27,
+                "Percentual": "0.06%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1739,
+                "Qtd": 25,
+                "Percentual": "0.06%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1837,
+                "Qtd": 22,
+                "Percentual": "0.05%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2402,
+                "Qtd": 21,
+                "Percentual": "0.05%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2004,
+                "Qtd": 20,
+                "Percentual": "0.04%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2107,
+                "Qtd": 19,
+                "Percentual": "0.04%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2405,
+                "Qtd": 19,
+                "Percentual": "0.04%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1426,
+                "Qtd": 18,
+                "Percentual": "0.04%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 3087,
+                "Qtd": 18,
+                "Percentual": "0.04%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2714,
+                "Qtd": 16,
+                "Percentual": "0.04%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1741,
+                "Qtd": 15,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2213,
+                "Qtd": 15,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2407,
+                "Qtd": 15,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1602,
+                "Qtd": 14,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1746,
+                "Qtd": 13,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1834,
+                "Qtd": 12,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1917,
+                "Qtd": 12,
+                "Percentual": "0.03%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2707,
+                "Qtd": 11,
+                "Percentual": "0.02%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1017,
+                "Qtd": 10,
+                "Percentual": "0.02%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 3018,
+                "Qtd": 10,
+                "Percentual": "0.02%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2513,
+                "Qtd": 6,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2602,
+                "Qtd": 6,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1425,
+                "Qtd": 6,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2706,
+                "Qtd": 6,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2112,
+                "Qtd": 5,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2401,
+                "Qtd": 5,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1007,
+                "Qtd": 4,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1742,
+                "Qtd": 4,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2712,
+                "Qtd": 4,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 5035,
+                "Qtd": 3,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1838,
+                "Qtd": 3,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1839,
+                "Qtd": 3,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2902,
+                "Qtd": 3,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2418,
+                "Qtd": 3,
+                "Percentual": "0.01%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2505,
+                "Qtd": 2,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1414,
+                "Qtd": 2,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1415,
+                "Qtd": 2,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1407,
+                "Qtd": 1,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1724,
+                "Qtd": 1,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1505,
+                "Qtd": 1,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 2115,
+                "Qtd": 1,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1218,
+                "Qtd": 1,
+                "Percentual": "0.00%"
+            },
+            {
+                "Glosa Item - Cód. ANS": 1918,
+                "Qtd": 1,
+                "Percentual": "0.00%"
+            }
+        ]
+    },
+    "rankingCodTabela": {
+        "title": "Ranking de Valor: Cód. Tabela",
+        "sql": "Select `Cód. Tabela`, Count(*) As Qtd, Sum(`Valor Liberado Item`) As 'Valor Liberado Item', Sum(`Valor Glosa Item`) As 'Valor Glosa Item' From KORA Group By `Cód. Tabela` Order By 2 Desc",
+        "data": [
+            {
+                "Cód. Tabela": 19,
+                "Qtd": 18968,
+                "Valor Liberado Item": 35274552.00,
+                "Valor Glosa Item": 158462877.00
+            },
+            {
+                "Cód. Tabela": 22,
+                "Qtd": 11826,
+                "Valor Liberado Item": 45435162.00,
+                "Valor Glosa Item": 87968201.00
+            },
+            {
+                "Cód. Tabela": 20,
+                "Qtd": 7203,
+                "Valor Liberado Item": 75336000.00,
+                "Valor Glosa Item": 50707095.00
+            },
+            {
+                "Cód. Tabela": 0,
+                "Qtd": 4429,
+                "Valor Liberado Item": 15124878.00,
+                "Valor Glosa Item": 61107198.00
+            },
+            {
+                "Cód. Tabela": null,
+                "Qtd": 797,
+                "Valor Liberado Item": 0.00,
+                "Valor Glosa Item": 103779821.00
+            },
+            {
+                "Cód. Tabela": 18,
+                "Qtd": 748,
+                "Valor Liberado Item": 2536122.00,
+                "Valor Glosa Item": 21114202.00
+            },
+            {
+                "Cód. Tabela": 98,
+                "Qtd": 560,
+                "Valor Liberado Item": 34539471.00,
+                "Valor Glosa Item": 59181389.00
             }
         ]
     }

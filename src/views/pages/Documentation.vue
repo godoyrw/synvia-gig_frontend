@@ -41,7 +41,7 @@
         <!-- Footer -->
         <div class="mt-8 p-4 bg-primary-50 dark:bg-surface-800 rounded-lg border border-primary-200 dark:border-surface-700">
             <p class="text-sm text-surface-600 dark:text-surface-400">
-                <strong>Última atualização:</strong> 15 de Novembro de 2025
+                <strong>Última atualização:</strong> 16 de Novembro de 2025
             </p>
         </div>
     </div>
@@ -52,10 +52,12 @@ import deploymentContent from '@/assets/docs/DEPLOYMENT_SETUP.md?raw';
 import dialogContent from '@/assets/docs/DIALOG_SYSTEM.md?raw';
 import logsContent from '@/assets/docs/LOGS_IMPLEMENTADOS.md?raw';
 import notificationContent from '@/assets/docs/NOTIFICATION_SYSTEM.md?raw';
+import dashboardContent from '@/assets/docs/SYNGIG_DASHBOARD.md?raw';
 import sessionContent from '@/assets/docs/SYNVIA_SESSION_MANAGEMENT_REPORT.md?raw';
 import { computed, ref } from 'vue';
 
 const DOCS = [
+    { id: 'dashboard', name: 'Dashboard', icon: '📊', content: dashboardContent },
     { id: 'logs', name: 'Implementações', icon: '📋', content: logsContent },
     { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
     { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
