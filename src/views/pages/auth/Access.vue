@@ -9,10 +9,16 @@
                         <div class="flex justify-center items-center border-2 border-orange-500 rounded-full" style="width: 3.2rem; height: 3.2rem">
                             <i class="text-orange-500 pi pi-fw pi-lock !text-2xl"></i>
                         </div>
-                        <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl mb-2">Access Denied</h1>
-                        <span class="text-muted-color mb-8">You do not have the necessary permisions. Please contact admins.</span>
-                        <div class="col-span-12 mt-8 text-center">
-                            <Button as="router-link" label="Go to Dashboard" to="/" severity="warn" />
+                        <h1 class="text-surface-900 dark:text-surface-0 font-bold text-4xl lg:text-5xl mb-2">Acesso Negado</h1>
+                        <span class="text-muted-color mb-8">Você não possui as permissões necessárias.<br/>Se você acha que deveria visualizar essa página, por favor, contate os administradores.</span>
+                        <div class="col-span-12 mt-8 w-full">
+                            <Button
+                                as="router-link"
+                                label="Ir para o Dashboard"
+                                to="/"
+                                class="w-full"
+                                severity="warn" 
+                            />
                         </div>
                     </div>
                 </div>

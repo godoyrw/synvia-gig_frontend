@@ -38,18 +38,18 @@ const handlePasswordKeydown = (event) => {
 const handleLogin = async () => {
     // Validação de campos vazios
     if (!email.value?.trim()) {
-        warning('Usuário em branco', 'Por favor, digite seu usuário/email');
+        warning('Credencial de Usuário','Usuário em branco', 'Por favor, digite seu usuário/email');
         return;
     }
 
     if (!password.value?.trim()) {
-        warning('Senha em branco', 'Por favor, digite sua senha');
+        warning('Credencial de Usuário','Senha em branco', 'Por favor, digite sua senha');
         return;
     }
 
     try {
         await auth.loginWithCredentials(email.value, password.value);
-        success('Login realizado com sucesso!');
+        success('Credencial de Usuário','Login realizado com sucesso!');
 
         // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
         const redirect = route.query.redirect || '/synvia-gig';
@@ -61,7 +61,7 @@ const handleLogin = async () => {
 
 onMounted(() => {
     if (route.query.expired) {
-        info('Sua sessão expirou. Faça login novamente.');
+        warning('Credencial de Usuário', 'Por segurança sua sessão expira em 05 minutos de inatividade. Faça login novamente.');
     }
 });
 </script>

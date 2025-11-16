@@ -345,7 +345,7 @@ const formData = reactive({
 
 ---
 
-## �� Arquivos Modificados
+##  Arquivos Modificados
 
 ### Roteamento
 - `src/router/index.js`: 4 rotas adicionadas (/profile, /settings, /auth/forgot-password, 404 catch-all)
@@ -393,7 +393,7 @@ const formData = reactive({
 
 ---
 
-## �️ Organização dos Diretórios de Interface
+## Organização dos Diretórios de Interface
 
 Para manter o reuso e a previsibilidade dos imports, a estrutura foi padronizada da seguinte forma:
 
@@ -407,7 +407,7 @@ Para manter o reuso e a previsibilidade dos imports, a estrutura foi padronizada
 
 ---
 
-## �📊 Commits Realizados
+## Commits Realizados
 
 | Hash | Mensagem | Tipo | Detalhes |
 |------|----------|------|----------|
@@ -502,7 +502,7 @@ Para manter o reuso e a previsibilidade dos imports, a estrutura foi padronizada
 
 ---
 
-## � Usuários de Teste (Mock)
+## Usuários de Teste (Mock)
 
 Para testar as funcionalidades em homolog, use estas credenciais:
 
@@ -519,7 +519,7 @@ Para testar as funcionalidades em homolog, use estas credenciais:
 
 ---
 
-## �📝 Notas Importantes
+## 📝 Notas Importantes
 
 ### Dependências Adicionadas
 - ✅ PrimeVue 4.4.1+ (já existia)
@@ -581,7 +581,7 @@ Veja também:
 
 Sessão altamente produtiva com implementação de **18 features** em **1 dia**, resultando em uma aplicação mais robusta, com melhor UX/UI, e pronta para produção. 
 
-Todas as validações passaram ✅  
-Build completo e otimizado ✅  
-Documentação completa ✅  
-Pronto para merge 🚀
+- Todas as validações passaram ✅
+- Build completo e otimizado ✅  
+- Documentação completa ✅  
+- Pronto para merge 🚀
