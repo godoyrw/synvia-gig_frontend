@@ -48,78 +48,44 @@
 </template>
 
 <script setup>
+import { computed, ref } from 'vue';
+
 import deploymentContent from '@/assets/docs/DEPLOYMENT_SETUP.md?raw';
 import dialogContent from '@/assets/docs/DIALOG_SYSTEM.md?raw';
 import logsContent from '@/assets/docs/LOGS_IMPLEMENTADOS.md?raw';
 import notificationContent from '@/assets/docs/NOTIFICATION_SYSTEM.md?raw';
 import sessionContent from '@/assets/docs/SYNVIA_SESSION_MANAGEMENT_REPORT.md?raw';
-import { computed, ref } from 'vue';
 
-const docs = [
-    { id: 'logs', name: 'Implementações', icon: '📋' },
-    { id: 'dialog', name: 'Dialogs', icon: '🗨️' },
-    { id: 'notification', name: 'Notificações', icon: '🔔' },
-    { id: 'deployment', name: 'Deploy', icon: '🚀' },
-    { id: 'session', name: 'Sessão', icon: '👤' }
+const DOCS = [
+    { id: 'logs', name: 'Implementações', icon: '📋', content: logsContent },
+    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
+    { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
+    { id: 'deployment', name: 'Deploy', icon: '🚀', content: deploymentContent },
+    { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent }
 ];
 
-const currentDoc = ref('logs');
+const headingRules = [
+    { regex: /^# (.*?)$/gm, replacement: '<h1 class="text-4xl font-bold my-4 mt-6 text-primary-600 dark:text-primary-400">$1</h1>' },
+    { regex: /^## (.*?)$/gm, replacement: '<h2 class="text-3xl font-bold my-3 mt-5 text-primary-700 dark:text-primary-300">$1</h2>' },
+    { regex: /^### (.*?)$/gm, replacement: '<h3 class="text-2xl font-bold my-2 mt-4 text-surface-800 dark:text-surface-200">$1</h3>' },
+    { regex: /^#### (.*?)$/gm, replacement: '<h4 class="text-xl font-semibold my-2 mt-3 text-surface-700 dark:text-surface-300">$1</h4>' }
+];
+
+const typographyRules = [
+    { regex: /\*\*([^*]+)\*\*/g, replacement: '<strong class="font-bold text-surface-900 dark:text-surface-100">$1</strong>' },
+    { regex: /\*([^*]+)\*/g, replacement: '<em class="italic text-surface-700 dark:text-surface-300">$1</em>' },
+    { regex: /`([^`]+)`/g, replacement: '<code class="bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded font-mono text-sm text-primary-600 dark:text-primary-400">$1</code>' },
+    { regex: /\[([^\]]+)\]\(([^)]+)\)/g, replacement: '<a href="$2" target="_blank" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300">$1</a>' }
+];
+
+const layoutRules = [
+    { regex: /^---$/gm, replacement: '<hr class="my-3 border-surface-300 dark:border-surface-600" />' },
+    { regex: /^\- (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' },
+    { regex: /^\d+\. (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' }
+];
+
+const currentDoc = ref(DOCS[0].id);
 const searchQuery = ref('');
-
-const markdownContents = {
-    logs: logsContent,
-    dialog: dialogContent,
-    notification: notificationContent,
-    deployment: deploymentContent,
-    session: sessionContent
-};
-
-// Renderizar markdown em HTML
-const renderMarkdown = (markdown) => {
-    if (!markdown) return '';
-
-    let html = markdown
-        // Headings
-        .replace(/^# (.*?)$/gm, '<h1 class="text-4xl font-bold my-4 mt-6 text-primary-600 dark:text-primary-400">$1</h1>')
-        .replace(/^## (.*?)$/gm, '<h2 class="text-3xl font-bold my-3 mt-5 text-primary-700 dark:text-primary-300">$1</h2>')
-        .replace(/^### (.*?)$/gm, '<h3 class="text-2xl font-bold my-2 mt-4 text-surface-800 dark:text-surface-200">$1</h3>')
-        .replace(/^#### (.*?)$/gm, '<h4 class="text-xl font-semibold my-2 mt-3 text-surface-700 dark:text-surface-300">$1</h4>')
-        
-        // Code blocks
-        .replace(/```([\s\S]*?)```/g, (match, code) => {
-            return `<pre class="bg-surface-800 dark:bg-surface-950 p-4 rounded my-2 overflow-x-auto"><code class="text-surface-100 font-mono text-sm">${escapeHtml(code.trim())}</code></pre>`;
-        })
-        
-        // Inline code
-        .replace(/`([^`]+)`/g, '<code class="bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded font-mono text-sm text-primary-600 dark:text-primary-400">$1</code>')
-        
-        // Bold
-        .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-surface-900 dark:text-surface-100">$1</strong>')
-        
-        // Italic
-        .replace(/\*([^*]+)\*/g, '<em class="italic text-surface-700 dark:text-surface-300">$1</em>')
-        
-        // Links
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300">$1</a>')
-        
-        // Horizontal lines
-        .replace(/^---$/gm, '<hr class="my-3 border-surface-300 dark:border-surface-600" />')
-        
-        // Lists
-        .replace(/^\- (.*?)$/gm, '<li class="ml-6 my-1">$1</li>')
-        .replace(/^\d+\. (.*?)$/gm, '<li class="ml-6 my-1">$1</li>')
-        
-        // Paragraphs - Replace double newlines with <br>
-        .replace(/\n\n+/g, '<br><br>')
-        .replace(/^([^<].*?)$/gm, (match) => {
-            if (!match.match(/^<|^\|/) && match.trim()) {
-                return `<p class="my-4">${match}</p>`;
-            }
-            return match;
-        });
-
-    return html;
-};
 
 const escapeHtml = (text) => {
     const div = document.createElement('div');
@@ -127,20 +93,53 @@ const escapeHtml = (text) => {
     return div.innerHTML;
 };
 
+const applyRules = (content, rules) => rules.reduce((result, rule) => result.replace(rule.regex, rule.replacement), content);
+
+const normalizeParagraphs = (html) =>
+    html
+        .split(/\n{2,}/)
+        .map((paragraph) => {
+            const trimmed = paragraph.trim();
+            const isHtmlBlock = /^</.test(trimmed) || /^\|/.test(trimmed);
+            if (!trimmed || isHtmlBlock) return trimmed;
+            return `<p class="my-4">${trimmed}</p>`;
+        })
+        .join('');
+
+const transformCodeBlocks = (markdown) =>
+    markdown.replace(/```([\s\S]*?)```/g, (match, code) => {
+        const normalized = code.replace(/\r\n/g, '\n').replace(/\n\s*\n/g, '\n').trim();
+        return `<pre class="bg-surface-800 dark:bg-surface-950 p-4 rounded my-2 overflow-x-auto"><code class="text-surface-100 font-mono text-sm">${escapeHtml(normalized)}</code></pre>`;
+    });
+
+const renderMarkdown = (markdown) => {
+    if (!markdown) return '';
+
+    const normalized = markdown.trim();
+    const withCodeBlocks = transformCodeBlocks(normalized);
+    const withHeadings = applyRules(withCodeBlocks, headingRules);
+    const withTypography = applyRules(withHeadings, typographyRules);
+    const withLayout = applyRules(withTypography, layoutRules);
+    const withLineBreaks = withLayout.replace(/\n\n+/g, '\n\n');
+
+    return normalizeParagraphs(withLineBreaks);
+};
+
+const highlightQuery = (html, query) => {
+    if (!query) return html;
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    return html.replace(regex, '<mark>$1</mark>');
+};
+
 const renderedMarkdown = computed(() => {
-    const markdown = markdownContents[currentDoc.value] || '';
-    let html = renderMarkdown(markdown);
-
-    // Aplicar filtro de busca
-    if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase();
-        const lines = html.split('\n');
-        const filtered = lines.filter(line => line.toLowerCase().includes(query));
-        html = filtered.join('\n');
-    }
-
-    return html;
+    const doc = DOCS.find((item) => item.id === currentDoc.value);
+    const markdown = doc?.content ?? '';
+    const html = renderMarkdown(markdown);
+    return highlightQuery(html, searchQuery.value.trim());
 });
+
+const docs = DOCS;
 </script>
 
 
@@ -208,11 +207,13 @@ const renderedMarkdown = computed(() => {
     :deep(pre) {
         overflow-x: auto;
         max-width: 100%;
-        margin: 1.5rem 0;
+        margin: 1.25rem 0;
 
         code {
             display: block;
-            padding: 1rem;
+            padding: 0.75rem 1rem;
+            line-height: 1.35;
+            letter-spacing: 0.01em;
         }
     }
 
@@ -276,6 +277,18 @@ const renderedMarkdown = computed(() => {
 
     :deep(em) {
         font-style: italic;
+    }
+
+    :deep(mark) {
+        background-color: var(--primary-100);
+        color: var(--surface-900);
+        padding: 0 0.25rem;
+        border-radius: 0.25rem;
+
+        @media (prefers-color-scheme: dark) {
+            background-color: rgba(59, 130, 246, 0.25);
+            color: var(--surface-0);
+        }
     }
 }
 </style>
