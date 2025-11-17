@@ -23,6 +23,9 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Install pnpm CLI
+        run: npm install -g pnpm@9
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -35,11 +38,14 @@ jobs:
       - name: Build Vue
         run: pnpm build
 
-      - name: Configurar acesso SSH (PROD)
+      - name: Adicionar chave SSH (PROD)
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Confiar no host remoto (PROD)
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Preparar diretório remoto (PROD)

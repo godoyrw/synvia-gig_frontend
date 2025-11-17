@@ -26,30 +26,30 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Install pnpm CLI
+        run: npm install -g pnpm@9
+
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
       - name: Build VueJs
         run: pnpm build
 
-      - name: Configurar acesso SSH (HOMOLOG)
+      - name: Adicionar chave SSH (HOMOLOG)
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_HML_SSH_KEY }}
+
+      - name: Confiar no host remoto (HOMOLOG)
         run: |
-          echo "🔑 Configurando SSH..."
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_HML_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          echo "✓ Chave SSH criada com sucesso"
           echo "🔍 Adicionando host à known_hosts..."
-          
+          mkdir -p ~/.ssh
           if ssh-keyscan -H ${{ secrets.EC2_HML_HOST }} >> ~/.ssh/known_hosts 2>&1; then
             echo "✓ Host adicionado com sucesso"
           else
-            echo "⚠️ Falha ao adicionar host, mas continuando..."
+            echo "⚠️ Falha ao adicionar host"
+            exit 1
           fi
-          
-          echo "🧪 Testando conexão SSH..."
-          ssh -v ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "echo 'SSH conectado com sucesso'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
 
       - name: Preparar diretório remoto (HOMOLOG)
         run: |
