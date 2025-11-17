@@ -2,7 +2,7 @@
 import synviaGigLogo from '@/assets/images/logos/synvia_gig_positivo.png';
 import BaseChart from '@/components/charts/BaseChart.vue';
 import dashboardData from '@/mock/data-dashboard.json';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 const statusDataset = dashboardData.rankingStatusItem.data;
 const prestadorDataset = dashboardData.rankingPrestadorStatusItem.data;
@@ -11,6 +11,110 @@ const operadoraStatusDataset = dashboardData.rankingOperadoraStatus?.data ?? [];
 const prestadorOperadoraStatusDataset = dashboardData.rankingPrestadorOperadoraStatus?.data ?? [];
 const codAnsDataset = dashboardData.rankingCodAns?.data ?? [];
 const codTabelaDataset = dashboardData.rankingCodTabela?.data ?? [];
+
+const defaultLightChartTokens = {
+  text: '#0f172a',
+  subtle: '#475569',
+  grid: 'rgba(15, 23, 42, 0.12)'
+};
+
+const defaultDarkChartTokens = {
+  text: '#C7E6E7',
+  subtle: '#8BCBCD',
+  grid: 'rgba(139, 203, 205, 0.2)'
+};
+
+const chartColors = ref(defaultLightChartTokens);
+const themeObserver = ref(null);
+
+const computeChartColors = () => {
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return chartColors.value;
+  }
+
+  const isDark = detectDarkTheme();
+  const defaults = isDark ? defaultDarkChartTokens : defaultLightChartTokens;
+  const styles = getComputedStyle(document.documentElement);
+
+  const text = (styles.getPropertyValue('--text-color') || '').trim() || defaults.text;
+  const subtle = (styles.getPropertyValue('--text-color-secondary') || '').trim() || defaults.subtle;
+  const border = (styles.getPropertyValue('--surface-border') || '').trim() || defaults.grid;
+
+  const grid = applyAlpha(border, isDark ? 0.4 : 0.2);
+
+  return {
+    text,
+    subtle,
+    grid
+  };
+};
+
+const detectDarkTheme = () => {
+  if (typeof document === 'undefined') return false;
+  const root = document.documentElement;
+  const themeAttr = root.getAttribute('data-theme') ?? '';
+  const classList = root.className ?? '';
+  return /dark/i.test(themeAttr) || /dark/i.test(classList);
+};
+
+const applyAlpha = (rawColor, alpha) => {
+  if (!rawColor) return `rgba(15, 23, 42, ${alpha})`;
+  const color = rawColor.trim();
+
+  if (color.startsWith('rgba')) {
+    return color.replace(/rgba\(([^)]+)\)/, (_, inner) => {
+      const [r, g, b] = inner.split(',').slice(0, 3).map((value) => value.trim());
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    });
+  }
+
+  if (color.startsWith('rgb')) {
+    return color.replace(/rgb\(([^)]+)\)/, (_, inner) => {
+      const [r, g, b] = inner.split(',').map((value) => value.trim());
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    });
+  }
+
+  if (!color.startsWith('#')) {
+    return color;
+  }
+
+  let hex = color.replace('#', '');
+  if (hex.length === 3) {
+    hex = hex
+      .split('')
+      .map((char) => char + char)
+      .join('');
+  }
+
+  if (hex.length !== 6) return color;
+
+  const bigint = parseInt(hex, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+chartColors.value = computeChartColors();
+
+onMounted(() => {
+  chartColors.value = computeChartColors();
+  if (typeof MutationObserver !== 'undefined') {
+    themeObserver.value = new MutationObserver(() => {
+      chartColors.value = computeChartColors();
+    });
+
+    themeObserver.value.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+  }
+});
+
+onBeforeUnmount(() => {
+  themeObserver.value?.disconnect();
+});
 
 const totals = computed(() =>
     statusDataset.reduce(
@@ -39,32 +143,74 @@ const ticketMedio = computed(() => {
 
 const receitaProjetada = computed(() => totals.value.liberado - totals.value.glosa);
 
-const kpiCards = computed(() => [
+const buildSparklinePoints = (rawValues = []) => {
+  const values = rawValues.map((value) => Number(value ?? 0));
+  if (!values.length) {
+    return '0,50 100,50';
+  }
+
+  if (values.length === 1) {
+    return '0,50 100,50';
+  }
+
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = max - min || 1;
+
+  return values
+    .map((value, index) => {
+      const x = (index / (values.length - 1)) * 100;
+      const normalized = (value - min) / range;
+      const y = 100 - normalized * 100;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(' ');
+};
+
+const kpiCards = computed(() => {
+  const glosaSpark = buildSparklinePoints(statusDataset.map((item) => item['Valor Glosa Item']));
+  const liberadoSpark = buildSparklinePoints(statusDataset.map((item) => item['Valor Liberado Item']));
+  const qtdSpark = buildSparklinePoints(statusDataset.map((item) => item.Qtd));
+  const glosaPercent = glosaRate.value;
+  const ticketMedioValue = ticketMedio.value;
+  const qtdValue = totals.value.qtd;
+
+  return [
     {
-        label: 'Taxa de Glosa',
-        value: formatPercent(glosaRate.value),
-        trend: '-2,1% vs mês anterior',
-        intent: 'danger'
+      label: 'Taxa de Glosa',
+      value: formatPercent(glosaPercent),
+      rawValue: glosaPercent,
+      caption: 'vs mês anterior',
+      delta: { value: '-2,1%', direction: 'down', raw: -0.021 },
+      intent: 'danger',
+      sparkline: glosaSpark
     },
     {
-        label: 'Ticket médio liberado',
-        value: formatCurrency(ticketMedio.value),
-        trend: '+4,2% vs mês anterior',
-        intent: 'success'
+      label: 'Ticket médio liberado',
+      value: formatCurrency(ticketMedioValue),
+      rawValue: ticketMedioValue,
+      caption: 'vs mês anterior',
+      delta: { value: '+4,2%', direction: 'up', raw: 0.042 },
+      intent: 'success',
+      sparkline: liberadoSpark
     },
     {
-        label: 'Itens processados',
-        value: totals.value.qtd.toLocaleString('pt-BR'),
-        trend: '+1,6k novos itens',
-        intent: 'info'
+      label: 'Itens processados',
+      value: totals.value.qtd.toLocaleString('pt-BR'),
+      rawValue: qtdValue,
+      caption: '+1,6k novos itens',
+      delta: { value: '-2,1%', direction: 'down', raw: -0.021, muted: true },
+      intent: 'info',
+      sparkline: qtdSpark
     }
-]);
+  ];
+});
 
 const statusOption = computed(() => {
   const statuses = statusDataset.map((item) => item['Status Item']);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     color: ['#34d399', '#f87171', '#fbbf24'],
     tooltip: {
       trigger: 'axis',
@@ -76,29 +222,29 @@ const statusOption = computed(() => {
     },
     legend: {
       top: 16,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 48, right: 48, top: 80, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
       data: statuses,
-      axisLabel: { interval: 0, color: '#8BCBCD' },
-      axisLine: { lineStyle: { color: '#083033' } },
+      axisLabel: { interval: 0, color: chartColors.value.subtle },
+      axisLine: { lineStyle: { color: chartColors.value.grid } },
       axisTick: { show: false }
     },
     yAxis: [
       {
         type: 'value',
         axisLabel: {
-          color: '#8BCBCD',
+          color: chartColors.value.subtle,
           formatter: (value) => formatCompact(value)
         },
-        splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+        splitLine: { lineStyle: { color: chartColors.value.grid } }
       },
       {
         type: 'value',
         axisLabel: {
-          color: '#8BCBCD',
+          color: chartColors.value.subtle,
           formatter: (value) => value.toLocaleString('pt-BR')
         },
         splitLine: { show: false }
@@ -172,7 +318,7 @@ const prestadorHeatmapOption = computed(() => {
     });
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       position: 'top',
       backgroundColor: 'rgba(5,31,33,0.95)',
@@ -186,13 +332,13 @@ const prestadorHeatmapOption = computed(() => {
     xAxis: {
       type: 'category',
       data: heatmapStatuses,
-      axisLabel: { rotate: 30, color: '#8BCBCD' },
+      axisLabel: { rotate: 30, color: chartColors.value.subtle },
       splitArea: { show: true }
     },
     yAxis: {
       type: 'category',
       data: topPrestadores.value,
-      axisLabel: { color: '#C7E6E7' },
+      axisLabel: { color: chartColors.value.text },
       inverse: true,
       splitArea: { show: true }
     },
@@ -214,7 +360,7 @@ const prestadorHeatmapOption = computed(() => {
         data: matrix,
         label: {
           show: true,
-          color: '#E8F5F5',
+          color: chartColors.value.text,
           formatter: ({ value }) => formatCompact(value[2])
         },
         emphasis: {
@@ -246,7 +392,7 @@ const operadoraOption = computed(() => {
   const glosaSerie = operadoraDataset.map((item) => item['Valor Glosa Item']);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     color: ['#22d3ee', '#f87171'],
     tooltip: {
       trigger: 'axis',
@@ -268,21 +414,21 @@ const operadoraOption = computed(() => {
     },
     legend: {
       top: 16,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 140, right: 32, top: 80, bottom: 32, containLabel: true },
     xAxis: {
       type: 'value',
       axisLabel: {
-        color: '#8BCBCD',
+        color: chartColors.value.subtle,
         formatter: (value) => formatCompact(value)
       },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     yAxis: {
       type: 'category',
       data: categorias,
-      axisLabel: { color: '#C7E6E7' }
+      axisLabel: { color: chartColors.value.text }
     },
     series: [
       {
@@ -310,7 +456,7 @@ const operadoraStatusOption = computed(() => {
   const statuses = [...new Set(operadoraStatusDataset.map((item) => item['Status Item']))];
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -320,21 +466,21 @@ const operadoraStatusOption = computed(() => {
     },
     legend: {
       top: 12,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 80, right: 24, top: 72, bottom: 24, containLabel: true },
     xAxis: {
       type: 'category',
       data: operadoras,
-      axisLabel: { color: '#8BCBCD' }
+      axisLabel: { color: chartColors.value.subtle }
     },
     yAxis: {
       type: 'value',
       axisLabel: {
-        color: '#8BCBCD',
+        color: chartColors.value.subtle,
         formatter: (value) => formatCompact(value)
       },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     series: statuses.map((status) => ({
       name: status,
@@ -381,7 +527,7 @@ const prestadorOperadoraOption = computed(() => {
   const categories = combos.map((combo) => combo.label);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -401,22 +547,22 @@ const prestadorOperadoraOption = computed(() => {
     },
     legend: {
       top: 12,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 190, right: 24, top: 72, bottom: 24 },
     xAxis: {
       type: 'value',
       axisLabel: {
-        color: '#8BCBCD',
+        color: chartColors.value.subtle,
         formatter: (value) => formatCompact(value)
       },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     yAxis: {
       type: 'category',
       data: categories,
       axisLabel: {
-        color: '#C7E6E7',
+        color: chartColors.value.text,
         formatter: (value) => value.length > 32 ? `${value.slice(0, 32)}…` : value
       }
     },
@@ -438,7 +584,7 @@ const codAnsOption = computed(() => {
   const quantidades = codAnsTop.value.map((item) => item.Qtd ?? 0);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
@@ -458,13 +604,13 @@ const codAnsOption = computed(() => {
     grid: { left: 150, right: 24, top: 32, bottom: 24 },
     xAxis: {
       type: 'value',
-      axisLabel: { color: '#8BCBCD' },
-      splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+      axisLabel: { color: chartColors.value.subtle },
+      splitLine: { lineStyle: { color: chartColors.value.grid } }
     },
     yAxis: {
       type: 'category',
       data: categorias,
-      axisLabel: { color: '#C7E6E7' }
+      axisLabel: { color: chartColors.value.text }
     },
     series: [
       {
@@ -488,7 +634,7 @@ const codTabelaOption = computed(() => {
   const qtdSerie = codTabelaDataset.map((item) => item.Qtd ?? 0);
 
   return {
-    textStyle: { color: '#C7E6E7' },
+    textStyle: { color: chartColors.value.text },
     color: ['#34d399', '#f87171', '#60a5fa'],
     tooltip: {
       trigger: 'axis',
@@ -509,26 +655,26 @@ const codTabelaOption = computed(() => {
     },
     legend: {
       top: 12,
-      textStyle: { color: '#C7E6E7' }
+      textStyle: { color: chartColors.value.subtle }
     },
     grid: { left: 80, right: 32, top: 72, bottom: 32, containLabel: true },
     xAxis: {
       type: 'category',
       data: categorias,
-      axisLabel: { color: '#8BCBCD' }
+      axisLabel: { color: chartColors.value.subtle }
     },
     yAxis: [
       {
         type: 'value',
         axisLabel: {
-          color: '#8BCBCD',
+          color: chartColors.value.subtle,
           formatter: (value) => formatCompact(value)
         },
-        splitLine: { lineStyle: { color: 'rgba(139,203,205,0.15)' } }
+        splitLine: { lineStyle: { color: chartColors.value.grid } }
       },
       {
         type: 'value',
-        axisLabel: { color: '#8BCBCD' },
+        axisLabel: { color: chartColors.value.subtle },
         splitLine: { show: false }
       }
     ],
@@ -654,23 +800,43 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
             <img :src="synviaGigLogo" alt="Logo" class="gig-dashboard__logo" />
         </div>
 
-        <div class="kpi-grid">
-            <article v-for="card in kpiCards" :key="card.label" class="kpi-card" :class="`kpi-card--${card.intent}`">
-                <div class="kpi-card__spark"></div>
-                <div class="kpi-card__meta">
-                    <span>{{ card.label }}</span>
-                    <strong>{{ card.value }}</strong>
-                </div>
-                <small>{{ card.trend }}</small>
-            </article>
+    <div class="kpi-grid">
+      <article
+        v-for="card in kpiCards"
+        :key="card.label"
+        class="kpi-card"
+        :class="`kpi-card--${card.intent}`"
+      >
+        <div class="kpi-card__background"></div>
+        <div class="kpi-card__header">
+          <span class="kpi-card__label">{{ card.label }}</span>
+          <span
+            class="kpi-card__delta"
+            :class="[
+            `kpi-card__delta--${card.delta.direction}`,
+            { 'kpi-card__delta--muted': card.delta.muted }
+            ]"
+          >
+                        <i :class="card.delta.direction === 'up' ? 'pi pi-arrow-up-right' : card.delta.direction === 'down' ? 'pi pi-arrow-down-right' : 'pi pi-minus'"></i>
+            {{ card.delta.value }}
+          </span>
         </div>
+        <div class="kpi-card__value" :class="{ 'text-negative': card.rawValue < 0 }">{{ card.value }}</div>
+        <div class="kpi-card__footer">
+          <small>{{ card.caption }}</small>
+        </div>
+        <svg class="kpi-card__sparkline" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <polyline :points="card.sparkline" />
+        </svg>
+      </article>
+    </div>
 
         <div class="panel-grid">
             <section class="panel panel--chart">
                 <header>
                     <div>
                         <p class="panel__eyebrow">Receita Líquida</p>
-                        <h2>{{ formatCurrency(receitaProjetada) }}</h2>
+                        <h2 :class="{ 'text-negative': receitaProjetada < 0 }">{{ formatCurrency(receitaProjetada) }}</h2>
                         <span>previsto para o ciclo atual</span>
                     </div>
                     <div class="panel__actions">
@@ -707,6 +873,23 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
             </aside>
         </div>
 
+        <section v-if="operadoraDataset.length" class="panel panel--operators">
+          <header>
+            <div>
+              <p class="panel__eyebrow">Operadoras</p>
+              <h3>{{ dashboardData.rankingOperadora.title }}</h3>
+              <p class="panel__subtitle">
+                {{ formatCurrency(operadoraTotals.liberado) }} liberado ·
+                {{ formatCurrency(operadoraTotals.glosa) }} em glosa
+              </p>
+            </div>
+            <div class="panel__actions">
+              <button class="panel__chip">{{ operadoraDataset.length }} operadoras</button>
+            </div>
+          </header>
+          <BaseChart :option="operadoraOption" height="320px" theme="dark" />
+        </section>
+        
         <section class="panel panel--heatmap">
             <header>
                 <div>
@@ -717,22 +900,7 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
             <BaseChart :option="prestadorHeatmapOption" height="420px" theme="dark" />
         </section>
 
-    <section v-if="operadoraDataset.length" class="panel panel--operators">
-      <header>
-        <div>
-          <p class="panel__eyebrow">Operadoras</p>
-          <h3>{{ dashboardData.rankingOperadora.title }}</h3>
-          <p class="panel__subtitle">
-            {{ formatCurrency(operadoraTotals.liberado) }} liberado ·
-            {{ formatCurrency(operadoraTotals.glosa) }} em glosa
-          </p>
-        </div>
-        <div class="panel__actions">
-          <button class="panel__chip">{{ operadoraDataset.length }} operadoras</button>
-        </div>
-      </header>
-      <BaseChart :option="operadoraOption" height="320px" theme="dark" />
-    </section>
+
 
     <div v-if="operadoraStatusDataset.length || codAnsDataset.length" class="panel-grid panel-grid--equal">
       <section v-if="operadoraStatusDataset.length" class="panel">
@@ -818,7 +986,6 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 
 .gig-dashboard__logo {
   width: 200px;
-  filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.5));
 }
 
 .gig-dashboard__label {
@@ -838,50 +1005,141 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
 .kpi-card {
   position: relative;
   border-radius: 1rem;
-  padding: 1.25rem;
-  background: var(--surface-card);
+  padding: 1.5rem;
+  background: var(--surface-overlay);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  min-height: 160px;
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.2);
+  color: var(--text-color);
 }
 
-.kpi-card__spark {
+.kpi-card__background {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(124, 232, 200, 0.25), transparent 55%);
-  opacity: 0.8;
+  opacity: 0.35;
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.25), transparent 55%);
 }
 
-.kpi-card--success .kpi-card__spark {
-  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.35), transparent 55%);
+.kpi-card--success .kpi-card__background {
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.5), transparent 55%);
 }
 
-.kpi-card--danger .kpi-card__spark {
-  background: radial-gradient(circle at top right, rgba(248, 113, 113, 0.35), transparent 55%);
+.kpi-card--danger .kpi-card__background {
+  background: radial-gradient(circle at top right, rgba(248, 113, 113, 0.5), transparent 55%);
 }
 
-.kpi-card__meta {
+.kpi-card--info .kpi-card__background {
+  background: radial-gradient(circle at top right, rgba(14, 165, 233, 0.45), transparent 55%);
+}
+
+.kpi-card__header {
   position: relative;
   z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.kpi-card__meta span {
-  color: var(--primary-color);
+.kpi-card__label {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-color-secondary);
+}
+
+.kpi-card__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+
+.kpi-card__delta i {
   font-size: 0.85rem;
 }
 
-.kpi-card__meta strong {
-  display: block;
-  font-size: 1.8rem;
-  margin-top: 0.25rem;
+.kpi-card__delta--up {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.35));
+  color: #22c55e;
+  border-color: rgba(16, 185, 129, 0.4);
 }
 
-.kpi-card small {
+.kpi-card__delta--down {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.18), rgba(248, 113, 113, 0.38));
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.kpi-card--info .kpi-card__delta--down {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.18), rgba(14, 165, 233, 0.35));
+  color: #0ea5e9;
+  border-color: rgba(14, 165, 233, 0.5);
+}
+
+.kpi-card__delta--muted {
+  background: linear-gradient(135deg, #22d3ee, #67e8f9);
+  color: #042f2e;
+}
+
+.kpi-card__delta--flat {
+  background: linear-gradient(135deg, #94a3b8, #cbd5f5);
+  color: #0f172a;
+}
+
+.kpi-card__value {
   position: relative;
   z-index: 1;
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text-color);
+}
+
+.kpi-card__footer {
+  position: relative;
+  z-index: 1;
+}
+
+.kpi-card__footer small {
   color: var(--text-color-secondary);
+  font-size: 0.85rem;
+}
+
+.kpi-card__sparkline {
+  position: absolute;
+  inset: auto 0 0;
+  height: 70px;
+  width: 100%;
+  z-index: 0;
+  fill: none;
+  stroke: rgba(248, 250, 252, 0.65);
+  stroke-width: 2;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.text-negative {
+  color: #f87171 !important;
+}
+
+.kpi-card--success .kpi-card__sparkline {
+  stroke: rgba(16, 185, 129, 0.8);
+}
+
+.kpi-card--danger .kpi-card__sparkline {
+  stroke: rgba(248, 113, 113, 0.85);
+}
+
+.kpi-card--info .kpi-card__sparkline {
+  stroke: rgba(59, 130, 246, 0.8);
 }
 
 .panel-grid {
@@ -901,7 +1159,6 @@ const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
 }
 
 .panel header {
