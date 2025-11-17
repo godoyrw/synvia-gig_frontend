@@ -1,82 +1,39 @@
 <script setup>
-import deploymentContent from '@/assets/docs/DEPLOYMENT_SETUP.md?raw';
-import dialogContent from '@/assets/docs/DIALOG_SYSTEM.md?raw';
-import logsContent from '@/assets/docs/LOGS_IMPLEMENTADOS.md?raw';
-import notificationContent from '@/assets/docs/NOTIFICATION_SYSTEM.md?raw';
-import dashboardContent from '@/assets/docs/SYNGIG_DASHBOARD.md?raw';
-import sessionContent from '@/assets/docs/SYNVIA_SESSION_MANAGEMENT_REPORT.md?raw';
+import deploymentContent from '@/assets/docs/deployment_setup.html?raw';
+import dialogContent from '@/assets/docs/dialog_system.html?raw';
+import logsContent from '@/assets/docs/logs_implementados.html?raw';
+import notificationContent from '@/assets/docs/notification_system.html?raw';
+import dashboardContent from '@/assets/docs/syngig_dashboard.html?raw';
+import sessionContent from '@/assets/docs/synvia_session_management_report.html?raw';
 import { computed, ref } from 'vue';
 
 const DOCS = [
-    { id: 'dashboard', name: 'Dashboard', icon: '📊', content: dashboardContent },
     { id: 'logs', name: 'Implementações', icon: '📋', content: logsContent },
-    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
-    { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
     { id: 'deployment', name: 'Deploy', icon: '🚀', content: deploymentContent },
-    { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent }
-];
-
-const headingRules = [
-    { regex: /^# (.*?)$/gm, replacement: '<h1 class="text-4xl font-bold my-4 mt-6 text-primary-600 dark:text-primary-400">$1</h1>' },
-    { regex: /^## (.*?)$/gm, replacement: '<h2 class="text-3xl font-bold my-3 mt-5 text-primary-700 dark:text-primary-300">$1</h2>' },
-    { regex: /^### (.*?)$/gm, replacement: '<h3 class="text-2xl font-bold my-2 mt-4 text-surface-800 dark:text-surface-200">$1</h3>' },
-    { regex: /^#### (.*?)$/gm, replacement: '<h4 class="text-xl font-semibold my-2 mt-3 text-surface-700 dark:text-surface-300">$1</h4>' }
-];
-
-const typographyRules = [
-    { regex: /\*\*([^*]+)\*\*/g, replacement: '<strong class="font-bold text-surface-900 dark:text-surface-100">$1</strong>' },
-    { regex: /\*([^*]+)\*/g, replacement: '<em class="italic text-surface-700 dark:text-surface-300">$1</em>' },
-    { regex: /`([^`]+)`/g, replacement: '<code class="bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded font-mono text-sm text-primary-600 dark:text-primary-400">$1</code>' },
-    { regex: /\[([^\]]+)\]\(([^)]+)\)/g, replacement: '<a href="$2" target="_blank" class="text-primary-600 dark:text-primary-400 underline hover:text-primary-700 dark:hover:text-primary-300">$1</a>' }
-];
-
-const layoutRules = [
-    { regex: /^---$/gm, replacement: '<hr class="my-3 border-surface-300 dark:border-surface-600" />' },
-    { regex: /^- (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' },
-    { regex: /^\d+\. (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' }
+    { id: 'dashboard', name: 'Dashboard', icon: '📊', content: dashboardContent },
+    { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent },
+    { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
+    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
 ];
 
 const currentDoc = ref(DOCS[0].id);
 const searchQuery = ref('');
-const escapeHtml = (text) => {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-};
 
-const applyRules = (content, rules) => rules.reduce((result, rule) => result.replace(rule.regex, rule.replacement), content);
+const sanitizeDocument = (html) => {
+    if (!html) return '';
 
-const normalizeParagraphs = (html) =>
-    html
-        .split(/\n{2,}/)
-        .map((paragraph) => {
-            const trimmed = paragraph.trim();
-            const isHtmlBlock = /^</.test(trimmed) || /^\|/.test(trimmed);
-            if (!trimmed || isHtmlBlock) return trimmed;
-            return `<p class="my-4">${trimmed}</p>`;
-        })
-        .join('');
+    let sanitized = html
+        .replace(/<!DOCTYPE[^>]*>/gi, '')
+        .replace(/<style[\s\S]*?<\/style>/gi, '')
+        .replace(/<head[\s\S]*?<\/head>/gi, '')
+        .replace(/<\/?html[^>]*>/gi, '');
 
-const transformCodeBlocks = (markdown) =>
-    markdown.replace(/```([\s\S]*?)```/g, (match, code) => {
-        const normalized = code
-            .replace(/\r\n/g, '\n')
-            .replace(/\n\s*\n/g, '\n')
-            .trim();
-        return `<pre class="bg-surface-800 dark:bg-surface-950 p-4 rounded my-2 overflow-x-auto"><code class="text-surface-100 font-mono text-sm">${escapeHtml(normalized)}</code></pre>`;
-    });
+    const bodyMatch = sanitized.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+    if (bodyMatch?.[1]) {
+        sanitized = bodyMatch[1];
+    }
 
-const renderMarkdown = (markdown) => {
-    if (!markdown) return '';
-
-    const normalized = markdown.trim();
-    const withCodeBlocks = transformCodeBlocks(normalized);
-    const withHeadings = applyRules(withCodeBlocks, headingRules);
-    const withTypography = applyRules(withHeadings, typographyRules);
-    const withLayout = applyRules(withTypography, layoutRules);
-    const withLineBreaks = withLayout.replace(/\n\n+/g, '\n\n');
-
-    return normalizeParagraphs(withLineBreaks);
+    return sanitized.trim();
 };
 
 const highlightQuery = (html, query) => {
@@ -88,9 +45,8 @@ const highlightQuery = (html, query) => {
 
 const renderedMarkdown = computed(() => {
     const doc = DOCS.find((item) => item.id === currentDoc.value);
-    const markdown = doc?.content ?? '';
-    const html = renderMarkdown(markdown);
-    return highlightQuery(html, searchQuery.value.trim());
+    const sanitized = sanitizeDocument(doc?.content ?? '');
+    return highlightQuery(sanitized, searchQuery.value.trim());
 });
 
 const docs = DOCS;
