@@ -25,11 +25,20 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+<<<<<<< HEAD
+=======
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
-      - name: Build VueJs
+      - name: Build Vue
         run: pnpm build
 
       - name: Configurar acesso SSH (HOMOLOG)
@@ -38,6 +47,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_HML_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+<<<<<<< HEAD
           
           echo "✓ Chave SSH criada com sucesso"
           echo "🔍 Adicionando host à known_hosts..."
@@ -50,6 +60,9 @@ jobs:
           
           echo "🧪 Testando conexão SSH..."
           ssh -v ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "echo 'SSH conectado com sucesso'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
+=======
+          ssh-keyscan -H ${{ secrets.EC2_HML_HOST }} >> ~/.ssh/known_hosts
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
 
       - name: Enviar build para EC2 HOMOLOG
         run: |
@@ -60,16 +73,21 @@ jobs:
           echo "🚀 Executando rsync..."
           rsync -avz --delete \
             dist/ \
+<<<<<<< HEAD
             ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }}:${{ secrets.EC2_HML_APP_PATH }}/app_homolog || {
               echo "⚠️ Rsync retornou código de erro, verificando status..."
               exit 1
             }
           
           echo "✓ Build enviado com sucesso"
+=======
+            ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }}:${{ secrets.EC2_HML_APP_PATH }}/app_homolog
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
 
       - name: Reload nginx HOMOLOG
         if: always()
         run: |
+<<<<<<< HEAD
           echo "🔄 Iniciando reload do nginx em HOMOLOG..."
           
           ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} << 'EOF' || true
@@ -90,3 +108,8 @@ jobs:
           EOF
           
           echo "✓ Comando SSH concluído"
+=======
+          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} << 'EOF'
+            sudo systemctl reload nginx || sudo systemctl restart nginx
+          EOF
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)

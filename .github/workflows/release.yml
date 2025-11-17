@@ -1,9 +1,16 @@
 name: Deploy SYNVIA-GIG - Production
 
 on:
+<<<<<<< HEAD
   push:
     tags:
       - 'v*'   # ex: v1.0.0, v1.0.1, v2.0.0...
+=======
+  release:
+    types: [published]      # dispara só quando o release é publicado
+
+  workflow_dispatch:        # opcional: permite rodar na mão se precisar
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
 
 jobs:
   deploy-production:
@@ -11,6 +18,7 @@ jobs:
     environment: production
 
     steps:
+<<<<<<< HEAD
       - name: Checkout código
         uses: actions/checkout@v4
 
@@ -20,6 +28,12 @@ jobs:
         with:
           version: 9
           run_install: false
+=======
+      - name: Checkout código (tag do release)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,6 +41,15 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+<<<<<<< HEAD
+=======
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
@@ -35,6 +58,7 @@ jobs:
 
       - name: Configurar acesso SSH (PROD)
         run: |
+<<<<<<< HEAD
           echo "🔑 Configurando SSH (PROD)..."
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_PRD_SSH_KEY }}" > ~/.ssh/id_rsa
@@ -67,10 +91,23 @@ jobs:
             }
           
           echo "✓ Build enviado com sucesso para PRODUÇÃO"
+=======
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Enviar build para EC2 PROD
+        run: |
+          rsync -az --delete \
+            dist/ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/app
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
 
       - name: Reload nginx PROD
         if: always()
         run: |
+<<<<<<< HEAD
           echo "🔄 Iniciando reload do nginx em PRODUÇÃO..."
           
           ssh ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }} << 'EOF' || true
@@ -91,3 +128,8 @@ jobs:
           EOF
           
           echo "✓ Comando SSH para PRODUÇÃO concluído"
+=======
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo systemctl reload nginx || sudo systemctl restart nginx
+          EOF
+>>>>>>> cf1631a (Ajustes de deploy in merge para homolog e release para production)
