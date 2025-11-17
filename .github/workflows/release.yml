@@ -23,8 +23,8 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Install pnpm CLI
-        run: npm install -g pnpm@9
+      - name: Enable pnpm via Corepack
+        run: corepack prepare pnpm@9 --activate
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

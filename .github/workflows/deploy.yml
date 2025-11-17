@@ -26,8 +26,8 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
-      - name: Install pnpm CLI
-        run: npm install -g pnpm@9
+      - name: Enable pnpm via Corepack
+        run: corepack prepare pnpm@9 --activate
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
