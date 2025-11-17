@@ -24,12 +24,15 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      # pnpm (instala no runner do GitHub)
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      # Instalar pnpm (FUNCIONA)
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v2
         with:
           version: 10.22.0
-          run_install: false
+
+      # Verificar instalação do pnpm
+      - name: Check pnpm
+        run: pnpm -v
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
