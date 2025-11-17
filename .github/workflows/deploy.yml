@@ -29,7 +29,7 @@ jobs:
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
-      - name: Build Vue
+      - name: Build VueJs
         run: pnpm build
 
       - name: Configurar acesso SSH (HOMOLOG)
@@ -50,6 +50,11 @@ jobs:
           
           echo "🧪 Testando conexão SSH..."
           ssh -v ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "echo 'SSH conectado com sucesso'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
+
+      - name: Preparar diretório remoto (HOMOLOG)
+        run: |
+          echo "📁 Garantindo que o diretório remoto exista..."
+          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "mkdir -p ${{ secrets.EC2_HML_APP_PATH }}/app_homolog"
 
       - name: Enviar build para EC2 HOMOLOG
         run: |
