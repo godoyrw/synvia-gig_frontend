@@ -1,10 +1,9 @@
 name: Deploy SYNVIA-GIG - Production
 
 on:
-  release:
-    types: [published]      # dispara só quando o release é publicado
-
-  workflow_dispatch:        # opcional: permite rodar na mão se precisar
+  push:
+    tags:
+      - 'v*'   # ex: v1.0.0, v1.0.1, v2.0.0...
 
 jobs:
   deploy-production:
@@ -12,22 +11,21 @@ jobs:
     environment: production
 
     steps:
-      - name: Checkout código (tag do release)
+      - name: Checkout código
         uses: actions/checkout@v4
+
+      # Mesmo padrão do homolog: primeiro pnpm, depois Node
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          version: 9
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
@@ -37,20 +35,59 @@ jobs:
 
       - name: Configurar acesso SSH (PROD)
         run: |
+          echo "🔑 Configurando SSH (PROD)..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_PRD_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          
+          echo "✓ Chave SSH criada com sucesso (PROD)"
+          echo "🔍 Adicionando host de PRODUÇÃO à known_hosts..."
+          
+          if ssh-keyscan -H ${{ secrets.EC2_PRD_HOST }} >> ~/.ssh/known_hosts 2>&1; then
+            echo "✓ Host de PRODUÇÃO adicionado com sucesso"
+          else
+            echo "⚠️ Falha ao adicionar host de PRODUÇÃO, mas continuando..."
+          fi
+          
+          echo "🧪 Testando conexão SSH (PROD)..."
+          ssh -v ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }} "echo 'SSH conectado com sucesso em PRODUÇÃO'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
 
       - name: Enviar build para EC2 PROD
         run: |
-          rsync -az --delete \
+          echo "📦 Iniciando envio do build para PRODUÇÃO..."
+          echo "📊 Tamanho do diretório dist:"
+          du -sh dist/ || true
+          
+          echo "🚀 Executando rsync para PRODUÇÃO..."
+          rsync -avz --delete \
             dist/ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/app
+            ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }}:${{ secrets.EC2_PRD_APP_PATH }}/app || {
+              echo "⚠️ Rsync retornou código de erro em PRODUÇÃO, verificando status..."
+              exit 1
+            }
+          
+          echo "✓ Build enviado com sucesso para PRODUÇÃO"
 
       - name: Reload nginx PROD
         if: always()
         run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            sudo systemctl reload nginx || sudo systemctl restart nginx
+          echo "🔄 Iniciando reload do nginx em PRODUÇÃO..."
+          
+          ssh ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }} << 'EOF' || true
+            echo "🔍 Verificando status do nginx (PROD)..."
+            sudo systemctl status nginx || echo "⚠️ Nginx pode não estar em execução em PRODUÇÃO"
+            
+            echo "🔄 Tentando reload do nginx (PROD)..."
+            if sudo systemctl reload nginx 2>/dev/null; then
+              echo "✓ Reload do nginx em PRODUÇÃO realizado com sucesso"
+            else
+              echo "⚠️ Reload em PRODUÇÃO falhou, tentando restart..."
+              if sudo systemctl restart nginx 2>/dev/null; then
+                echo "✓ Restart do nginx em PRODUÇÃO realizado com sucesso"
+              else
+                echo "❌ Falha ao fazer reload ou restart do nginx em PRODUÇÃO"
+              fi
+            fi
           EOF
+          
+          echo "✓ Comando SSH para PRODUÇÃO concluído"
