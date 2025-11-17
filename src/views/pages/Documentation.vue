@@ -1,52 +1,3 @@
-<template>
-    <div class="documentation-container">
-        <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-4xl font-bold mb-2 dark:text-surface-0">📋 Documentação</h1>
-            <p class="text-surface-600 dark:text-surface-400">Guias, protocolos e referências técnicas</p>
-        </div>
-
-        <!-- Tabs/Navigation -->
-        <div class="mb-6 flex gap-2 flex-wrap border-b border-surface-200 dark:border-surface-700">
-            <button
-                v-for="doc in docs"
-                :key="doc.id"
-                @click="currentDoc = doc.id"
-                :class="[
-                    'px-4 py-2 font-semibold transition-colors',
-                    currentDoc === doc.id
-                        ? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
-                        : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'
-                ]"
-            >
-                {{ doc.icon }} {{ doc.name }}
-            </button>
-        </div>
-
-        <!-- Search -->
-        <div class="mb-6">
-            <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Buscar na documentação..."
-                class="w-full px-4 py-2 border rounded-lg bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0"
-            />
-        </div>
-
-        <!-- Content -->
-        <div class="markdown-content bg-surface-0 dark:bg-surface-900 rounded-lg p-6 border border-surface-200 dark:border-surface-700">
-            <div v-html="renderedMarkdown" class="prose dark:prose-invert max-w-none"></div>
-        </div>
-
-        <!-- Footer -->
-        <div class="mt-8 p-4 bg-primary-50 dark:bg-surface-800 rounded-lg border border-primary-200 dark:border-surface-700">
-            <p class="text-sm text-surface-600 dark:text-surface-400">
-                <strong>Última atualização:</strong> 16 de Novembro de 2025
-            </p>
-        </div>
-    </div>
-</template>
-
 <script setup>
 import deploymentContent from '@/assets/docs/DEPLOYMENT_SETUP.md?raw';
 import dialogContent from '@/assets/docs/DIALOG_SYSTEM.md?raw';
@@ -81,7 +32,7 @@ const typographyRules = [
 
 const layoutRules = [
     { regex: /^---$/gm, replacement: '<hr class="my-3 border-surface-300 dark:border-surface-600" />' },
-    { regex: /^\- (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' },
+    { regex: /^- (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' },
     { regex: /^\d+\. (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' }
 ];
 
@@ -108,7 +59,10 @@ const normalizeParagraphs = (html) =>
 
 const transformCodeBlocks = (markdown) =>
     markdown.replace(/```([\s\S]*?)```/g, (match, code) => {
-        const normalized = code.replace(/\r\n/g, '\n').replace(/\n\s*\n/g, '\n').trim();
+        const normalized = code
+            .replace(/\r\n/g, '\n')
+            .replace(/\n\s*\n/g, '\n')
+            .trim();
         return `<pre class="bg-surface-800 dark:bg-surface-950 p-4 rounded my-2 overflow-x-auto"><code class="text-surface-100 font-mono text-sm">${escapeHtml(normalized)}</code></pre>`;
     });
 
@@ -142,6 +96,50 @@ const renderedMarkdown = computed(() => {
 const docs = DOCS;
 </script>
 
+<template>
+    <div class="documentation-container">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-4xl font-bold mb-2 dark:text-surface-0">📋 Documentação</h1>
+            <p class="text-surface-600 dark:text-surface-400">Guias, protocolos e referências técnicas</p>
+        </div>
+
+        <!-- Tabs/Navigation -->
+        <div class="mb-6 flex gap-2 flex-wrap border-b border-surface-200 dark:border-surface-700">
+            <button
+                v-for="doc in docs"
+                :key="doc.id"
+                @click="currentDoc = doc.id"
+                :class="[
+                    'px-4 py-2 font-semibold transition-colors',
+                    currentDoc === doc.id ? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400' : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-surface-100'
+                ]"
+            >
+                {{ doc.icon }} {{ doc.name }}
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-6">
+            <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Buscar na documentação..."
+                class="w-full px-4 py-2 border rounded-lg bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0"
+            />
+        </div>
+
+        <!-- Content -->
+        <div class="markdown-content bg-surface-0 dark:bg-surface-900 rounded-lg p-6 border border-surface-200 dark:border-surface-700">
+            <div v-html="renderedMarkdown" class="prose dark:prose-invert max-w-none"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 p-4 bg-primary-50 dark:bg-surface-800 rounded-lg border border-primary-200 dark:border-surface-700">
+            <p class="text-sm text-surface-600 dark:text-surface-400"><strong>Última atualização:</strong> 16 de Novembro de 2025</p>
+        </div>
+    </div>
+</template>
 
 <style scoped lang="scss">
 .documentation-container {
@@ -157,7 +155,10 @@ const docs = DOCS;
     line-height: 1.8;
     word-break: break-word;
 
-    :deep(h1), :deep(h2), :deep(h3), :deep(h4) {
+    :deep(h1),
+    :deep(h2),
+    :deep(h3),
+    :deep(h4) {
         font-weight: 700;
         line-height: 1.3;
         margin-bottom: 0.5rem;
@@ -195,7 +196,8 @@ const docs = DOCS;
         margin-bottom: 0.5rem;
     }
 
-    :deep(ul), :deep(ol) {
+    :deep(ul),
+    :deep(ol) {
         margin: 1rem 0;
     }
 
@@ -245,7 +247,8 @@ const docs = DOCS;
             }
         }
 
-        th, td {
+        th,
+        td {
             padding: 0.75rem;
             border: 1px solid var(--surface-300);
             text-align: left;

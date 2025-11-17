@@ -1,7 +1,6 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth';
 import { computed, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import backgroundLogin from '@/assets/images/backgrounds/background-login.jpg';
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
@@ -15,8 +14,6 @@ const isDarkTheme = false;
 const step = ref('email'); // 'email' ou 'verify'
 
 const router = useRouter();
-const route = useRoute();
-const auth = useAuthStore();
 const { success, error, warning, info } = useNotifications();
 
 const isValidEmail = computed(() => {
@@ -67,9 +64,8 @@ const handleBackToLogin = () => {
 
 <template>
     <div class="flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden relative">
-        
         <!-- Background com grayscale -->
-        <div 
+        <div
             class="absolute inset-0"
             :style="{
                 backgroundImage: `url(${backgroundLogin})`,
@@ -83,7 +79,7 @@ const handleBackToLogin = () => {
 
         <!-- Overlay com fundo preto semi-transparente -->
         <div class="absolute inset-0 bg-black/60"></div>
-        
+
         <div class="flex flex-col items-center justify-center relative z-10">
             <div style="border-radius: 56px; padding: 0.3rem">
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
@@ -107,7 +103,9 @@ const handleBackToLogin = () => {
                             <label for="code1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Código de Verificação</label>
                             <div class="flex flex-col items-center">
                                 <InputText id="code1" type="text" placeholder="Digite o código" class="w-full md:w-[30rem] mb-8" v-model="verificationCode" />
-                                <p class="text-sm text-surface-600 dark:text-surface-400 mb-8 w-full md:w-[30rem]">Código enviado para: <span class="font-semibold">{{ email }}</span></p>
+                                <p class="text-sm text-surface-600 dark:text-surface-400 mb-8 w-full md:w-[30rem]">
+                                    Código enviado para: <span class="font-semibold">{{ email }}</span>
+                                </p>
                                 <Button label="Verificar Código" class="w-full md:w-[30rem] mb-4" @click="handleVerifyCode" />
                             </div>
                         </template>

@@ -130,7 +130,6 @@ export const useAuthStore = defineStore('auth', {
                 }
 
                 const timeRemaining = this.expiresAt - now;
-                const segundos = Math.round(timeRemaining / 1000);
 
                 // Apenas logout se token expirou (backup)
                 if (timeRemaining <= 0) {

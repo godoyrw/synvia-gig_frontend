@@ -19,7 +19,7 @@ const passwordFieldRef = ref(null);
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
-const { success, error, warning, info } = useNotifications();
+const { success, error, warning } = useNotifications();
 
 const handleEmailKeydown = (event) => {
     if (event.key === 'Enter') {
@@ -38,18 +38,18 @@ const handlePasswordKeydown = (event) => {
 const handleLogin = async () => {
     // Validação de campos vazios
     if (!email.value?.trim()) {
-        warning('Credencial de Usuário','Usuário em branco', 'Por favor, digite seu usuário/email');
+        warning('Credencial de Usuário', 'Usuário em branco', 'Por favor, digite seu usuário/email');
         return;
     }
 
     if (!password.value?.trim()) {
-        warning('Credencial de Usuário','Senha em branco', 'Por favor, digite sua senha');
+        warning('Credencial de Usuário', 'Senha em branco', 'Por favor, digite sua senha');
         return;
     }
 
     try {
         await auth.loginWithCredentials(email.value, password.value);
-        success('Credencial de Usuário','Login realizado com sucesso!');
+        success('Credencial de Usuário', 'Login realizado com sucesso!');
 
         // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
         const redirect = route.query.redirect || '/synvia-gig';
@@ -69,7 +69,7 @@ onMounted(() => {
 <template>
     <div class="flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden relative">
         <!-- Background com grayscale -->
-        <div 
+        <div
             class="absolute inset-0"
             :style="{
                 backgroundImage: `url(${backgroundLogin})`,
@@ -83,7 +83,7 @@ onMounted(() => {
 
         <!-- Overlay com fundo preto semi-transparente -->
         <div class="absolute inset-0 bg-black/60"></div>
-        
+
         <div class="flex flex-col items-center justify-center relative z-10">
             <div style="border-radius: 56px; padding: 0.3rem">
                 <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
