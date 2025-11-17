@@ -1,70 +1,49 @@
-name: Deploy SYNVIA-GIG - Production
+name: deploy-production
 
 on:
-  release:
-    types: [published]          # dispara quando o release é publicado
-  workflow_dispatch:            # permite rodar manualmente
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  deploy-production:
+  build:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
-      - name: Checkout código (tag do release)
-        uses: actions/checkout@v4
-        with:
-          # para releases, pega a tag; para outros eventos, usa o ref padrão
-          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+      - uses: actions/checkout@v4
 
-      # Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
 
-      # Instalar pnpm (FUNCIONA)
-      - name: Instalar pnpm
-        uses: pnpm/action-setup@v2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          version: 10.22.0
+          version: 10.0.0
+          run_install: true   # instala as dependências automaticamente
 
-      # Verificar instalação do pnpm
-      - name: Check pnpm
-        run: pnpm -v
+      - name: Build Vite project
+        run: pnpm build
 
-      - name: Instalar dependências
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Vue
-        run: pnpm run build
-
-      # --- SSH / Deploy ---
-
-      - name: Configurar SSH para EC2 PROD
+      - name: Deploy via SSH
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Preparar diretório remoto (PROD)
-        run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ${{ secrets.EC2_APP_PATH }}/app"
-
-      - name: Enviar build para EC2 PROD
-        run: |
-          rsync -az --delete \
-            dist/ \
-            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/app
-
-      - name: Reload nginx PROD
-        if: always()
-        run: |
-          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            sudo systemctl reload nginx || sudo systemctl restart nginx
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            sudo rm -rf ${{ secrets.EC2_APP_PATH }}/app
+            sudo mkdir -p ${{ secrets.EC2_APP_PATH }}/app
           EOF
-      - name: Notificar sucesso do deploy
-        if: success()
-        run: echo "✅ Deploy para produção concluído com sucesso!"
+
+      - name: Upload dist folder
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "dist/*"
+          target: ${{ secrets.EC2_APP_PATH }}/app
+
+      - name: Reload Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            sudo systemctl reload nginx
+          EOF
