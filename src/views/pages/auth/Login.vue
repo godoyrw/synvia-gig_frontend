@@ -19,7 +19,7 @@ const passwordFieldRef = ref(null);
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
-const { success, error, warning, info } = useNotifications();
+const { success, error, warning } = useNotifications();
 
 const handleEmailKeydown = (event) => {
     if (event.key === 'Enter') {

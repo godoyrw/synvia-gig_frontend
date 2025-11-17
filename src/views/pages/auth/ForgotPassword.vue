@@ -1,7 +1,6 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth';
 import { computed, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 import backgroundLogin from '@/assets/images/backgrounds/background-login.jpg';
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
@@ -15,8 +14,6 @@ const isDarkTheme = false;
 const step = ref('email'); // 'email' ou 'verify'
 
 const router = useRouter();
-const route = useRoute();
-const auth = useAuthStore();
 const { success, error, warning, info } = useNotifications();
 
 const isValidEmail = computed(() => {

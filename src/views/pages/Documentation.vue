@@ -81,7 +81,7 @@ const typographyRules = [
 
 const layoutRules = [
     { regex: /^---$/gm, replacement: '<hr class="my-3 border-surface-300 dark:border-surface-600" />' },
-    { regex: /^\- (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' },
+    { regex: /^- (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' },
     { regex: /^\d+\. (.*?)$/gm, replacement: '<li class="ml-6 my-1">$1</li>' }
 ];
 
