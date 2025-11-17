@@ -3,19 +3,33 @@
         {
             "id": "u-0001",
             "username": "admin@synvia.com.br",
-            "password": "admin",
+            "password": "R0b19G0d81",
             "displayName": "Roberto Godoy",
             "role": "admin",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
             "permissions": [
                 "*"
             ]
         },
         {
             "id": "u-0002",
+            "username": "dev@synvia.com.br",
+            "password": "dev1234",
+            "displayName": "Desenvolvimento Synvia",
+            "role": "analyst",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/ionibowcher.png",
+            "permissions": [
+                "synvia-gig:*",
+                "documentation:read"
+            ]
+        },
+        {
+            "id": "u-0003",
             "username": "analista@synvia.com.br",
             "password": "analista",
             "displayName": "Ana Paula",
             "role": "analyst",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png",
             "permissions": [
                 "synvia-gig:read",
                 "synvia-gig:imports"

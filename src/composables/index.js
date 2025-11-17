@@ -2,4 +2,5 @@
 // Adicione exportações aqui quando criar novos composables.
 
 export { useActivityTracker } from './useActivityTracker';
+export { useNotifications } from './useNotifications';
 

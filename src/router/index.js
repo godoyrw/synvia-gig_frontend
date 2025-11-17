@@ -18,6 +18,24 @@ const router = createRouter({
                     path: '/synvia-gig',
                     name: 'synvia-gig',
                     component: () => import('@/views/SynviaGig.vue')
+                },
+                {
+                    path: '/profile',
+                    name: 'profile',
+                    component: () => import('@/views/pages/Profile.vue')
+                },
+                {
+                    path: '/settings',
+                    name: 'settings',
+                    component: () => import('@/views/pages/Settings.vue')
+                },
+                {
+                    path: '/documentation',
+                    name: 'documentation',
+                    component: () => import('@/views/pages/Documentation.vue'),
+                    meta: {
+                        permission: 'documentation:read'
+                    }
                 }
             ]
         },
@@ -32,6 +50,11 @@ const router = createRouter({
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
+            path: '/auth/forgot-password',
+            name: 'forgotPassword',
+            component: () => import('@/views/pages/auth/ForgotPassword.vue')
+        },
+        {
             path: '/auth/access',
             name: 'accessDenied',
             component: () => import('@/views/pages/auth/Access.vue')
@@ -40,6 +63,11 @@ const router = createRouter({
             path: '/auth/error',
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue')
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'notFound',
+            component: () => import('@/views/pages/NotFound.vue')
         }
     ]
 });
@@ -62,6 +90,14 @@ router.beforeEach((to, from, next) => {
             name: 'login',
             query: { redirect: to.fullPath }
         });
+    }
+
+    const requiredPermission = to.matched
+        .map((record) => record.meta?.permission)
+        .find((permission) => !!permission);
+
+    if (requiredPermission && !auth.hasPermission(requiredPermission)) {
+        return next({ name: 'accessDenied' });
     }
 
     next();
