@@ -6,44 +6,92 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  deploy-homolog:
     runs-on: ubuntu-latest
+    environment: homolog
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.0.0
-          run_install: true   # instala as dependências automaticamente
+      - name: Instalar dependências
+        run: pnpm install --frozen-lockfile
 
-      - name: Build Vite project
+      - name: Build VueJs
         run: pnpm build
 
-      - name: Deploy via SSH
+      - name: Configurar acesso SSH (HOMOLOG)
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            sudo rm -rf ${{ secrets.EC2_APP_PATH }}/app
-            sudo mkdir -p ${{ secrets.EC2_APP_PATH }}/app
-          EOF
+          echo "🔑 Configurando SSH..."
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_HML_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          echo "✓ Chave SSH criada com sucesso"
+          echo "🔍 Adicionando host à known_hosts..."
+          
+          if ssh-keyscan -H ${{ secrets.EC2_HML_HOST }} >> ~/.ssh/known_hosts 2>&1; then
+            echo "✓ Host adicionado com sucesso"
+          else
+            echo "⚠️ Falha ao adicionar host, mas continuando..."
+          fi
+          
+          echo "🧪 Testando conexão SSH..."
+          ssh -v ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "echo 'SSH conectado com sucesso'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
 
-      - name: Upload dist folder
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "dist/*"
-          target: ${{ secrets.EC2_APP_PATH }}/app
-
-      - name: Reload Nginx
+      - name: Preparar diretório remoto (HOMOLOG)
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-            sudo systemctl reload nginx
+          echo "📁 Garantindo que o diretório remoto exista..."
+          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "mkdir -p ${{ secrets.EC2_HML_APP_PATH }}/app_homolog"
+
+      - name: Enviar build para EC2 HOMOLOG
+        run: |
+          echo "📦 Iniciando envio do build..."
+          echo "📊 Tamanho do diretório dist:"
+          du -sh dist/
+          
+          echo "🚀 Executando rsync..."
+          rsync -avz --delete \
+            dist/ \
+            ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }}:${{ secrets.EC2_HML_APP_PATH }}/app_homolog || {
+              echo "⚠️ Rsync retornou código de erro, verificando status..."
+              exit 1
+            }
+          
+          echo "✓ Build enviado com sucesso"
+
+      - name: Reload nginx HOMOLOG
+        if: always()
+        run: |
+          echo "🔄 Iniciando reload do nginx em HOMOLOG..."
+          
+          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} << 'EOF' || true
+            echo "🔍 Verificando status do nginx..."
+            sudo systemctl status nginx || echo "⚠️ Nginx pode não estar em execução"
+            
+            echo "🔄 Tentando reload..."
+            if sudo systemctl reload nginx 2>/dev/null; then
+              echo "✓ Reload do nginx realizado com sucesso"
+            else
+              echo "⚠️ Reload falhou, tentando restart..."
+              if sudo systemctl restart nginx 2>/dev/null; then
+                echo "✓ Restart do nginx realizado com sucesso"
+              else
+                echo "❌ Falha ao fazer reload ou restart do nginx"
+              fi
+            fi
           EOF
+          
+          echo "✓ Comando SSH concluído"
