@@ -1,9 +1,9 @@
-name: deploy-production
+name: Deploy SYNVIA-GIG - Production
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'   # ex: v1.0.0, v1.0.1, etc.
 
 jobs:
   deploy-production:
@@ -14,17 +14,19 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-
+      # 1) Node primeiro
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'pnpm'
+
+      # 2) Depois pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
@@ -32,66 +34,36 @@ jobs:
       - name: Build VueJs
         run: pnpm build
 
-      - name: Configurar acesso SSH (PRODUCTION)
+      - name: Configurar acesso SSH (PROD)
         run: |
-          echo "🔑 Configurando SSH..."
+          echo "🔑 Configurando SSH (PROD)..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_HML_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_PRD_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          
-          echo "✓ Chave SSH criada com sucesso"
-          echo "🔍 Adicionando host à known_hosts..."
-          
-          if ssh-keyscan -H ${{ secrets.EC2_HML_HOST }} >> ~/.ssh/known_hosts 2>&1; then
-            echo "✓ Host adicionado com sucesso"
-          else
-            echo "⚠️ Falha ao adicionar host, mas continuando..."
-          fi
-          
-          echo "🧪 Testando conexão SSH..."
-          ssh -v ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "echo 'SSH conectado com sucesso'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
 
-      - name: Preparar diretório remoto (PRODUCTION)
+          echo "🔍 Adicionando host à known_hosts..."
+          ssh-keyscan -H ${{ secrets.EC2_PRD_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Preparar diretório remoto (PROD)
         run: |
           echo "📁 Garantindo que o diretório remoto exista..."
-          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "mkdir -p ${{ secrets.EC2_HML_APP_PATH }}/app"
+          ssh ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }} "mkdir -p ${{ secrets.EC2_PRD_APP_PATH }}/app"
 
-      - name: Enviar build para EC2 PRODUCTION
+      - name: Enviar build para EC2 PROD
         run: |
           echo "📦 Iniciando envio do build..."
-          echo "📊 Tamanho do diretório dist:"
-          du -sh dist/
-          
-          echo "🚀 Executando rsync..."
+          du -sh dist/ || true
+
           rsync -avz --delete \
             dist/ \
-            ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }}:${{ secrets.EC2_HML_APP_PATH }}/app || {
-              echo "⚠️ Rsync retornou código de erro, verificando status..."
-              exit 1
-            }
-          
-          echo "✓ Build enviado com sucesso"
+            ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }}:${{ secrets.EC2_PRD_APP_PATH }}/app
 
-      - name: Reload nginx PRODUCTION
+      - name: Reload nginx PROD
         if: always()
         run: |
-          echo "🔄 Iniciando reload do nginx em PRODUCTION..."
-          
-          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} << 'EOF' || true
-            echo "🔍 Verificando status do nginx..."
-            sudo systemctl status nginx || echo "⚠️ Nginx pode não estar em execução"
-            
-            echo "🔄 Tentando reload..."
-            if sudo systemctl reload nginx 2>/dev/null; then
-              echo "✓ Reload do nginx realizado com sucesso"
-            else
-              echo "⚠️ Reload falhou, tentando restart..."
-              if sudo systemctl restart nginx 2>/dev/null; then
-                echo "✓ Restart do nginx realizado com sucesso"
-              else
-                echo "❌ Falha ao fazer reload ou restart do nginx"
-              fi
-            fi
+          echo "🔄 Reload nginx em PRODUÇÃO..."
+          ssh ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }} << 'EOF' || true
+            sudo systemctl reload nginx || sudo systemctl restart nginx
           EOF
-          
-          echo "✓ Comando SSH concluído"
+
+          echo "✓ Deploy production finalizado"
