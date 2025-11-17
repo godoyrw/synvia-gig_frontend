@@ -2,9 +2,8 @@ name: Deploy SYNVIA-GIG - Production
 
 on:
   release:
-    types: [published]      # dispara só quando o release é publicado
-
-  workflow_dispatch:        # opcional: permite rodar na mão se precisar
+    types: [published]          # dispara quando o release é publicado
+  workflow_dispatch:            # permite rodar manualmente
 
 jobs:
   deploy-production:
@@ -15,27 +14,32 @@ jobs:
       - name: Checkout código (tag do release)
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          # para releases, pega a tag; para outros eventos, usa o ref padrão
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-
+      # Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: pnpm
+
+      # pnpm (instala no runner do GitHub)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.22.0
+          run_install: false
 
       - name: Instalar dependências
         run: pnpm install --frozen-lockfile
 
       - name: Build Vue
-        run: pnpm build
+        run: pnpm run build
 
-      - name: Configurar acesso SSH (PROD)
+      # --- SSH / Deploy ---
+
+      - name: Configurar SSH para EC2 PROD
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
@@ -58,3 +62,6 @@ jobs:
           ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             sudo systemctl reload nginx || sudo systemctl restart nginx
           EOF
+      - name: Notificar sucesso do deploy
+        if: success()
+        run: echo "✅ Deploy para produção concluído com sucesso!"
