@@ -3,7 +3,7 @@
  */
 
 // Duração padrão da sessão em minutos
-export const SESSION_DURATION_MINUTES = 5;
+export const SESSION_DURATION_MINUTES = 10;
 
 // Intervalo do heartbeat em ms
 export const HEARTBEAT_INTERVAL_MS = 50000;
@@ -20,4 +20,4 @@ export const NOTIFICATION_DURATION = {
 };
 
 // Tempo de animação de saída da notificação em ms
-export const NOTIFICATION_ANIMATION_DELAY = 300;
+export const NOTIFICATION_ANIMATION_DELAY = 400;

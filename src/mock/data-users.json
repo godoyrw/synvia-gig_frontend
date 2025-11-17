@@ -19,7 +19,8 @@
             "role": "analyst",
             "avatar": "https://primefaces.org/cdn/primevue/images/avatar/ionibowcher.png",
             "permissions": [
-                "*"
+                "synvia-gig:*",
+                "documentation:read"
             ]
         },
         {

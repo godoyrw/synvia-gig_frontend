@@ -28,6 +28,14 @@ const router = createRouter({
                     path: '/settings',
                     name: 'settings',
                     component: () => import('@/views/pages/Settings.vue')
+                },
+                {
+                    path: '/documentation',
+                    name: 'documentation',
+                    component: () => import('@/views/pages/Documentation.vue'),
+                    meta: {
+                        permission: 'documentation:read'
+                    }
                 }
             ]
         },
@@ -40,6 +48,11 @@ const router = createRouter({
             path: '/auth/login',
             name: 'login',
             component: () => import('@/views/pages/auth/Login.vue')
+        },
+        {
+            path: '/auth/forgot-password',
+            name: 'forgotPassword',
+            component: () => import('@/views/pages/auth/ForgotPassword.vue')
         },
         {
             path: '/auth/access',
@@ -77,6 +90,14 @@ router.beforeEach((to, from, next) => {
             name: 'login',
             query: { redirect: to.fullPath }
         });
+    }
+
+    const requiredPermission = to.matched
+        .map((record) => record.meta?.permission)
+        .find((permission) => !!permission);
+
+    if (requiredPermission && !auth.hasPermission(requiredPermission)) {
+        return next({ name: 'accessDenied' });
     }
 
     next();
