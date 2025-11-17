@@ -6,9 +6,9 @@ on:
       - 'v*'
 
 jobs:
-  deploy-homolog:
+  deploy-production:
     runs-on: ubuntu-latest
-    environment: homolog
+    environment: production
 
     steps:
       - name: Checkout código
@@ -54,7 +54,7 @@ jobs:
       - name: Preparar diretório remoto (HOMOLOG)
         run: |
           echo "📁 Garantindo que o diretório remoto exista..."
-          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "mkdir -p ${{ secrets.EC2_HML_APP_PATH }}/app_homolog"
+          ssh ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }} "mkdir -p ${{ secrets.EC2_HML_APP_PATH }}/app"
 
       - name: Enviar build para EC2 HOMOLOG
         run: |
@@ -65,7 +65,7 @@ jobs:
           echo "🚀 Executando rsync..."
           rsync -avz --delete \
             dist/ \
-            ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }}:${{ secrets.EC2_HML_APP_PATH }}/app_homolog || {
+            ${{ secrets.EC2_HML_USER }}@${{ secrets.EC2_HML_HOST }}:${{ secrets.EC2_HML_APP_PATH }}/app || {
               echo "⚠️ Rsync retornou código de erro, verificando status..."
               exit 1
             }
