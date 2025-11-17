@@ -51,6 +51,10 @@ jobs:
           echo "🧪 Testando conexão SSH (PROD)..."
           ssh -v ${{ secrets.EC2_PRD_USER }}@${{ secrets.EC2_PRD_HOST }} "echo 'SSH conectado com sucesso em PRODUÇÃO'" || echo "⚠️ Conexão não respondeu, mas SSH está configurado"
 
+      - name: Preparar diretório remoto (PROD)
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ${{ secrets.EC2_APP_PATH }}/app"
+
       - name: Enviar build para EC2 PROD
         run: |
           echo "📦 Iniciando envio do build para PRODUÇÃO..."
