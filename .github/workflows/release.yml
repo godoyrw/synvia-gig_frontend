@@ -2,8 +2,8 @@ name: Deploy SYNVIA-GIG - Production
 
 on:
   push:
-    tags:
-      - 'v*'   # ex: v1.0.0, v1.0.1, v2.0.0...
+    branches:
+      - production     # branch que dispara deploy para produção
 
 jobs:
   deploy-production:
@@ -14,7 +14,6 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
-      # Mesmo padrão do homolog: primeiro pnpm, depois Node
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
