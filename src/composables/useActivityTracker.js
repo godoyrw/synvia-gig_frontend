@@ -25,7 +25,6 @@ export function useActivityTracker() {
             // Renova token quando há atividade
             if (auth.isAuthenticated && auth.expiresAt) {
                 const now = Date.now();
-                const oldExpires = auth.expiresAt;
                 // Usa o durationMinutes do login, não fixo
                 const newExpiresAt = now + auth.durationMinutes * 60 * 1000;
                 auth.expiresAt = newExpiresAt;
