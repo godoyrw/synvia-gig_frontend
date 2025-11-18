@@ -67,7 +67,14 @@ export const useAuthStore = defineStore('auth', {
             this.isLoggedOut = false;
 
             sessionStorage.setItem('auth_token', this.token);
-            sessionStorage.setItem('auth_user', JSON.stringify(this.user));
+            sessionStorage.setItem('auth_user', JSON.stringify({
+                uid: this.user.id,
+                clientId: this.user.clientId,
+                displayName: this.user.displayName,
+                role: this.user.role,
+                avatar: this.user.avatar,
+                permissions: this.user.permissions
+            }));
             sessionStorage.setItem('auth_expires', String(expiresAt));
             sessionStorage.setItem('auth_duration', String(durationMinutes));
 
