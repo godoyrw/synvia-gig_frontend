@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Documentação - Importação de Arquivos</title>
+    </head>
+    <body>
+        <h1>Importação de Arquivos &mdash; Módulo CSV</h1>
+        <p>
+            Esta documentação descreve o fluxo atual de importação de arquivos para o Synvia GIG. No momento, apenas o
+            formato <strong>CSV</strong> está disponível, mas o design foi pensado para suportar novos tipos de arquivo sem
+            refatorações profundas. Utilize este guia para conhecer o comportamento da interface, o contrato com os micro-services e as
+            regras de validação aplicadas.
+        </p>
+
+        <h2>Visão Geral</h2>
+        <ul>
+            <li><strong>Página:</strong> <code>/synvia-gig/import-files</code>, acessível via menu “Importações”.</li>
+            <li><strong>Componente:</strong> <code>ImportFilesView.vue</code>, reutilizando o <code>PageHero</code> e cartões PrimeVue.</li>
+            <li><strong>Serviço:</strong> <code>uploadCsv</code> em <code>src/services/import.ts</code>.</li>
+            <li><strong>Endpoint:</strong> <code>POST /synvia-gig/import/upload</code> (multipart/form-data).</li>
+            <li><strong>Armazenamento:</strong> os micro-services enviam o arquivo validado para o S3 e devolvem a URL/path no payload.</li>
+        </ul>
+
+        <h2>Fluxo do Usuário</h2>
+        <ol>
+            <li><strong>Seleção:</strong> o usuário escolhe um arquivo CSV (máximo 30&nbsp;MB). O componente exibe nome e tamanho.</li>
+            <li><strong>Envio:</strong> o botão “Enviar” chama <code>handleUpload</code>, que usa PrimeVue Toast para feedback imediato.</li>
+            <li><strong>Processamento:</strong> enquanto o upload ocorre, um <code>ProgressSpinner</code> informa “Enviando e validando arquivo…”.</li>
+            <li><strong>Resultado:</strong> ao final, o card “Resumo da importação” mostra totais e a seção “Linhas com erro” lista as inconsistências.</li>
+            <li><strong>Retentativas:</strong> o botão “Limpar” reseta o input e o estado local sem recarregar a página.</li>
+        </ol>
+
+        <h2>Contrato da API</h2>
+        <h3>Requisição</h3>
+        <pre><code class="language-http">POST /synvia-gig/import/upload
+Content-Type: multipart/form-data
+
+{ "file": &lt;CSV&gt; }
+</code></pre>
+        <p>O arquivo é enviado no campo <code>file</code>. Não há parâmetros adicionais obrigatórios na primeira versão.</p>
+
+        <h3>Resposta (sucesso)</h3>
+        <pre><code class="language-json">{
+  "ok": true,
+  "message": "Importação concluída com sucesso",
+  "summary": {
+    "totalRows": 1200,
+    "importedRows": 1185,
+    "errorRows": 15
+  },
+  "s3": {
+    "path": "s3://bucket/synvia-gig/imports/2025-11-18-14-53.csv",
+    "url": "https://aws.amazon.com/..."
+  },
+  "errors": [
+    { "line": 42, "reason": "Campo 'prestador' vazio" }
+  ]
+}
+</code></pre>
+
+        <h3>Resposta (falha de validação)</h3>
+        <pre><code class="language-json">{
+  "ok": false,
+  "message": "Arquivo inválido. Verifique o cabeçalho e tente novamente.",
+  "errors": [
+    { "line": 1, "reason": "Cabeçalho precisa conter as colunas obrigatórias" }
+  ]
+}
+</code></pre>
+
+        <h2>Regras de Validação (Frontend + Micro-services)</h2>
+        <ul>
+            <li><strong>Tamanho:</strong> máximo de 30&nbsp;MB (checado antes do upload quando disponível e reforçado nos micro-services).</li>
+            <li><strong>Formato:</strong> apenas <code>.csv</code> com MIME <code>text/csv</code>; o input utiliza <code>accept=".csv,text/csv"</code>.</li>
+            <li><strong>Cabeçalho obrigatório:</strong> a primeira linha deve conter o cabeçalho esperado pelo pipeline.</li>
+            <li><strong>Colunas mínimas:</strong> as colunas 1 e 2 precisam estar preenchidas em todas as linhas.</li>
+            <li><strong>Reset seguro:</strong> ao clicar em “Trocar” ou “Limpar”, o estado interno zera o arquivo selecionado para evitar reuso indevido.</li>
+        </ul>
+
+        <h2>Feedback e Observabilidade</h2>
+        <ul>
+            <li>PrimeVue Toasts são usados para mensagens de sucesso, erro e warnings (arquivo ausente).</li>
+            <li>Quando há erros por linha, o usuário recebe uma tabela resumindo <code>line</code> e <code>reason</code>.</li>
+            <li>Links do S3 podem ser exibidos para auditoria rápida; abrem em nova aba.</li>
+        </ul>
+
+        <h2>Extensões Futuras</h2>
+        <p>
+            Quando novos formatos forem implementados, recomenda-se manter a mesma experiência de usuário:
+        </p>
+        <ul>
+            <li>Criar novos métodos no serviço <code>import.ts</code> (ex.: <code>uploadXlsx</code>), compartilhando o mesmo layout.</li>
+            <li>Adicionar regras rápidas específicas no card lateral, mantendo o componente genérico.</li>
+            <li>Descrever cada formato em seções adicionais deste documento, seguindo o padrão de “Fluxo”, “Contrato” e “Regras”.</li>
+        </ul>
+
+        <h2>Checklist de QA</h2>
+        <ol>
+            <li>Upload com arquivo válido retorna resumo e notificação de sucesso.</li>
+            <li>Upload sem arquivo exibe Toast de aviso e não chama os micro-services.</li>
+            <li>Upload com arquivo acima de 30&nbsp;MB ou formato incorreto bloqueia o envio.</li>
+            <li>Botão “Trocar” limpa o input e permite escolher novo arquivo sem recarregar a página.</li>
+            <li>A tabela de erros lista corretamente o número de linhas inconsistentes.</li>
+        </ol>
+    </body>
+</html>
