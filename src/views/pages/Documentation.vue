@@ -13,7 +13,7 @@ const DOCS = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊', content: dashboardContent },
     { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent },
     { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
-    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
+    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent }
 ];
 
 const currentDoc = ref(DOCS[0].id);
@@ -158,20 +158,88 @@ const docs = DOCS;
     }
 
     :deep(code) {
-        font-family: 'Fira Code', 'Monaco', 'Courier New', monospace;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Courier New', monospace;
         word-break: break-word;
+        font-size: 0.95rem;
+        border-radius: 0.35rem;
+        background: color-mix(in srgb, var(--surface-200) 70%, transparent);
+        padding: 0.15rem 0.35rem;
+        color: var(--primary-700);
+
+        @media (prefers-color-scheme: dark) {
+            background: rgba(148, 163, 184, 0.12);
+            color: #e0e7ff;
+        }
     }
 
     :deep(pre) {
+        position: relative;
         overflow-x: auto;
         max-width: 100%;
-        margin: 1.25rem 0;
+        margin: 1.5rem 0;
+        padding: 0;
+        border-radius: 1rem;
+        background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.2), rgba(15, 23, 42, 0.95));
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
+        color: #e2e8f0;
+        font-size: 0.95rem;
+        line-height: 1.55;
+
+        @media (prefers-color-scheme: light) {
+            background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), rgba(15, 23, 42, 0.9));
+        }
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0.95rem;
+            left: 1.15rem;
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 999px;
+            background: #ff5f56;
+            box-shadow:
+                1rem 0 0 0 #ffbd2e,
+                2rem 0 0 0 #27c93f;
+            opacity: 0.85;
+        }
+
+        &::after {
+            content: '</> snippet';
+            position: absolute;
+            top: 0.65rem;
+            right: 1.25rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(226, 232, 240, 0.65);
+        }
 
         code {
             display: block;
-            padding: 0.75rem 1rem;
-            line-height: 1.35;
+            padding: 2.25rem 1.5rem 1.5rem;
+            line-height: 1.5;
             letter-spacing: 0.01em;
+            background: transparent;
+            color: inherit;
+            font-feature-settings:
+                'liga' on,
+                'calt' on;
+            tab-size: 2;
+        }
+
+        &::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba(226, 232, 240, 0.25);
+            border-radius: 999px;
         }
     }
 
