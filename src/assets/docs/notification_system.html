@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="sistema-de-notificações-push">🔔 Sistema de Notificações
+Push</h1>
+<p>Documentação completa do sistema de notificações da aplicação SYNVIA
+GIG.</p>
+<h2 id="índice">📋 Índice</h2>
+<ol type="1">
+<li><a href="#visão-geral">Visão Geral</a></li>
+<li><a href="#arquitetura">Arquitetura</a></li>
+<li><a href="#componentes">Componentes</a></li>
+<li><a href="#como-usar">Como Usar</a></li>
+<li><a href="#exemplos">Exemplos</a></li>
+<li><a href="#customização">Customização</a></li>
+<li><a href="#api-reference">API Reference</a></li>
+</ol>
+<hr />
+<h2 id="visão-geral">🎯 Visão Geral</h2>
+<p>O sistema de notificações permite exibir mensagens visuais para o
+usuário de forma não-intrusiva. Suporta:</p>
+<ul>
+<li>✅ 4 tipos de notificações: <code>success</code>,
+<code>error</code>, <code>warning</code>, <code>info</code></li>
+<li>✅ Auto-remover após tempo configurável</li>
+<li>✅ Animações suaves de entrada e saída</li>
+<li>✅ Dark mode completo</li>
+<li>✅ Fila de múltiplas notificações simultâneas</li>
+<li>✅ Callbacks personalizados ao fechar</li>
+<li>✅ Ícones PrimeIcons customizáveis</li>
+</ul>
+<hr />
+<h2 id="arquitetura">🏗️ Arquitetura</h2>
+<h3 id="componentes-do-sistema">Componentes do Sistema</h3>
+<pre><code>┌─────────────────────────────────────┐
+│    useNotifications() [Composable]   │  ← Interface do usuário
+└──────────────────┬──────────────────┘
+                   │
+┌──────────────────▼──────────────────┐
+│  useNotificationStore() [Pinia]     │  ← Gerenciador de estado
+│  - add()                            │
+│  - remove()                         │
+│  - success/error/warning/info()     │
+└──────────────────┬──────────────────┘
+                   │
+┌──────────────────▼──────────────────┐
+│  NotificationCenter.vue [Component] │  ← Renderização visual
+└─────────────────────────────────────┘</code></pre>
+<h3 id="fluxo-de-dados">Fluxo de Dados</h3>
+<pre><code>Usuário chama notify.success()
+        ↓
+useNotifications() (composable)
+        ↓
+useNotificationStore.success() (Pinia)
+        ↓
+Store adiciona notificação à lista
+        ↓
+NotificationCenter.vue detecta mudança
+        ↓
+Renderiza notificação com animação
+        ↓
+Timer dispara após duração
+        ↓
+Remove notificação com animação de saída</code></pre>
+<hr />
+<h2 id="componentes">📦 Componentes</h2>
+<h3 id="srcstoresnotifications.js-pinia-store">1.
+<code>src/stores/notifications.js</code> (Pinia Store)</h3>
+<p><strong>Responsabilidades:</strong> - Gerenciar fila de notificações
+- Gerar IDs únicos - Auto-remover após duração - Executar callbacks</p>
+<p><strong>State:</strong></p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">notifications</span><span class="op">:</span> []<span class="op">,</span>  <span class="co">// Array de notificações ativas</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">nextId</span><span class="op">:</span> <span class="dv">0</span>          <span class="co">// Contador para IDs únicos</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="srccomponentsnotificationcenter.vue">2.
+<code>src/components/NotificationCenter.vue</code></h3>
+<p><strong>Responsabilidades:</strong> - Renderizar notificações na tela
+- Aplicar estilos baseado no tipo - Animar entrada/saída - Suportar dark
+mode</p>
+<p><strong>Props:</strong> Nenhuma (consome do store)</p>
+<p><strong>Emits:</strong> Nenhum (comunica com store)</p>
+<h3 id="srccomposablesusenotifications.js">3.
+<code>src/composables/useNotifications.js</code></h3>
+<p><strong>Responsabilidades:</strong> - Fornecer interface amigável -
+Wrapper da store - Type hints para IDE</p>
+<p><strong>Métodos:</strong> - <code>notify(config)</code> - Notificação
+customizada - <code>success(title, message, options)</code> -
+<code>error(title, message, options)</code> -
+<code>warning(title, message, options)</code> -
+<code>info(title, message, options)</code> - <code>remove(id)</code> -
+Remove notificação específica - <code>clearAll()</code> - Remove todas -
+<code>hasNotifications()</code> - Verifica se há notificações -
+<code>totalNotifications()</code> - Conta de notificações ativas</p>
+<hr />
+<h2 id="como-usar">🚀 Como Usar</h2>
+<h3 id="instalação">Instalação</h3>
+<p>✅ Já está instalado! Apenas use em qualquer componente.</p>
+<h3 id="básico">Básico</h3>
+<pre class="vue"><code>&lt;script setup&gt;
+import { useNotifications } from &#39;@/composables&#39;
+
+const notify = useNotifications()
+
+const handleSubmit = () =&gt; {
+  notify.success(&#39;Salvo!&#39;, &#39;Dados foram salvos com sucesso.&#39;)
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click=&quot;handleSubmit&quot;&gt;Salvar&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+<h3 id="em-asyncawait">Em Async/Await</h3>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleDelete <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">deleteItem</span>(id)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Deletado&#39;</span><span class="op">,</span> <span class="st">&#39;Item foi removido com sucesso.&#39;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    notify<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Erro&#39;</span><span class="op">,</span> error<span class="op">.</span><span class="at">message</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="com-callback">Com Callback</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Sucesso&#39;</span><span class="op">,</span> <span class="st">&#39;Redirecionando...&#39;</span><span class="op">,</span> {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">onClose</span><span class="op">:</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    router<span class="op">.</span><span class="fu">push</span>(<span class="st">&#39;/home&#39;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<hr />
+<h2 id="exemplos">📝 Exemplos</h2>
+<h3 id="notificação-de-sucesso">1. Notificação de Sucesso</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Operação concluída!&#39;</span><span class="op">,</span> <span class="st">&#39;Suas alterações foram salvas.&#39;</span>)</span></code></pre></div>
+<p><strong>Output:</strong> Verde, desaparece em 4s, com ícone de
+check</p>
+<h3 id="notificação-de-erro">2. Notificação de Erro</h3>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Erro ao conectar&#39;</span><span class="op">,</span> <span class="st">&#39;Verifique sua conexão com a internet.&#39;</span>)</span></code></pre></div>
+<p><strong>Output:</strong> Vermelho, desaparece em 6s, com ícone de
+exclamação</p>
+<h3 id="notificação-de-aviso">3. Notificação de Aviso</h3>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">warning</span>(<span class="st">&#39;Atenção!&#39;</span><span class="op">,</span> <span class="st">&#39;Esta ação não pode ser desfeita.&#39;</span>)</span></code></pre></div>
+<p><strong>Output:</strong> Amarelo, desaparece em 5s, com ícone de
+triângulo</p>
+<h3 id="notificação-informativa">4. Notificação Informativa</h3>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">info</span>(<span class="st">&#39;Novidade&#39;</span><span class="op">,</span> <span class="st">&#39;Uma nova feature foi adicionada.&#39;</span>)</span></code></pre></div>
+<p><strong>Output:</strong> Azul, desaparece em 4s, com ícone de
+info</p>
+<h3 id="notificação-customizada">5. Notificação Customizada</h3>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">notify</span>({</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;warning&#39;</span><span class="op">,</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="st">&#39;Sincronizando...&#39;</span><span class="op">,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;Não feche a aba&#39;</span><span class="op">,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">duration</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span>  <span class="co">// Permanente</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">icon</span><span class="op">:</span> <span class="st">&#39;pi-spin pi-spinner&#39;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<h3 id="em-um-formulário-completo">6. Em um Formulário Completo</h3>
+<pre class="vue"><code>&lt;script setup&gt;
+import { useNotifications } from &#39;@/composables&#39;
+import { ref } from &#39;vue&#39;
+
+const notify = useNotifications()
+const form = ref({ name: &#39;&#39;, email: &#39;&#39; })
+const loading = ref(false)
+
+const handleSubmit = async () =&gt; {
+  if (!form.value.name) {
+    notify.warning(&#39;Validação&#39;, &#39;Preencha o nome&#39;)
+    return
+  }
+
+  try {
+    loading.value = true
+    const response = await api.post(&#39;/users&#39;, form.value)
+    
+    notify.success(
+      &#39;Usuário criado!&#39;,
+      `Bem-vindo, ${response.data.name}!`,
+      { duration: 5000 }
+    )
+    
+    form.value = { name: &#39;&#39;, email: &#39;&#39; }
+  } catch (error) {
+    notify.error(
+      &#39;Erro ao criar usuário&#39;,
+      error.response?.data?.message || &#39;Tente novamente&#39;
+    )
+  } finally {
+    loading.value = false
+  }
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;form @submit.prevent=&quot;handleSubmit&quot;&gt;
+    &lt;input v-model=&quot;form.name&quot; placeholder=&quot;Nome&quot; /&gt;
+    &lt;input v-model=&quot;form.email&quot; placeholder=&quot;Email&quot; /&gt;
+    &lt;button :disabled=&quot;loading&quot;&gt;
+      {{ loading ? &#39;Salvando...&#39; : &#39;Criar Usuário&#39; }}
+    &lt;/button&gt;
+  &lt;/form&gt;
+&lt;/template&gt;</code></pre>
+<h3 id="em-um-formulário-de-configurações">7. Em um Formulário de
+Configurações</h3>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> handleSaveSettings <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> <span class="fu">saveSettings</span>(settings<span class="op">.</span><span class="at">value</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    notify<span class="op">.</span><span class="fu">success</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;Configurações salvas&#39;</span><span class="op">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">&#39;Suas preferências foram atualizadas.&#39;</span><span class="op">,</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      { <span class="dt">duration</span><span class="op">:</span> <span class="dv">3000</span> }</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    notify<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Erro ao salvar&#39;</span><span class="op">,</span> <span class="st">&#39;Tente novamente mais tarde.&#39;</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+<h2 id="customização">🎨 Customização</h2>
+<h3 id="cores-por-tipo">Cores por Tipo</h3>
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 29%" />
+<col style="width: 25%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tipo</th>
+<th>Light Mode</th>
+<th>Dark Mode</th>
+<th>Ícone Padrão</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>success</code></td>
+<td>Green-50/200</td>
+<td>Green-950/800</td>
+<td><code>pi-check-circle</code></td>
+</tr>
+<tr class="even">
+<td><code>error</code></td>
+<td>Red-50/200</td>
+<td>Red-950/800</td>
+<td><code>pi-exclamation-circle</code></td>
+</tr>
+<tr class="odd">
+<td><code>warning</code></td>
+<td>Yellow-50/200</td>
+<td>Yellow-950/800</td>
+<td><code>pi-exclamation-triangle</code></td>
+</tr>
+<tr class="even">
+<td><code>info</code></td>
+<td>Blue-50/200</td>
+<td>Blue-950/800</td>
+<td><code>pi-info-circle</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="customizar-cores-tailwind">Customizar Cores (Tailwind)</h3>
+<p>Editar <code>src/components/NotificationCenter.vue</code>:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> typeClasses <span class="op">=</span> {</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">success</span><span class="op">:</span> <span class="st">&#39;bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800&#39;</span><span class="op">,</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// ... adicionar ou modificar</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="customizar-duração-padrão">Customizar Duração Padrão</h3>
+<p>No <code>src/stores/notifications.js</code>:</p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>success<span class="op">:</span> (title<span class="op">,</span> message <span class="op">=</span> <span class="st">&#39;&#39;</span><span class="op">,</span> options <span class="op">=</span> {}) <span class="kw">=&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  store<span class="op">.</span><span class="fu">success</span>(title<span class="op">,</span> message<span class="op">,</span> {</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">duration</span><span class="op">:</span> <span class="dv">3000</span><span class="op">,</span>  <span class="co">// ← Mudar aqui</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">...</span>options</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  })</span></code></pre></div>
+<h3 id="customizar-ícones">Customizar Ícones</h3>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Sucesso&#39;</span><span class="op">,</span> <span class="st">&#39;Operação concluída&#39;</span><span class="op">,</span> {</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">icon</span><span class="op">:</span> <span class="st">&#39;pi-star&#39;</span>  <span class="co">// Usar outro ícone</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<p><strong>Ícones disponíveis:</strong>
+https://www.primefaces.org/primevue/icons/</p>
+<hr />
+<h2 id="api-reference">📚 API Reference</h2>
+<h3 id="usenotifications"><code>useNotifications()</code></h3>
+<p>Retorna objeto com métodos abaixo.</p>
+<h4
+id="notifyconfig-object-number"><code>notify(config: Object): number</code></h4>
+<p>Cria notificação customizada.</p>
+<p><strong>Parâmetros:</strong></p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  type<span class="op">?:</span> <span class="st">&#39;success&#39;</span> <span class="op">|</span> <span class="st">&#39;error&#39;</span> <span class="op">|</span> <span class="st">&#39;warning&#39;</span> <span class="op">|</span> <span class="st">&#39;info&#39;</span>  <span class="co">// default: &#39;info&#39;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  title<span class="op">?:</span> <span class="dt">string</span>                                    <span class="co">// default: &#39;&#39;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  message<span class="op">?:</span> <span class="dt">string</span>                                  <span class="co">// default: &#39;&#39;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  duration<span class="op">?:</span> <span class="dt">number</span>                                 <span class="co">// ms, default: 5000</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  icon<span class="op">?:</span> <span class="dt">string</span>                                     <span class="co">// PrimeIcons, optional</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  onClose<span class="op">?:</span> () <span class="kw">=&gt;</span> <span class="dt">void</span>                              <span class="co">// Callback, optional</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p><strong>Retorna:</strong> ID da notificação (número)</p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> id <span class="op">=</span> notify<span class="op">.</span><span class="fu">notify</span>({</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;info&#39;</span><span class="op">,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span><span class="op">:</span> <span class="st">&#39;Processando&#39;</span><span class="op">,</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">message</span><span class="op">:</span> <span class="st">&#39;Por favor aguarde...&#39;</span><span class="op">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">duration</span><span class="op">:</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">onClose</span><span class="op">:</span> () <span class="kw">=&gt;</span> <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;Pronto!&#39;</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div>
+<h4
+id="successtitle-string-message-string-options-object-number"><code>success(title: string, message?: string, options?: Object): number</code></h4>
+<p>Cria notificação de sucesso.</p>
+<p><strong>Default:</strong> <code>duration: 4000</code>,
+<code>icon: 'pi-check-circle'</code></p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Salvo!&#39;</span><span class="op">,</span> <span class="st">&#39;Suas alterações foram salvas.&#39;</span>)</span></code></pre></div>
+<h4
+id="errortitle-string-message-string-options-object-number"><code>error(title: string, message?: string, options?: Object): number</code></h4>
+<p>Cria notificação de erro.</p>
+<p><strong>Default:</strong> <code>duration: 6000</code>,
+<code>icon: 'pi-exclamation-circle'</code></p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Erro!&#39;</span><span class="op">,</span> <span class="st">&#39;Algo deu errado.&#39;</span>)</span></code></pre></div>
+<h4
+id="warningtitle-string-message-string-options-object-number"><code>warning(title: string, message?: string, options?: Object): number</code></h4>
+<p>Cria notificação de aviso.</p>
+<p><strong>Default:</strong> <code>duration: 5000</code>,
+<code>icon: 'pi-exclamation-triangle'</code></p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">warning</span>(<span class="st">&#39;Atenção!&#39;</span><span class="op">,</span> <span class="st">&#39;Cuidado ao prosseguir.&#39;</span>)</span></code></pre></div>
+<h4
+id="infotitle-string-message-string-options-object-number"><code>info(title: string, message?: string, options?: Object): number</code></h4>
+<p>Cria notificação informativa.</p>
+<p><strong>Default:</strong> <code>duration: 4000</code>,
+<code>icon: 'pi-info-circle'</code></p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">info</span>(<span class="st">&#39;Informação&#39;</span><span class="op">,</span> <span class="st">&#39;Apenas para informar.&#39;</span>)</span></code></pre></div>
+<h4 id="removeid-number-void"><code>remove(id: number): void</code></h4>
+<p>Remove notificação específica.</p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> id <span class="op">=</span> notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Teste&#39;</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">remove</span>(id)</span></code></pre></div>
+<h4 id="clearall-void"><code>clearAll(): void</code></h4>
+<p>Remove todas as notificações.</p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">clearAll</span>()</span></code></pre></div>
+<h4
+id="hasnotifications-boolean"><code>hasNotifications(): boolean</code></h4>
+<p>Verifica se há notificações ativas.</p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (notify<span class="op">.</span><span class="fu">hasNotifications</span>()) {</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="st">&#39;Há notificações!&#39;</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h4
+id="totalnotifications-number"><code>totalNotifications(): number</code></h4>
+<p>Retorna quantidade de notificações ativas.</p>
+<p><strong>Exemplo:</strong></p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="bu">console</span><span class="op">.</span><span class="fu">log</span>(<span class="vs">`</span><span class="sc">${</span>notify<span class="op">.</span><span class="fu">totalNotifications</span>()<span class="sc">}</span><span class="vs"> notificações ativas`</span>)</span></code></pre></div>
+<hr />
+<h2 id="animações">🎬 Animações</h2>
+<h3 id="entrada">Entrada</h3>
+<ul>
+<li><strong>Duração:</strong> 0.4s</li>
+<li><strong>Easing:</strong> cubic-bezier(0.34, 1.56, 0.64, 1)
+(bounce)</li>
+<li><strong>Transformação:</strong> Slide + rotate do lado direito</li>
+</ul>
+<h3 id="saída">Saída</h3>
+<ul>
+<li><strong>Duração:</strong> 0.3s</li>
+<li><strong>Easing:</strong> cubic-bezier(0.4, 0, 1, 1) (ease-in)</li>
+<li><strong>Transformação:</strong> Slide + rotate para direita</li>
+</ul>
+<hr />
+<h2 id="troubleshooting">🔧 Troubleshooting</h2>
+<h3 id="notificações-não-aparecem">Notificações não aparecem</h3>
+<ol type="1">
+<li>Verifier se <code>NotificationCenter</code> está em
+<code>AppLayout.vue</code></li>
+<li>Verifier console para erros de import</li>
+<li>Verifier se Pinia store está registrada</li>
+</ol>
+<h3 id="notificações-desaparecem-muito-rápido">Notificações desaparecem
+muito rápido</h3>
+<p>Aumentar duração:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>notify<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Teste&#39;</span><span class="op">,</span> <span class="st">&#39;Mensagem&#39;</span><span class="op">,</span> { <span class="dt">duration</span><span class="op">:</span> <span class="dv">10000</span> })</span></code></pre></div>
+<h3 id="dark-mode-não-funciona">Dark mode não funciona</h3>
+<p>Verifier se Tailwind dark mode está configurado em
+<code>tailwind.config.js</code>.</p>
+<h3 id="ícones-não-aparecem">Ícones não aparecem</h3>
+<p>Verifier se PrimeIcons está carregado (deve estar em
+<code>main.js</code>).</p>
+<hr />
+<h2 id="performance">📊 Performance</h2>
+<ul>
+<li><strong>Bundle size adicionado:</strong> ~5KB (minified)</li>
+<li><strong>Memory leak prevention:</strong> Auto-garbage collection de
+notificações</li>
+<li><strong>Animações:</strong> GPU-accelerated (usar
+<code>transform</code> e <code>opacity</code>)</li>
+</ul>
+<hr />
+<h2 id="roadmap-futuro">🚀 Roadmap Futuro</h2>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />
+Persistência em localStorage</li>
+<li><input type="checkbox" disabled="" />
+Notificações de áudio</li>
+<li><input type="checkbox" disabled="" />
+Progresso visual (progress bar)</li>
+<li><input type="checkbox" disabled="" />
+Ações customizadas (botões na notificação)</li>
+<li><input type="checkbox" disabled="" />
+Sistema de prioridade</li>
+<li><input type="checkbox" disabled="" />
+Integração com Web Push API</li>
+<li><input type="checkbox" disabled="" />
+Notificações de desktop (quando tab inativa)</li>
+</ul>
+<hr />
+<h2 id="licença">📄 Licença</h2>
+<p>Parte do projeto SYNVIA GIG Frontend.</p>
+</body>
+</html>

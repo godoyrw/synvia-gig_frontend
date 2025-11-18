@@ -1,6 +1,6 @@
 {
     "name": "synvia-app",
-    "version": "4.3.0",
+    "version": "1.0.0-Beta",
     "scripts": {
         "dev": "vite",
         "build": "vite build",

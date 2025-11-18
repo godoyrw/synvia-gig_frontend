@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="synvia-gig-guia-do-dashboard-analítico">Synvia Gig — Guia do
+Dashboard Analítico</h1>
+<h2 id="visão-geral">Visão geral</h2>
+<p>Este documento descreve o dashboard implementado em
+<code>views/SynviaGig.vue</code>, detalhando os datasets consumidos de
+<code>src/mock/data-dashboard.json</code>, o propósito de cada gráfico e
+as melhores práticas para interpretar os indicadores. A tela foi
+construída sobre o tema escuro da Aura/PrimeVue e usa o componente
+<code>BaseChart</code> (ECharts) para padronizar tooltips, paleta e
+responsividade.</p>
+<ul>
+<li><strong>Tempo de atualização:</strong> os blocos consomem snapshots
+mockados que representam o último lote processado. Ao conectar na API
+real, mantenha o mesmo shape dos objetos <code>ranking*</code>.</li>
+<li><strong>Moeda:</strong> todos os valores são exibidos em reais (R$)
+e usam abreviação compacta no eixo (K, M) para grandes números.</li>
+<li><strong>Status acompanhados:</strong> <code>Liberado</code>,
+<code>Glosa</code>, <code>Em Revisão</code>, além de qualquer outro
+texto presente nos datasets, são mapeados dinamicamente.</li>
+</ul>
+<h2 id="kpi-cards">KPI cards</h2>
+<p>Os três cards iniciais sintetizam o comportamento do lote mensal:</p>
+<ol type="1">
+<li><strong>Taxa de Glosa</strong> →
+<code>Σ Valor Glosa Item / (Σ Valor Liberado Item + Σ Valor Glosa Item)</code>.</li>
+<li><strong>Ticket médio liberado</strong> →
+<code>Σ Valor Liberado Item / Σ Qtd</code>.</li>
+<li><strong>Itens processados</strong> → soma direta do campo
+<code>Qtd</code>.</li>
+</ol>
+<p>Os rótulos usam a cor primária e exibem variações percentuais
+simuladas para alinhar com o protótipo.</p>
+<h2 id="gráficos-e-painéis">Gráficos e painéis</h2>
+<h3 id="status-dos-itens-processados">1. Status dos Itens
+Processados</h3>
+<ul>
+<li><strong>Dataset:</strong> <code>rankingStatusItem.data</code>.</li>
+<li><strong>Composição:</strong> barras empilhadas (Valor Liberado +
+Valor Glosa) no eixo X, com uma linha (Quantidade) no eixo
+secundário.</li>
+<li><strong>Uso:</strong> identifica rapidamente os status que mais
+consomem volume financeiro versus volume operacional.</li>
+<li><strong>Insights sugeridos:</strong>
+<ul>
+<li>Se <code>Valor Glosa</code> superar 30% do total em um status,
+priorize revisão de regras.</li>
+<li>Compare a tendência de <code>Qtd</code> com o valor monetário para
+detectar tickets médios fora do padrão.</li>
+</ul></li>
+</ul>
+<h3 id="linha-do-tempo-operacional">2. Linha do Tempo Operacional</h3>
+<ul>
+<li><strong>Dataset:</strong> <code>timeline</code> (derivado de
+<code>rankingPrestadorStatusItem.data</code>).</li>
+<li><strong>Formato:</strong> lista cronológica com ícones e variações
+de cor conforme <code>Status Item</code>.</li>
+<li><strong>Uso:</strong> expõe eventos críticos (glosas altas,
+liberações relevantes, novas revisões) contextualizando quando
+agir.</li>
+</ul>
+<h3 id="heatmap-prestador-status-glosas">3. Heatmap Prestador × Status
+(Glosas)</h3>
+<ul>
+<li><strong>Dataset:</strong>
+<code>rankingPrestadorStatusItem.data</code>.</li>
+<li><strong>Composição:</strong> os 6 prestadores com maiores glosas no
+eixo Y, todos os status no eixo X e intensidade pelo
+<code>Valor Glosa Item</code>.</li>
+<li><strong>Uso:</strong> encontrar rapidamente concentrações de glosas
+por prestador e status específico.</li>
+<li><strong>Dica:</strong> use o visualMap para entender a escala geral
+antes de agir em um quadrante.</li>
+</ul>
+<h3 id="ranking-de-operadoras-valores">4. Ranking de Operadoras
+(Valores)</h3>
+<ul>
+<li><strong>Dataset:</strong> <code>rankingOperadora.data</code>.</li>
+<li><strong>Composição:</strong> barras horizontais empilhadas por
+operadora (Liberado vs Glosa) com tooltip trazendo
+<code>Qtd</code>.</li>
+<li><strong>Uso:</strong> medir o peso financeiro de cada operadora e
+identificar onde o saldo líquido é mais crítico.</li>
+</ul>
+<h3 id="distribuição-de-status-por-operadora">5. Distribuição de Status
+por Operadora</h3>
+<ul>
+<li><strong>Dataset:</strong>
+<code>rankingOperadoraStatus.data</code>.</li>
+<li><strong>Composição:</strong> barras verticais empilhadas por
+operadora, separadas por status.</li>
+<li><strong>Uso:</strong> entender como cada operadora distribui o valor
+glosado entre os diferentes status e priorizar renegociações.</li>
+</ul>
+<h3 id="combinações-prestador-operadora-status">6. Combinações Prestador
+× Operadora × Status</h3>
+<ul>
+<li><strong>Dataset:</strong>
+<code>rankingPrestadorOperadoraStatus.data</code>.</li>
+<li><strong>Composição:</strong> Top 8 combinações (Prestador ·
+Operadora) ordenadas por valor glosado, com pilhas para cada
+status.</li>
+<li><strong>Uso:</strong> evidencia relações bilaterais críticas e onde
+a governança precisa atuar de forma conjunta.</li>
+</ul>
+<h3 id="top-códigos-ans-glosados">7. Top Códigos ANS Glosados</h3>
+<ul>
+<li><strong>Dataset:</strong> <code>rankingCodAns.data</code> (limitado
+aos 15 maiores).</li>
+<li><strong>Composição:</strong> barras horizontais simples, mostrando
+quantidade de ocorrências por código.</li>
+<li><strong>Tooltip:</strong> detalha código, descrição resumida, valor
+liberado e glosado.</li>
+<li><strong>Uso:</strong> priorizar revisões de catálogo e tabelas
+TUSS/ANS que geram mais glosas.</li>
+</ul>
+<h3 id="comparativo-por-código-de-tabela">8. Comparativo por Código de
+Tabela</h3>
+<ul>
+<li><strong>Dataset:</strong> <code>rankingCodTabela.data</code>.</li>
+<li><strong>Composição:</strong> gráfico misto com barras (Liberado vs
+Glosa) e linha (Qtd) compartilhando o mesmo eixo X.</li>
+<li><strong>Uso:</strong> entender se altos valores decorrem de muitos
+itens ou de tickets elevados e comparar comportamento entre códigos
+internos.</li>
+</ul>
+<h2 id="fontes-de-dados">Fontes de dados</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Campo no JSON</th>
+<th>Observações</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Status dos Itens</td>
+<td><code>rankingStatusItem</code></td>
+<td>Baseia KPIs e gráfico principal.</td>
+</tr>
+<tr class="even">
+<td>Prestador × Status</td>
+<td><code>rankingPrestadorStatusItem</code></td>
+<td>Utilizado no heatmap e timeline.</td>
+</tr>
+<tr class="odd">
+<td>Operadora</td>
+<td><code>rankingOperadora</code></td>
+<td>Ranking financeiro e totais por operadora.</td>
+</tr>
+<tr class="even">
+<td>Operadora × Status</td>
+<td><code>rankingOperadoraStatus</code></td>
+<td>Distribuição de status por operadora.</td>
+</tr>
+<tr class="odd">
+<td>Prestador × Operadora × Status</td>
+<td><code>rankingPrestadorOperadoraStatus</code></td>
+<td>Combinações críticas.</td>
+</tr>
+<tr class="even">
+<td>Códigos ANS</td>
+<td><code>rankingCodAns</code></td>
+<td>Ranking textual dos códigos mais glosados.</td>
+</tr>
+<tr class="odd">
+<td>Códigos de Tabela</td>
+<td><code>rankingCodTabela</code></td>
+<td>Comparativo financeiro + volume.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="próximas-ações-sugeridas">Próximas ações sugeridas</h2>
+<ol type="1">
+<li><strong>Conectar API real:</strong> substituir
+<code>src/mock/data-dashboard.json</code> pela resposta do backend,
+mantendo os mesmos nomes de campos.</li>
+<li><strong>Alertas dinâmicos:</strong> aproveitar as métricas
+calculadas (glosaRate, ticketMedio) para disparar notificações quando
+ultrapassarem thresholds.</li>
+<li><strong>Drill-down:</strong> adicionar filtros de período, operadora
+e prestador para permitir análises interativas diretamente no
+dashboard.</li>
+<li><strong>Exportação:</strong> criar ação para exportar o dataset
+filtrado em CSV a partir das mesmas estruturas utilizadas nos
+gráficos.</li>
+</ol>
+<p>Com este guia, o endpoint <code>/documentation</code> passa a
+oferecer uma referência funcional e contextual para todo o dashboard
+Synvia Gig, facilitando o onboarding de times de negócio e
+tecnologia.</p>
+</body>
+</html>
