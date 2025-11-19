@@ -23,4 +23,4 @@ export const TOAST_DURATION = {
 export const TOAST_ANIMATION_DELAY = 400;
 
 // Tamanho padrão da paginação do histórico de importações
-export const HISTORY_PAGE_SIZE = 8;
+export const HISTORY_PAGE_SIZE = 10;

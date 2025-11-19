@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import historyMock from '@/mock/data-files-history.json';
 import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@/config/constants';
+import FloatLabel from 'primevue/floatlabel';
 
 // Somente mock: sem chamadas à API nem tipos externos
 const toast = useToast();
@@ -29,18 +30,77 @@ type ImportHistoryItem = {
 type DecoratedHistoryItem = ImportHistoryItem & {
     userName: string;
     userAvatar: string; // string vazia -> Avatar com ícone
+    statusLabel: string; // 'Erro' | 'Aviso' | 'Enviado'
 };
 
 const isHistoryLoading = ref(false);
-const historyFilter = ref<'ALL' | 'WARN' | 'ERROR'>('ALL');
+// Removido filtro por nível/status (ALL/WARN/ERROR) conforme solicitação
 const historyPage = ref(1);
+// Page size dinâmico com persistência (fallback para constante padrão)
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100].map(v => ({ label: String(v), value: v }));
+const historyPageSize = ref<number>(Number(localStorage.getItem('historyPageSize')) || HISTORY_PAGE_SIZE);
+watch(historyPageSize, (val) => {
+    localStorage.setItem('historyPageSize', String(val));
+    historyPage.value = 1;
+});
 const historySearch = ref('');
 // Ordenação
 const sortField = ref<string | null>(null);
 const sortOrder = ref<1 | -1>(1); // 1 asc, -1 desc
 
+// Filtros (usuário / arquivo)
+const userFilterSelected = ref<string[]>([]);
+const fileFilterSelected = ref<string[]>([]);
+// Status tags filter
+const statusFilterSelected = ref<string[]>([]); // 'Erro' | 'Aviso' | 'Enviado'
+const statusFilterPanel = ref();
+const toggleStatusFilterPanel = (e: Event) => statusFilterPanel.value?.toggle(e);
+const userFilterPanel = ref();
+const fileFilterPanel = ref();
+const toggleUserFilterPanel = (e: Event) => userFilterPanel.value?.toggle(e);
+const toggleFileFilterPanel = (e: Event) => fileFilterPanel.value?.toggle(e);
+
+// Operadores dos filtros
+type StringFilterMode = 'startsWith' | 'contains' | 'notContains' | 'endsWith' | 'equals' | 'notEquals';
+const userFilterMode = ref<StringFilterMode>('contains');
+const fileFilterMode = ref<StringFilterMode>('contains');
+const FILTER_MODES = [
+    { label: 'Começa com', value: 'startsWith' },
+    { label: 'Contém', value: 'contains' },
+    { label: 'Não contém', value: 'notContains' },
+    { label: 'Termina com', value: 'endsWith' },
+    { label: 'Igual a', value: 'equals' },
+    { label: 'Diferente de', value: 'notEquals' },
+];
+
+// Campo de digitação manual para adicionar valores que não existem nas opções
+const userFilterManual = ref('');
+const fileFilterManual = ref('');
+const addUserManual = () => {
+    const v = userFilterManual.value.trim();
+    if (v && !userFilterSelected.value.includes(v)) {
+        userFilterSelected.value.push(v);
+    }
+    userFilterManual.value = '';
+};
+const addFileManual = () => {
+    const v = fileFilterManual.value.trim();
+    if (v && !fileFilterSelected.value.includes(v)) {
+        fileFilterSelected.value.push(v);
+    }
+    fileFilterManual.value = '';
+};
+
+// Distinct status labels derivados do mock
+const distinctStatusLabels = computed(() => {
+    const set = new Set<string>();
+    mockHistoryItems.forEach((raw) => set.add(statusTagLabel(raw)));
+    return Array.from(set.values()).map(lbl => ({ label: lbl, value: lbl }));
+});
+
 // Normaliza o mock (timestamp ISO)
-const mockHistoryItems = ((historyMock as { items?: ImportHistoryItem[] })?.items ?? []).map((item) => ({
+// Relaxa cast de mock para evitar conflito de tipos entre requestId number e definição esperada.
+const mockHistoryItems = (((historyMock as unknown as { items?: any[] })?.items) ?? []).map((item) => ({
     ...item,
     timestamp: new Date(item.timestamp).toISOString()
 }));
@@ -49,30 +109,64 @@ const mockHistoryItems = ((historyMock as { items?: ImportHistoryItem[] })?.item
 const decorateHistoryItem = (item: ImportHistoryItem): DecoratedHistoryItem => ({
     ...item,
     userName: item.displayName && item.displayName.trim() ? item.displayName : `Usuário #${String(item.userId ?? '—')}`,
-    userAvatar: item.avatar && item.avatar.trim() ? item.avatar : ''
+    userAvatar: item.avatar && item.avatar.trim() ? item.avatar : '',
+    statusLabel: statusTagLabel(item)
 });
 
 const historySearchTerm = computed(() => historySearch.value.trim().toLowerCase());
 
-// 1) Filtra por nível (ALL / WARN / ERROR)
-const historyFilteredByLevel = computed<ImportHistoryItem[]>(() => {
-    if (historyFilter.value === 'ALL') return mockHistoryItems;
-    return mockHistoryItems.filter((item) => item.level === historyFilter.value);
-});
+// 1) (Anteriormente filtrava por nível) agora retorna direto os itens
+const historyFilteredByLevel = computed<ImportHistoryItem[]>(() => mockHistoryItems);
 
 // 2) Aplica busca em cima do resultado filtrado
 const historyItemsFiltered = computed<DecoratedHistoryItem[]>(() => {
     const term = historySearchTerm.value;
-
-    const base = historyFilteredByLevel.value
+    let base = historyFilteredByLevel.value
         .slice()
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .map(decorateHistoryItem);
 
+    const applyStringMode = (value: string, selected: string[], manual: string, mode: StringFilterMode) => {
+        const effective = manual ? [...selected, manual] : selected;
+        if (!effective.length) return true;
+        const v = value.toLowerCase();
+        const lowered = effective.map((s) => s.toLowerCase());
+        switch (mode) {
+            case 'startsWith':
+                return lowered.some((s) => v.startsWith(s));
+            case 'contains':
+                return lowered.some((s) => v.includes(s));
+            case 'notContains':
+                return lowered.every((s) => !v.includes(s));
+            case 'endsWith':
+                return lowered.some((s) => v.endsWith(s));
+            case 'equals':
+                return lowered.some((s) => v === s);
+            case 'notEquals':
+                return lowered.every((s) => v !== s);
+            default:
+                return true;
+        }
+    };
+
+    // Filtro de usuários (aplica operador + valor manual)
+    base = base.filter((item) => applyStringMode(item.userName, userFilterSelected.value, userFilterManual.value.trim(), userFilterMode.value));
+    // Filtro de arquivos (aplica operador + valor manual)
+    base = base.filter((item) => applyStringMode(item.fileName, fileFilterSelected.value, fileFilterManual.value.trim(), fileFilterMode.value));
+    // Filtro de status tags (seleção simples sem operadores)
+    if (statusFilterSelected.value.length) {
+        const setStatus = new Set(statusFilterSelected.value);
+        base = base.filter((item) => setStatus.has(item.statusLabel));
+    }
+
     if (!term) return base;
 
     return base.filter((item) => {
-        const haystack = [item.fileName, item.userName, item.requestId, item.status, item.level].join(' ').toLowerCase();
+        // Busca: statusLabel em PT-BR + data/hora formatada (também em PT-BR) + demais campos principais
+        const dateLabel = formatDateTime(item.timestamp).toLowerCase();
+        const haystack = [item.fileName, item.userName, item.requestId, item.statusLabel, dateLabel]
+            .join(' ')
+            .toLowerCase();
         return haystack.includes(term);
     });
 });
@@ -104,8 +198,9 @@ const historyItemsSorted = computed<DecoratedHistoryItem[]>(() => {
 
 // 3) Paginação em cima do filtro + busca
 const historyPageItems = computed<DecoratedHistoryItem[]>(() => {
-    const start = (historyPage.value - 1) * HISTORY_PAGE_SIZE;
-    const end = start + HISTORY_PAGE_SIZE;
+    const size = historyPageSize.value;
+    const start = (historyPage.value - 1) * size;
+    const end = start + size;
     return historyItemsSorted.value.slice(start, end);
 });
 
@@ -114,14 +209,10 @@ const historyFilteredCount = computed(() => historyItemsFiltered.value.length);
 
 const historySummaryLabel = computed(() => {
     const total = historyFilteredCount.value;
-
-    if (!total) {
-        return 'Nenhum registro encontrado';
-    }
-
-    const start = (historyPage.value - 1) * HISTORY_PAGE_SIZE + 1;
-    const end = Math.min(historyPage.value * HISTORY_PAGE_SIZE, total);
-
+    if (!total) return 'Nenhum registro encontrado';
+    const size = historyPageSize.value;
+    const start = (historyPage.value - 1) * size + 1;
+    const end = Math.min(historyPage.value * size, total);
     return `Exibindo ${start} a ${end} de ${total} registros`;
 });
 
@@ -154,10 +245,7 @@ const formatDateTime = (value: string) =>
         minute: '2-digit'
     }).format(new Date(value));
 
-const setHistoryFilter = (filter: 'ALL' | 'WARN' | 'ERROR') => {
-    historyFilter.value = filter;
-    historyPage.value = 1;
-};
+// Função de setHistoryFilter removida (não utilizada)
 
 const toggleSort = (field: string) => {
     if (sortField.value === field) {
@@ -204,6 +292,60 @@ const handleDeleteHistory = (item: ImportHistoryItem) => {
 watch(historySearchTerm, () => {
     historyPage.value = 1;
 });
+
+// Volta para página 1 ao alterar filtros
+watch([userFilterSelected, fileFilterSelected, userFilterMode, fileFilterMode, userFilterManual, fileFilterManual, statusFilterSelected], () => {
+    historyPage.value = 1;
+});
+
+// Opções distintas (derivam do mock filtrado por nível, antes de aplicar filtros de usuário/arquivo)
+const distinctUsers = computed(() => {
+    const map = new Map<string, DecoratedHistoryItem>();
+    historyFilteredByLevel.value.forEach((raw) => {
+        const decorated = decorateHistoryItem(raw);
+        if (!map.has(decorated.userName)) map.set(decorated.userName, decorated);
+    });
+    return Array.from(map.values()).map((item) => ({ label: item.userName, value: item.userName, avatar: item.userAvatar }));
+});
+const distinctFiles = computed(() => {
+    const set = new Set<string>();
+    historyFilteredByLevel.value.forEach((raw) => set.add(raw.fileName));
+    return Array.from(set.values()).map((file) => ({ label: file, value: file }));
+});
+const clearUserFilter = () => {
+    userFilterSelected.value = [];
+    userFilterMode.value = 'contains';
+    userFilterManual.value = '';
+};
+const clearFileFilter = () => {
+    fileFilterSelected.value = [];
+    fileFilterMode.value = 'contains';
+    fileFilterManual.value = '';
+};
+const clearStatusFilter = () => { statusFilterSelected.value = []; };
+
+// Overlay Menus por linha (armazenamos referências para abrir/fechar)
+const actionsMenus = ref<Record<string, any>>({});
+const setActionsMenuRef = (el: any, id: string) => {
+    if (el) actionsMenus.value[id] = el;
+};
+const toggleRowMenu = (event: Event, id: string) => {
+    const menu = actionsMenus.value[id];
+    if (menu) menu.toggle(event);
+};
+const buildActionsModel = (item: DecoratedHistoryItem) => [
+    {
+        label: 'Reenviar',
+        icon: 'pi pi-refresh',
+        disabled: item.errorRows === 0,
+        command: () => handleRetryHistory(item)
+    },
+    {
+        label: 'Deletar',
+        icon: 'pi pi-trash',
+        command: () => handleDeleteHistory(item)
+    }
+];
 </script>
 
 <template>
@@ -211,46 +353,17 @@ watch(historySearchTerm, () => {
         <PageHero title="Histórico de Importações" subtitle="Visualize rapidamente todos os envios processados pelo serviço." />
 
         <Card class="border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 shadow-sm">
-            <template #title>Histórico de importações</template>
+            <template #title>Importações Gerais</template>
             <template #content>
                 <div class="flex flex-col gap-3">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-xs uppercase tracking-wide text-surface-500">Status</span>
-                        <div class="flex flex-wrap gap-2">
-                            <Button
-                                label="Todos"
-                                size="small"
-                                :outlined="historyFilter !== 'ALL'"
-                                severity="secondary"
-                                @click="setHistoryFilter('ALL')"
-                            />
-                            <Button
-                                label="Avisos"
-                                size="small"
-                                icon="pi pi-exclamation-triangle"
-                                :outlined="historyFilter !== 'WARN'"
-                                severity="warning"
-                                @click="setHistoryFilter('WARN')"
-                            />
-                            <Button
-                                label="Erros"
-                                size="small"
-                                icon="pi pi-times-circle"
-                                :outlined="historyFilter !== 'ERROR'"
-                                severity="danger"
-                                @click="setHistoryFilter('ERROR')"
-                            />
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div class="flex flex-1 items-center gap-2 min-w-[240px]">
-                            <span class="pi pi-search text-surface-400"></span>
+                    <div class="flex flex-wrap items-center justify-end gap-3 search-bar-wrapper">
+                        <div class="p-input-icon-left search-input">
+                            <i class="pi pi-search"></i>
                             <InputText
                                 v-model="historySearch"
                                 size="small"
-                                class="flex-1 min-w-[200px] sm:w-72"
-                                placeholder="Buscar por arquivo, usuário ou status"
+                                class="w-64"
+                                placeholder="Palavra(s) chave..."
                             />
                         </div>
                     </div>
@@ -273,12 +386,47 @@ watch(historySearchTerm, () => {
                             </template>
                         </Column>
 
-                        <Column style="width: 22%">
+                        <Column style="width: 24%">
                             <template #header>
-                                <button type="button" :class="['sortable-header', { active: sortField === 'userName' }]" @click="toggleSort('userName')" aria-label="Ordenar por Usuário" :aria-sort="sortField === 'userName' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
-                                    <span class="title">Usuário</span>
-                                    <i :class="['sort-icon', sortIndicatorFor('userName')]" />
-                                </button>
+                                <div class="header-with-filter">
+                                    <button type="button" :class="['sortable-header', { active: sortField === 'userName' }]" @click="toggleSort('userName')" aria-label="Ordenar por Usuário" :aria-sort="sortField === 'userName' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
+                                        <span class="title">Usuário</span>
+                                        <i :class="['sort-icon', sortIndicatorFor('userName')]" />
+                                    </button>
+                                    <button type="button" class="filter-trigger" aria-label="Filtrar Usuários" @click="toggleUserFilterPanel($event)">
+                                        <i class="pi pi-filter" />
+                                    </button>
+                                </div>
+                                <OverlayPanel ref="userFilterPanel" style="min-width:18rem" class="filter-panel">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold">Filtrar Usuários</span>
+                                        <Button label="Limpar" size="small" text @click="clearUserFilter" />
+                                    </div>
+                                    <div class="flex flex-col gap-3">
+                                        <Dropdown v-model="userFilterMode" :options="FILTER_MODES" optionLabel="label" optionValue="value" class="w-full" />
+                                        <div class="flex gap-2">
+                                            <InputText v-model="userFilterManual" placeholder="Digitar valor" class="flex-1" @keyup.enter="addUserManual" />
+                                            <Button icon="pi pi-plus" severity="secondary" @click="addUserManual" rounded outlined aria-label="Adicionar valor manual" />
+                                        </div>
+                                        <MultiSelect
+                                            v-model="userFilterSelected"
+                                            :options="distinctUsers"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                            placeholder="Qualquer"
+                                            display="chip"
+                                            class="w-full"
+                                        >
+                                            <template #option="{ option }">
+                                                <div class="flex items-center gap-2">
+                                                    <Avatar v-if="option.avatar" :image="option.avatar" shape="circle" size="small" />
+                                                    <Avatar v-else icon="pi pi-user" shape="circle" size="small" />
+                                                    <span>{{ option.label }}</span>
+                                                </div>
+                                            </template>
+                                        </MultiSelect>
+                                    </div>
+                                </OverlayPanel>
                             </template>
                             <template #body="{ data }">
                                 <div class="flex items-center gap-3">
@@ -306,10 +454,37 @@ watch(historySearchTerm, () => {
 
                         <Column style="width: 26%">
                             <template #header>
-                                <button type="button" :class="['sortable-header', { active: sortField === 'fileName' }]" @click="toggleSort('fileName')" aria-label="Ordenar por Arquivo" :aria-sort="sortField === 'fileName' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
-                                    <span class="title">Arquivo</span>
-                                    <i :class="['sort-icon', sortIndicatorFor('fileName')]" />
-                                </button>
+                                <div class="header-with-filter">
+                                    <button type="button" :class="['sortable-header', { active: sortField === 'fileName' }]" @click="toggleSort('fileName')" aria-label="Ordenar por Arquivo" :aria-sort="sortField === 'fileName' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
+                                        <span class="title">Arquivo</span>
+                                        <i :class="['sort-icon', sortIndicatorFor('fileName')]" />
+                                    </button>
+                                    <button type="button" class="filter-trigger" aria-label="Filtrar Arquivos" @click="toggleFileFilterPanel($event)">
+                                        <i class="pi pi-filter" />
+                                    </button>
+                                </div>
+                                <OverlayPanel ref="fileFilterPanel" style="min-width:18rem" class="filter-panel">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold">Filtrar Arquivos</span>
+                                        <Button label="Limpar" size="small" text @click="clearFileFilter" />
+                                    </div>
+                                    <div class="flex flex-col gap-3">
+                                        <Dropdown v-model="fileFilterMode" :options="FILTER_MODES" optionLabel="label" optionValue="value" class="w-full" />
+                                        <div class="flex gap-2">
+                                            <InputText v-model="fileFilterManual" placeholder="Digitar valor" class="flex-1" @keyup.enter="addFileManual" />
+                                            <Button icon="pi pi-plus" severity="secondary" @click="addFileManual" rounded outlined aria-label="Adicionar valor manual" />
+                                        </div>
+                                        <MultiSelect
+                                            v-model="fileFilterSelected"
+                                            :options="distinctFiles"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                            placeholder="Qualquer"
+                                            class="w-full"
+                                            display="chip"
+                                        />
+                                    </div>
+                                </OverlayPanel>
                             </template>
                             <template #body="{ data }">
                                 <div>
@@ -337,7 +512,7 @@ watch(historySearchTerm, () => {
                             </template>
                         </Column>
 
-                        <Column header="Linhas" style="width: 14%">
+                        <Column header="Linhas" style="width: 8%">
                             <template #body="{ data }">
                                 <div class="flex flex-col text-sm">
                                     <span class="text-surface-600 dark:text-surface-200">
@@ -350,34 +525,69 @@ watch(historySearchTerm, () => {
                             </template>
                         </Column>
 
-                        <Column header="Status" style="width: 12%">
+                        <Column style="width: 10%">
+                            <template #header>
+                                <div class="header-with-filter">
+                                    <button type="button"
+                                            :class="['sortable-header', { active: sortField === 'statusLabel' }]"
+                                            @click="toggleSort('statusLabel')"
+                                            aria-label="Ordenar por Status"
+                                            :aria-sort="sortField === 'statusLabel' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
+                                        <span class="title">Status</span>
+                                        <i :class="['sort-icon', sortIndicatorFor('statusLabel')]" />
+                                    </button>
+                                    <button type="button" class="filter-trigger" aria-label="Filtrar Status" @click="toggleStatusFilterPanel($event)">
+                                        <i class="pi pi-filter" />
+                                    </button>
+                                </div>
+                                <OverlayPanel ref="statusFilterPanel" style="min-width:14rem" class="filter-panel">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold">Filtrar Status</span>
+                                        <Button label="Limpar" size="small" text @click="clearStatusFilter" />
+                                    </div>
+                                    <MultiSelect
+                                        v-model="statusFilterSelected"
+                                        :options="distinctStatusLabels"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        display="chip"
+                                        placeholder="Qualquer"
+                                        class="w-full"
+                                    >
+                                        <template #option="{ option }">
+                                            <Tag :value="option.label" :class="['status-option-tag',
+                                                option.label==='Erro' ? 'tag-error' : option.label==='Aviso' ? 'tag-warning' : 'tag-success']" />
+                                        </template>
+                                        <template #chip="{ value }">
+                                            <Tag :value="value" :class="['status-chip-tag',
+                                                value==='Erro' ? 'tag-error' : value==='Aviso' ? 'tag-warning' : 'tag-success']" />
+                                        </template>
+                                    </MultiSelect>
+                                </OverlayPanel>
+                            </template>
                             <template #body="{ data }">
                                 <Tag
                                     class="status-tag"
                                     :class="statusTagClass(data.level)"
-                                    :value="statusTagLabel(data)"
+                                    :value="data.statusLabel"
                                     :severity="statusTagSeverity(data.level)"
                                 />
                             </template>
                         </Column>
 
-                        <Column header="Ações" style="width: 15%">
+                        <Column header="Ações" style="width: 3%; text-align:center;">
                             <template #body="{ data }">
-                                <div class="flex flex-wrap gap-2">
+                                <div class="actions-menu-wrapper">
                                     <Button
-                                        label="Reenviar"
-                                        size="small"
-                                        icon="pi pi-refresh"
-                                        :disabled="data.errorRows === 0"
-                                        @click="handleRetryHistory(data)"
+                                        aria-label="Ações"
+                                        icon="pi pi-ellipsis-v"
+                                        class="p-button-rounded p-button-text actions-trigger"
+                                        @click="toggleRowMenu($event, data.requestId)"
                                     />
-                                    <Button
-                                        label="Deletar"
-                                        size="small"
-                                        icon="pi pi-trash"
-                                        severity="danger"
-                                        outlined
-                                        @click="handleDeleteHistory(data)"
+                                    <Menu
+                                        :ref="el => setActionsMenuRef(el, data.requestId)"
+                                        :model="buildActionsModel(data)"
+                                        popup
                                     />
                                 </div>
                             </template>
@@ -395,17 +605,28 @@ watch(historySearchTerm, () => {
                     </DataTable>
                 </div>
 
-                <div class="mt-6 flex flex-col gap-2">
-                    <Paginator
-                        class="justify-center"
-                        :rows="HISTORY_PAGE_SIZE"
-                        :totalRecords="historyFilteredCount"
-                        :first="(historyPage - 1) * HISTORY_PAGE_SIZE"
-                        @page="handleHistoryPageChange"
-                    />
-                    <div class="history-summary text-right text-sm text-surface-500 md:ml-auto">
-                        <i class="pi pi-database text-primary-400 mr-2"></i>
-                        <span>{{ historySummaryLabel }}</span>
+                <div class="mt-6 history-pagination-grid">
+                    <div class="page-size-col">
+                        <FloatLabel class="w-full page-size-float" variant="on">
+                            <Dropdown v-model="historyPageSize" inputId="historyPageSize" :options="PAGE_SIZE_OPTIONS" optionLabel="label" optionValue="value" class="w-full" />
+                            <label for="historyPageSize">Linhas</label>
+                        </FloatLabel>
+                    </div>
+                    <div class="paginator-col">
+                        <div class="paginator-wrapper">
+                            <Paginator
+                                :rows="historyPageSize"
+                                :totalRecords="historyFilteredCount"
+                                :first="(historyPage - 1) * historyPageSize"
+                                @page="handleHistoryPageChange"
+                            />
+                        </div>
+                    </div>
+                    <div class="summary-col">
+                        <div class="history-summary text-sm text-surface-500">
+                            <i class="pi pi-database text-primary-400 mr-2"></i>
+                            <span>{{ historySummaryLabel }}</span>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -428,8 +649,14 @@ watch(historySearchTerm, () => {
     letter-spacing: 0.04em;
 }
 
-.history-table :deep(.p-datatable-tbody > tr:nth-child(even)) {
-    background: var(--surface-50);
+.history-table :deep(.p-datatable-tbody > tr:nth-child(odd)) {
+    /* Zebra (tema claro) - opacidade um pouco maior para melhor contraste */
+    background: rgba(0, 0, 0, 0.03);
+}
+
+:root[class*='app-dark'] .history-table :deep(.p-datatable-tbody > tr:nth-child(odd)) {
+    /* Zebra sutil para tema escuro */
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .history-table :deep(.p-datatable-tbody > tr:hover) {
@@ -497,4 +724,79 @@ watch(historySearchTerm, () => {
 .dark .sortable-header { color: var(--surface-400); }
 .dark .sortable-header:hover { color: var(--surface-200); }
 .sortable-header.active .sort-icon { opacity:1; }
+
+/* Ações: garantir mesma largura para ambos os botões */
+.history-table :deep(.actions-menu-wrapper) { display:flex; justify-content:center; }
+.history-table :deep(.actions-trigger) {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--surface-300);
+    background: var(--surface-100);
+    color: var(--surface-700);
+    transition: background .15s ease, color .15s ease;
+}
+:root[class*='app-dark'] .history-table :deep(.actions-trigger) {
+    background: var(--surface-800);
+    border-color: var(--surface-700);
+    color: var(--surface-200);
+}
+.history-table :deep(.actions-trigger:hover) { background: var(--surface-200); color: var(--surface-900); }
+:root[class*='app-dark'] .history-table :deep(.actions-trigger:hover) { background: var(--surface-700); color: var(--surface-50); }
+
+/* Filtros */
+.header-with-filter { display:flex; align-items:center; gap:.25rem; }
+.filter-trigger {
+    background: transparent;
+    border: 1px solid var(--surface-300);
+    color: var(--surface-600);
+    width: 1.9rem;
+    height: 1.9rem;
+    display: inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius: .5rem;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.filter-trigger:hover { background: var(--surface-200); color: var(--surface-800); }
+:root[class*='app-dark'] .filter-trigger { border-color: var(--surface-700); color: var(--surface-300); }
+:root[class*='app-dark'] .filter-trigger:hover { background: var(--surface-700); color: var(--surface-50); }
+.filter-panel :deep(.p-multiselect-token) { font-size:.65rem; }
+.filter-panel :deep(.p-dropdown) { font-size:.75rem; }
+.filter-panel :deep(.p-dropdown-label) { padding:.5rem .75rem; }
+.filter-panel :deep(.p-inputtext) { font-size:.75rem; }
+
+/* FloatLabel page size */
+.page-size-float :deep(.p-dropdown) { font-size:.75rem; }
+.page-size-float :deep(.p-dropdown-label) { padding:.5rem .75rem; }
+.page-size-float :deep(.p-floatlabel) { width:100%; }
+.page-size-float { max-width:14rem; }
+
+/* Grid paginação */
+.history-pagination-grid { display:grid; gap:1rem; grid-template-columns:repeat(3,1fr); align-items:center; }
+.history-pagination-grid .page-size-col { justify-self:start; }
+.history-pagination-grid .paginator-col { justify-self:center; }
+.history-pagination-grid .summary-col { justify-self:end; text-align:right; }
+.paginator-wrapper { display:flex; justify-content:center; }
+@media (max-width: 640px) {
+    .history-pagination-grid { grid-template-columns:1fr; }
+    .history-pagination-grid .page-size-col, .history-pagination-grid .paginator-col, .history-pagination-grid .summary-col { justify-self:stretch; text-align:left; }
+    .summary-col .history-summary { margin-top:.5rem; }
+}
+
+/* Search bar alignment */
+.search-bar-wrapper { margin-top:.25rem; }
+.search-bar-wrapper .search-input :deep(.p-inputtext) { padding-left:2rem; }
+.search-bar-wrapper .search-input { position:relative; }
+.search-bar-wrapper .search-input i { position:absolute; left:.65rem; top:50%; transform:translateY(-50%); font-size:.9rem; color:var(--surface-400); }
+:root[class*='app-dark'] .search-bar-wrapper .search-input i { color:var(--surface-500); }
+
+/* Status filter tags inside options */
+.filter-panel :deep(.status-option-tag) { font-size:.65rem; font-weight:600; }
+.filter-panel :deep(.status-chip-tag) { font-size:.65rem; font-weight:600; }
 </style>
