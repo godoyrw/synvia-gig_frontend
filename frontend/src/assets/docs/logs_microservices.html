@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <title>Logs &amp; Observabilidade — Synvia GIG</title>
+        <style>
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                margin: 0 auto;
+                max-width: 900px;
+                padding: 40px 24px 80px;
+                line-height: 1.7;
+                color: #101828;
+                background: #f8fafc;
+            }
+
+            h1,
+            h2,
+            h3 {
+                color: #0f172a;
+                margin-top: 2.25rem;
+            }
+
+            code,
+            pre {
+                font-family: 'JetBrains Mono', 'Fira Code', monospace;
+                background: #0f172a;
+                color: #e2e8f0;
+                border-radius: 12px;
+            }
+
+            pre {
+                padding: 1.25rem;
+                overflow-x: auto;
+                box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+            }
+
+            code {
+                padding: 0.15rem 0.35rem;
+                border-radius: 0.35rem;
+                background: rgba(15, 23, 42, 0.85);
+                color: #f8fafc;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1.5rem 0;
+                background: #fff;
+                border-radius: 1rem;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+            }
+
+            th,
+            td {
+                padding: 0.85rem 1rem;
+                border-bottom: 1px solid #e2e8f0;
+                text-align: left;
+            }
+
+            th {
+                background: #e0f2fe;
+                color: #0c4a6e;
+                font-weight: 600;
+            }
+
+            tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .tag {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                font-size: 0.85rem;
+                font-weight: 600;
+                padding: 0.15rem 0.55rem;
+                border-radius: 999px;
+            }
+
+            .tag-info {
+                background: #e0f2fe;
+                color: #0369a1;
+            }
+
+            .tag-warn {
+                background: #fef3c7;
+                color: #b45309;
+            }
+
+            .tag-error {
+                background: #fee2e2;
+                color: #b91c1c;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🧾 Logs &amp; Observabilidade — Synvia GIG</h1>
+        <p>
+            Este documento registra a estratégia de logging implementada em novembro/2025 para os micro-serviços de importação.
+            O objetivo é garantir rastreabilidade ponta a ponta (frontend ⇄ backend ⇄ S3) e fornecer insumos para auditoria, suporte e analytics futuros.
+        </p>
+
+        <h2>1. Objetivos</h2>
+        <ul>
+            <li>Mapear cada upload com um <code>requestId</code> único compartilhado entre frontend e backend.</li>
+            <li>Persistir logs estruturados (JSON line-by-line) em S3 para fácil leitura por Athena, Glue ou ferramentas similares.</li>
+            <li>Registrar contexto suficiente para reproduzir bugs (cliente, nome do arquivo, hash, métricas, erros, ambiente).</li>
+            <li>Evitar exposição de caminhos do S3 no frontend, mantendo apenas identificadores internos (<code>logKey</code> e <code>hash</code>).</li>
+        </ul>
+
+        <h2>2. Componentes envolvidos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Arquivo</th>
+                    <th>Responsabilidade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>micro-services/src/utils/logger.ts</code></td>
+                    <td>Ler/anexar logs no S3 com controle de concorrência (getObject → append → putObject).</td>
+                </tr>
+                <tr>
+                    <td><code>micro-services/src/utils/filename.ts</code></td>
+                    <td>Gera <code>logKey</code> e <code>objectKey</code> com base em cliente + data.</td>
+                </tr>
+                <tr>
+                    <td><code>micro-services/src/routes/import.ts</code></td>
+                    <td>Cria <code>requestId</code>, coleta métricas, chama <code>appendLogEntry</code> em todos os cenários.</td>
+                </tr>
+                <tr>
+                    <td><code>frontend/src/views/import/ImportFilesView.vue</code></td>
+                    <td>Exibe resumo ao usuário e informa <code>requestId</code>/<code>logKey</code> para suporte.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. Estrutura dos arquivos de log</h2>
+        <p>Os logs são gravados em <code>logs/&lt;clientId&gt;/&lt;ano&gt;/&lt;mes&gt;/&lt;dia&gt;.log</code>. Cada linha é um JSON válido contendo:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>timestamp</code></td>
+                    <td>ISO 8601 UTC.</td>
+                </tr>
+                <tr>
+                    <td><code>level</code></td>
+                    <td><span class="tag tag-info">INFO</span>, <span class="tag tag-warn">WARN</span> ou <span class="tag tag-error">ERROR</span>.</td>
+                </tr>
+                <tr>
+                    <td><code>environment</code></td>
+                    <td><code>production</code>, <code>staging</code>, <code>development</code> (derivado de <code>NODE_ENV</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>requestId</code></td>
+                    <td>ID enviado pelo frontend ou gerado automaticamente (<code>imp_${Date.now().toString(36)}</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>clientId</code></td>
+                    <td>Cabeçalho <code>X-Client-Id</code> normalizado (<code>demo</code> se ausente).</td>
+                </tr>
+                <tr>
+                    <td><code>upload</code></td>
+                    <td>Objeto com <code>fileName</code>, <code>sizeBytes</code>, <code>durationMs</code>, <code>hash</code>, <code>s3Key</code> (quando salvo).</td>
+                </tr>
+                <tr>
+                    <td><code>summary</code></td>
+                    <td>Total de linhas processadas, importadas e com erro.</td>
+                </tr>
+                <tr>
+                    <td><code>validationErrors</code></td>
+                    <td>Até 100 erros detalhando <code>line</code>, <code>column</code>, <code>code</code>, <code>details</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>error</code></td>
+                    <td>Presente apenas em falhas: tipo (<code>ValidationError</code>, <code>S3Error</code>, etc.), mensagem e stack resumida.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>4. Exemplos de linhas</h2>
+        <h3>Sucesso</h3>
+        <pre><code class="language-json">{"timestamp":"2025-11-18T19:24:12.123Z","level":"INFO","environment":"staging","requestId":"imp_7f52a6","clientId":"acme","upload":{"fileName":"contratos-q4.csv","s3Key":"imports/acme/2025/11/18/1731951256123-contratos-q4.csv","hash":"0x47ac...","durationMs":1842,"sizeBytes":94523},"summary":{"totalRows":2500,"importedRows":2490,"errorRows":10},"validationErrors":[]}</code></pre>
+        <h3>Erro de validação</h3>
+        <pre><code class="language-json">{"timestamp":"2025-11-18T20:01:05.991Z","level":"ERROR","environment":"staging","requestId":"imp_82ab91","clientId":"demo","upload":{"fileName":"prestadores.csv","hash":"0x5fa1...","durationMs":321,"sizeBytes":1200},"summary":{"totalRows":0,"importedRows":0,"errorRows":0},"validationErrors":[{"line":1,"column":"header","code":"missing-header","details":"Colunas obrigatórias ausentes: id_prestador,data_inicio"}],"error":{"type":"ValidationError","message":"Cabeçalho inválido","code":"missing-header"}}</code></pre>
+        <h3>Erro AWS/S3</h3>
+        <pre><code class="language-json">{"timestamp":"2025-11-18T20:14:55.445Z","level":"ERROR","environment":"staging","requestId":"imp_90ccaf","clientId":"acme","upload":{"fileName":"q4.csv","hash":"0x91bc...","durationMs":512,"sizeBytes":84561},"summary":{"totalRows":2500,"importedRows":2500,"errorRows":0},"validationErrors":[],"error":{"type":"S3Error","code":"AccessDenied","message":"User is not authorized to perform s3:PutObject on synvia/imports/..."}}</code></pre>
+
+        <h2>5. Regras de gravação</h2>
+        <ul>
+            <li>Todos os caminhos e nomes utilizam <code>sanitizedKeySegment</code> para evitar caracteres inválidos.</li>
+            <li>Os logs são anexados ao arquivo do dia; caso ele ainda não exista, o <code>getObject</code> falha com <code>NoSuchKey</code> e um arquivo novo é criado.</li>
+            <li>Falhas na etapa de logging não impedem o fluxo principal: o serviço continua e apenas emite um <code>console.error</code> local.</li>
+            <li>Limite de 1&nbsp;MB por entrada (na prática cada JSON possui &lt; 4&nbsp;KB). Em caso de volumes maiores, rotacionar via CloudWatch ou Lambda (próximo passo).</li>
+        </ul>
+
+        <h2>6. Consulta e troubleshooting</h2>
+        <ol>
+            <li>Identifique <code>requestId</code> no frontend (card “Resumo da importação”).</li>
+            <li>Monte o caminho <code>logs/&lt;clientId&gt;/&lt;ano&gt;/&lt;mês&gt;/&lt;dia&gt;.log</code>; o <code>logKey</code> já vem na resposta.</li>
+            <li>Use AWS CLI, Console ou Athena para localizar a linha correspondente. Exemplo CLI:
+                <pre><code>aws s3 cp s3://synvia/logs/acme/2025/11/18.log - | grep "imp_7f52a6"</code></pre>
+            </li>
+            <li>Se precisar de relatórios, catalogue o prefixo <code>logs/</code> no Glue Data Catalog (formato JSON Lines) e faça queries SQL com Athena.</li>
+        </ol>
+
+        <h2>7. Integração futura</h2>
+        <ul>
+            <li><strong>Alertas CloudWatch</strong>: configurar evento diário que verifica <code>level = ERROR</code> e envia Slack/e-mail.</li>
+            <li><strong>Retenção</strong>: mover arquivos com mais de 90 dias para S3 Glacier Instant Retrieval via Lifecycle Policy.</li>
+            <li><strong>API interna</strong>: endpoint de auditoria que lê os logs filtrando por <code>requestId</code> e retorna uma timeline human-readable.</li>
+        </ul>
+
+        <h2>8. Referências cruzadas</h2>
+        <ul>
+            <li><code>frontend/src/assets/docs/import_files.html</code> — contrato completo do módulo de importação.</li>
+            <li><code>micro-services/src/utils/csv.ts</code> — lista de códigos de validação e regras de parsing.</li>
+            <li><code>micro-services/src/service/s3.ts</code> — cliente AWS utilizado pelo logger.</li>
+        </ul>
+
+        <p><strong>Status:</strong> ativo em <em>dev</em> e <em>staging</em>. Basta definir <code>AWS_BUCKET</code>, <code>AWS_REGION</code>, <code>AWS_ACCESS_KEY_ID</code> e <code>AWS_SECRET_ACCESS_KEY</code> para ativar o log em qualquer ambiente.</p>
+    </body>
+</html>

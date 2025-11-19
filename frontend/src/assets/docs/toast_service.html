@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PrimeVue Toast Service</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      line-height: 1.65;
+      margin: 0 auto;
+      padding: 3rem 1.75rem 5rem;
+      max-width: 960px;
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+    h1, h2, h3, h4 {
+      font-weight: 700;
+      color: #f8fafc;
+      line-height: 1.25;
+    }
+    h2 {
+      margin-top: 2.5rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    h3 {
+      margin-top: 1.75rem;
+    }
+    p {
+      margin: 1rem 0;
+    }
+    code {
+      font-size: 0.95rem;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      background: rgba(15, 23, 42, 0.65);
+      color: #7dd3fc;
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.35rem;
+    }
+    pre {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(15, 23, 42, 0.92));
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      padding: 1.75rem;
+      overflow-x: auto;
+      box-shadow: 0 25px 60px rgba(15, 23, 42, 0.45);
+      margin: 1.75rem 0;
+    }
+    pre code {
+      color: #e0f2fe;
+      background: transparent;
+      display: block;
+    }
+    ul, ol {
+      padding-left: 1.5rem;
+    }
+    li {
+      margin: 0.4rem 0;
+    }
+    blockquote {
+      border-left: 4px solid #38bdf8;
+      padding-left: 1rem;
+      color: #bae6fd;
+      background: rgba(8, 47, 73, 0.35);
+      border-radius: 0 1rem 1rem 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    th, td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    th {
+      text-align: left;
+      background: rgba(8, 47, 73, 0.65);
+      color: #bae6fd;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.45);
+    }
+    mark {
+      background: rgba(14, 165, 233, 0.2);
+      color: #f8fafc;
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.25rem;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.9rem;
+      padding: 0.1rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      margin-right: 0.4rem;
+      color: #bae6fd;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .card {
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      background: rgba(15, 23, 42, 0.65);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="tag">Atualizado em 18 nov 2025</p>
+    <h1>🔔 PrimeVue Toast Service — Guia Oficial SYNVIA GIG</h1>
+    <p>
+      Este documento descreve como o SYNVIA GIG usa exclusivamente o <strong>PrimeVue Toast Service</strong>
+      para fornecer feedback visual consistente em toda a aplicação. O legado <code>NotificationCenter</code>
+      foi removido definitivamente; todo fluxo novo deve consumir o Toast via <code>useToast</code>.
+    </p>
+  </header>
+
+  <section>
+    <h2>📚 Índice rápido</h2>
+    <ol>
+      <li><a href="#setup">Setup e dependências</a></li>
+      <li><a href="#conceitos">Conceitos principais</a></li>
+      <li><a href="#padroes">Padrões recomendados</a></li>
+      <li><a href="#temas">Temas, UX e acessibilidade</a></li>
+      <li><a href="#snippets">Snippets prontos</a></li>
+      <li><a href="#migracao">Checklist de migração</a></li>
+    </ol>
+  </section>
+
+  <section id="setup">
+    <h2>1. Setup e dependências</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Plugins globais</h3>
+        <p>Registrados em <code>src/main.js</code>:</p>
+        <ul>
+          <li><code>app.use(ToastService)</code></li>
+          <li><code>app.use(PrimeVue, { theme: Aura, ... })</code></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Renderização</h3>
+        <p><code>&lt;Toast /&gt;</code> é renderizado uma única vez dentro de <code>src/App.vue</code>, logo
+          após o <code>&lt;router-view /&gt;</code>. Isso garante disponibilidade em qualquer rota.</p>
+      </div>
+      <div class="card">
+        <h3>Service API</h3>
+        <p>Use <code>const toast = useToast()</code> dentro de componentes e views. Nenhum outro store ou
+          composable é necessário.</p>
+      </div>
+    </div>
+    <pre><code>// src/main.js
+import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
+import Aura from '@primeuix/themes/aura';
+
+app.use(PrimeVue, { theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } });
+app.use(ToastService);</code></pre>
+  </section>
+
+  <section id="conceitos">
+    <h2>2. Conceitos principais</h2>
+    <h3>Severidades suportadas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Quando usar</th>
+          <th>Duração padrão</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>success</code></td>
+          <td>Ações concluídas com êxito</td>
+          <td>3.5s</td>
+        </tr>
+        <tr>
+          <td><code>info</code></td>
+          <td>Mensagens neutras (ex.: sincronizações)</td>
+          <td>4s</td>
+        </tr>
+        <tr>
+          <td><code>warn</code></td>
+          <td>Algo requer atenção imediata do usuário</td>
+          <td>5s</td>
+        </tr>
+        <tr>
+          <td><code>error</code></td>
+          <td>Erros de fluxo, exceções ou bloqueios</td>
+          <td>6s</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Estrutura mínima</h3>
+    <pre><code>import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
+
+toast.add({
+  severity: 'success',
+  summary: 'Perfil salvo',
+  detail: 'Suas preferências foram atualizadas.',
+  life: 3500,
+  group: 'global',
+  closable: true
+});</code></pre>
+
+    <h3>Posições adotadas</h3>
+    <ul>
+      <li><strong>Desktop:</strong> <code>top-right</code> (default) para feedback rápido;</li>
+      <li><strong>Fluxos críticos:</strong> <code>top-center</code> com <code>group: 'auth'</code> (ex.: login);</li>
+      <li><strong>Mobile:</strong> o PrimeVue aplica responsividade automaticamente. Evite posições inferiores para não conflitar com CTAs fixos.</li>
+    </ul>
+  </section>
+
+  <section id="padroes">
+    <h2>3. Padrões recomendados</h2>
+    <h3>3.1 Operações assíncronas</h3>
+    <pre><code>const toast = useToast();
+
+const handleImport = async () =&gt; {
+  toast.add({ severity: 'info', summary: 'Processando CSV', life: 2000, group: 'import' });
+  try {
+    await importService.upload(file);
+    toast.add({ severity: 'success', summary: 'Importação concluída', detail: file.name });
+  } catch (error) {
+    toast.add({ severity: 'error', summary: 'Falha ao importar', detail: error.message });
+  }
+};</code></pre>
+
+    <h3>3.2 Validação de formulários</h3>
+    <pre><code>const validate = () =&gt; {
+  if (!form.email) {
+    toast.add({ severity: 'warn', summary: 'E-mail obrigatório', group: 'profile' });
+    return false;
+  }
+  return true;
+};</code></pre>
+
+    <h3>3.3 Central de erros reutilizável</h3>
+    <pre><code>// src/services/api.ts
+import { useToast } from 'primevue/usetoast';
+
+export function createErrorHandler() {
+  const toast = useToast();
+  return (error) => {
+    const message = error?.response?.data?.message ?? 'Ops, algo inesperado aconteceu.';
+    toast.add({ severity: 'error', summary: 'Erro', detail: message, life: 6000 });
+  };
+}</code></pre>
+  </section>
+
+  <section id="temas">
+    <h2>4. Temas, UX e acessibilidade</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Dark mode</h3>
+        <p>Todas as variações usam o preset Aura carregado no PrimeVue. A classe <code>.app-dark</code>
+        é aplicada no <code>document.documentElement</code> em <code>main.js</code>, garantindo contraste ideal.</p>
+      </div>
+      <div class="card">
+        <h3>Tokens principais</h3>
+        <ul>
+          <li><code>--p-toast-background</code>: herda do tema atual;</li>
+          <li><code>--p-toast-color</code>: tipografia das mensagens;</li>
+          <li><code>--p-toast-icon-color</code>: sincronizado com a paleta <code>semantic.primary</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Acessibilidade</h3>
+        <ul>
+          <li>Evite toasts empilhados com mais de 3 mensagens simultâneas.</li>
+          <li>Use <code>closable</code> para mensagens que exigem leitura cuidadosa.</li>
+          <li>Para fluxos essenciais, combine com <code>aria-live="assertive"</code> (configurado no componente).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="snippets">
+    <h2>5. Snippets prontos</h2>
+
+    <h3>Login / Auth</h3>
+    <pre><code>const toast = useToast();
+
+const handleLogin = async () =&gt; {
+  try {
+    await authStore.login(credentials);
+    toast.add({ severity: 'success', summary: 'Bem-vindo de volta!', life: 2500, group: 'auth' });
+  } catch (error) {
+    toast.add({ severity: 'error', summary: 'Credenciais inválidas', detail: 'Revise usuário e senha.' });
+  }
+};</code></pre>
+
+    <h3>Importação de arquivos</h3>
+    <pre><code>toast.add({
+  severity: 'info',
+  summary: 'Upload iniciado',
+  detail: `${file.name} ( ${file.size} )`,
+  life: 0,
+  closable: true,
+  group: 'import-status'
+});</code></pre>
+
+    <h3>Notificações encadeadas</h3>
+    <pre><code>const batchToast = useToast();
+
+const notifyBatch = (items) =&gt; {
+  items.forEach((item, index) => {
+    batchToast.add({
+      severity: item.success ? 'success' : 'error',
+      summary: item.success ? 'Processado' : 'Erro no item',
+      detail: item.label,
+      life: 2000 + index * 250
+    });
+  });
+};</code></pre>
+  </section>
+
+  <section id="migracao">
+    <h2>6. Checklist de migração (legado ➜ Toast)</h2>
+    <ol>
+      <li>Remova qualquer importação de <code>NotificationCenter.vue</code>, <code>useNotifications</code> ou <code>@/stores/notifications</code>.</li>
+      <li>Garanta que <code>&lt;Toast /&gt;</code> está presente em <code>App.vue</code> (já configurado no repositório).</li>
+      <li>Substitua chamadas como <code>notify.success('Título')</code> por <code>toast.add({ severity: 'success', summary: 'Título' })</code>.</li>
+      <li>Para hooks reutilizáveis, exporte funções que recebem o resultado de <code>useToast()</code> ou chamam <code>useToast</code> internamente.</li>
+      <li>Reexecute <code>pnpm run build</code> para garantir ausência de imports órfãos.</li>
+    </ol>
+
+    <blockquote>
+      Dica: mantenha mensagens curtas (máx. 48 caracteres no <em>summary</em>) e use o <em>detail</em> para frases longas.
+    </blockquote>
+  </section>
+
+  <footer>
+    <p>📎 Recursos extras: <a href="https://primevue.org/toast/">Documentação oficial PrimeVue Toast</a> · <a href="https://primevue.org/usetoast/">API useToast</a></p>
+  </footer>
+</body>
+</html>
