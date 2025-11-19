@@ -197,6 +197,29 @@ router.post('/synvia-gig/import/upload', (req, res) => {
         numericColumns: NUMERIC_COLUMNS
       });
 
+      // Se houve erro de parsing do CSV, interrompe fluxo antes de upload
+      const hasParseError = summary.errors.some((e) => e.code === 'CSV_PARSE_ERROR');
+      if (hasParseError) {
+        const parseError = summary.errors.find((e) => e.code === 'CSV_PARSE_ERROR');
+        await writeLog({
+          level: 'ERROR',
+          status: 'FAILED',
+          operation: 'IMPORT_FILE_PARSE',
+          error_code: 'CSV_PARSE_ERROR',
+          error_message: parseError?.reason,
+          file_original_name: file.originalname,
+          file_size_bytes: file.size,
+          file_mime_type: file.mimetype,
+          duration_ms: Math.round(performance.now() - startedAt)
+        });
+        res.status(400).json({
+          ok: false,
+          message: 'Falha ao analisar CSV.',
+          errors: summary.errors
+        });
+        return;
+      }
+
       if (summary.missingColumns.length) {
         const validationMessage = 'Cabeçalho inválido. Verifique as colunas obrigatórias e tente novamente.';
         await writeLog({

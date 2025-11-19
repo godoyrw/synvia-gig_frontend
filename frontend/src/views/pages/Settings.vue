@@ -1,12 +1,16 @@
 <script setup>
 import PageHero from '@/components/PageHero.vue';
 import ToggleSwitch from '@/components/ToggleSwitch.vue';
-import { useNotifications } from '@/composables';
 import { useLayout } from '@/layout/composables/layout';
 import { ref } from 'vue';
+import { useToast } from 'primevue/usetoast';
 
 const { layoutConfig, toggleDarkMode } = useLayout();
-const notify = useNotifications();
+const toast = useToast();
+
+const pushToast = (severity, summary, detail) => {
+    toast.add({ severity, summary, detail, life: 5000 });
+};
 
 const notificationSettings = ref({
     emailNotifications: true,
@@ -20,19 +24,19 @@ const privacySettings = ref({
 
 const handleSaveNotifications = () => {
     // TODO: Chamar API para salvar notificações
-    notify.info('Preferências ativadas', 'Suas preferências de notificações foram ativadas com sucesso.');
-    notify.success('Preferências salvas', 'Suas preferências de notificações foram atualizadas com sucesso.');
-    notify.error('Privacidade não atualizada', 'Erro em salvar suas configurações de privacidade.');
-    notify.warning('Ação Irreversível', 'Você está prestes a deletar sua conta permanentemente. Esta ação não pode ser desfeita.');
+    pushToast('info', 'Preferências ativadas', 'Suas preferências de notificações foram ativadas com sucesso.');
+    pushToast('success', 'Preferências salvas', 'Suas preferências de notificações foram atualizadas com sucesso.');
+    pushToast('error', 'Privacidade não atualizada', 'Erro em salvar suas configurações de privacidade.');
+    pushToast('warn', 'Ação irreversível', 'Você está prestes a deletar sua conta permanentemente. Esta ação não pode ser desfeita.');
 };
 
 const handleSavePrivacy = () => {
     // TODO: Chamar API para salvar privacidade
-    notify.error('Privacidade não atualizada', 'Erro em salvar suas configurações de privacidade.');
+    pushToast('error', 'Privacidade não atualizada', 'Erro em salvar suas configurações de privacidade.');
 };
 
 const handleDeleteAccount = () => {
-    notify.warning('Ação Irreversível', 'Você está prestes a deletar sua conta permanentemente. Esta ação não pode ser desfeita.');
+    pushToast('warn', 'Ação irreversível', 'Você está prestes a deletar sua conta permanentemente. Esta ação não pode ser desfeita.');
 };
 </script>
 

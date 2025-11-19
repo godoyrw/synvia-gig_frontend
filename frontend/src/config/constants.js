@@ -12,7 +12,7 @@ export const HEARTBEAT_INTERVAL_MS = 50000;
 export const EXPIRATION_CHECK_INTERVAL_MS = 5000;
 
 // Durações padrão das notificações em ms
-export const NOTIFICATION_DURATION = {
+export const TOAST_DURATION = {
     SUCCESS: 5000, // 5 segundos
     ERROR: 5000, // 5 segundos
     WARNING: 5000, // 5 segundos
@@ -20,4 +20,7 @@ export const NOTIFICATION_DURATION = {
 };
 
 // Tempo de animação de saída da notificação em ms
-export const NOTIFICATION_ANIMATION_DELAY = 400;
+export const TOAST_ANIMATION_DELAY = 400;
+
+// Tamanho padrão da paginação do histórico de importações
+export const HISTORY_PAGE_SIZE = 8;

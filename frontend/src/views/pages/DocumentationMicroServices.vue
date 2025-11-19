@@ -2,12 +2,10 @@
 import deploymentContent from '@/assets/docs/deployment_setup.html?raw';
 import importFilesContent from '@/assets/docs/import_files.html?raw';
 import logsContent from '@/assets/docs/logs_implementados.html?raw';
-import workflowContent from '@/assets/docs/workflow_protocol.html?raw';
 import { computed, ref } from 'vue';
 
 const DOCS = [
     { id: 'imports', name: 'Importações CSV', icon: '📤', content: importFilesContent },
-    { id: 'workflow', name: 'Workflow & Jobs', icon: '⚙️', content: workflowContent },
     { id: 'deploy', name: 'Deployment', icon: '🚀', content: deploymentContent },
     { id: 'logs', name: 'Logs & Observabilidade', icon: '🧾', content: logsContent }
 ];

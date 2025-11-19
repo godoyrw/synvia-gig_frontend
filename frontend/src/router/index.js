@@ -56,7 +56,7 @@ const router = createRouter({
                 {
                     path: '/synvia-gig/import-files/history',
                     name: 'importHistory',
-                    component: () => import('@/views/import/ImportFilesView.vue'),
+                    component: () => import('@/views/import/ImportHistoryView.vue'),
                     meta: {
                         requiresAuth: true
                     }

@@ -32,13 +32,54 @@ const pushError = (errors: ImportRowError[], error: ImportRowError, limit: numbe
   }
 };
 
+/**
+ * Traduz mensagens comuns do csv-parse para PT-BR amigável.
+ */
+const translateCsvParseError = (msg: string): string => {
+  const openingQuote = msg.match(/^Invalid Opening Quote: a quote is found on field (\d+) at line (\d+), value is "(.*)" \((.*)\)/);
+  if (openingQuote) {
+    const [, field, line, value, extra] = openingQuote;
+    return `Aspa inicial inválida: foi encontrada uma aspa inesperada no campo ${field} na linha ${line}; valor "${value}" (${extra}).`;
+  }
+  if (/^Invalid Closing Quote:/.test(msg)) {
+    return 'Aspa de fechamento inválida: verifique se todas as aspas estão balanceadas.';
+  }
+  if (/^Quoted field not terminated/.test(msg)) {
+    return 'Campo entre aspas não foi finalizado corretamente.';
+  }
+  if (/^Invalid Record Length:/.test(msg)) {
+    return 'Comprimento de registro inválido: número de colunas inconsistente.';
+  }
+  return `Erro ao analisar CSV: ${msg}`;
+};
+
 export const analyzeCsvBuffer = (buffer: Buffer, options: AnalyzeCsvOptions = {}): CsvAnalysis => {
   const opts = { ...DEFAULT_OPTIONS, ...options };
-  const rows = parse(buffer, {
-    skip_empty_lines: true,
-    relax_column_count: true,
-    trim: true
-  }) as string[][];
+  let rows: string[][] = [];
+  try {
+    rows = parse(buffer, {
+      skip_empty_lines: true,
+      relax_column_count: true,
+      trim: true
+    }) as string[][];
+  } catch (parseErr) {
+    const rawMessage = parseErr instanceof Error ? parseErr.message : 'Falha desconhecida ao ler CSV.';
+    return {
+      totalRows: 0,
+      importedRows: 0,
+      errorRows: 0,
+      header: [],
+      missingColumns: [],
+      errors: [
+        {
+          line: 0,
+          reason: translateCsvParseError(rawMessage),
+          code: 'CSV_PARSE_ERROR',
+          details: { originalMessage: rawMessage }
+        }
+      ]
+    };
+  }
 
   if (!rows.length) {
     return { totalRows: 0, importedRows: 0, errorRows: 0, errors: [], header: [], missingColumns: [] };

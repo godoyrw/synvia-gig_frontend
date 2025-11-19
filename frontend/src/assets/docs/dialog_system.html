@@ -181,8 +181,6 @@
         color: #aaaaaa;
       }
     pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
     @media screen {
     pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
     }
@@ -200,7 +198,6 @@
     code span.dt { color: #902000; } /* DataType */
     code span.dv { color: #40a070; } /* DecVal */
     code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
     code span.im { color: #008000; font-weight: bold; } /* Import */
@@ -294,31 +291,28 @@ const showError = () =&gt; {
 };
 &lt;/script&gt;</code></pre>
 <hr />
-<h2 id="componente-notificationcenter-sistema-atual">⚙️ Componente
-NotificationCenter (Sistema Atual)</h2>
-<p><strong>IMPORTANTE:</strong> O projeto usa um sistema de notificações
-customizado. Prefira usar:</p>
+<h2 id="primevue-toast-atual">⚙️ Notificações via PrimeVue Toast</h2>
+<p><strong>Atualização:</strong> o antigo centro de notificações custom
+foi descontinuado. Todas as notificações breves agora usam somente o
+<strong>PrimeVue Toast Service</strong> com <code>useToast</code>.</p>
 <pre class="vue"><code>&lt;script setup&gt;
-import { useNotifications } from &#39;@/composables/useNotifications&#39;;
+import { useToast } from &#39;primevue/usetoast&#39;;
 
-const { success, error, warning, info } = useNotifications();
+const toast = useToast();
 
-// Sucesso
-success(&#39;Titulo&#39;, &#39;Mensagem de sucesso&#39;);
+const notify = (severity, summary, detail) => {
+  toast.add({ severity, summary, detail, life: 5000 });
+};
 
-// Erro
-error(&#39;Erro!&#39;, &#39;Algo deu errado&#39;);
-
-// Aviso
-warning(&#39;Cuidado!&#39;, &#39;Tenha cuidado com esta ação&#39;);
-
-// Informação
-info(&#39;Info&#39;, &#39;Informação importante&#39;);
+notify(&#39;success&#39;, &#39;Salvo!&#39;, &#39;Dados atualizados com sucesso.&#39;);
+notify(&#39;warn&#39;, &#39;Campos obrigatórios&#39;, &#39;Preencha todos os campos antes de salvar.&#39;);
+notify(&#39;error&#39;, &#39;Erro inesperado&#39;, &#39;Tente novamente em instantes.&#39;);
+notify(&#39;info&#39;, &#39;Sincronizando&#39;, &#39;Seu relatório está sendo preparado.&#39;);
 &lt;/script&gt;</code></pre>
-<p><strong>Vantagens:</strong> - ✅ Auto-dismiss (desaparece
-automaticamente) - ✅ Suporte completo a dark mode - ✅ Ícones
-customizados - ✅ Posicionamento fixo (top-right) - ✅ Animações
-suaves</p>
+<p><strong>Vantagens:</strong> - ✅ Auto-dismiss configurável - ✅ Dark
+mode nativo do PrimeVue - ✅ Sem dependências de store - ✅ Funciona tanto
+nas rotas autenticadas (<code>AppLayout</code>) quanto em telas públicas
+por causa do <code>&lt;Toast /&gt;</code> global em <code>src/App.vue</code>.</p>
 <hr />
 <h2 id="matriz-de-decisão-qual-dialog-usar">📊 Matriz de Decisão: Qual
 Dialog Usar?</h2>
@@ -338,7 +332,7 @@ Dialog Usar?</h2>
 <tbody>
 <tr class="odd">
 <td>Mensagem simples (sucesso/erro/aviso)</td>
-<td><strong>NotificationCenter</strong></td>
+<td><strong>PrimeVue Toast</strong></td>
 <td>Mais leve, melhor UX</td>
 </tr>
 <tr class="even">
@@ -358,15 +352,14 @@ Dialog Usar?</h2>
 </tr>
 <tr class="odd">
 <td>Notificação que some sozinha</td>
-<td><strong>NotificationCenter</strong></td>
+<td><strong>PrimeVue Toast</strong></td>
 <td>Auto-dismiss</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="quando-não-usar-dialog">🚫 Quando NÃO Usar Dialog</h2>
-<p>❌ <strong>Para notificações simples</strong> - Use
-NotificationCenter<br />
+<p>❌ <strong>Para notificações simples</strong> - Use PrimeVue Toast<br />
 ❌ <strong>Para erros de validação</strong> - Use notificações inline +
 toast<br />
 ❌ <strong>Para confirmações rápidas</strong> - Use ConfirmDialog com
@@ -404,39 +397,39 @@ contexto</strong></h3>
 <h3 id="exemplo-1-confirmação-de-delete">Exemplo 1: Confirmação de
 Delete</h3>
 <pre class="vue"><code>&lt;template&gt;
-    &lt;ConfirmDialog&gt;&lt;/ConfirmDialog&gt;
-    &lt;Button label=&quot;Deletar&quot; @click=&quot;confirmDelete&quot; severity=&quot;danger&quot; /&gt;
+  &lt;ConfirmDialog&gt;&lt;/ConfirmDialog&gt;
+  &lt;Button label=&quot;Deletar&quot; @click=&quot;confirmDelete&quot; severity=&quot;danger&quot; /&gt;
 &lt;/template&gt;
 
 &lt;script setup&gt;
 import { useConfirm } from &#39;primevue/useconfirm&#39;;
-import { useNotifications } from &#39;@/composables/useNotifications&#39;;
+import { useToast } from &#39;primevue/usetoast&#39;;
 
 const confirm = useConfirm();
-const { success, error } = useNotifications();
+const toast = useToast();
 
 const confirmDelete = () =&gt; {
-    confirm.require({
-        message: &#39;Tem certeza que deseja deletar esta conta? Esta ação é irreversível.&#39;,
-        header: &#39;Deletar Conta&#39;,
-        icon: &#39;pi pi-exclamation-triangle&#39;,
-        rejectButtonProps: {
-            label: &#39;Cancelar&#39;,
-            severity: &#39;secondary&#39;
-        },
-        acceptButtonProps: {
-            label: &#39;Deletar&#39;,
-            severity: &#39;danger&#39;
-        },
-        accept: async () =&gt; {
-            try {
-                await deleteAccount();
-                success(&#39;Sucesso!&#39;, &#39;Conta deletada&#39;);
-            } catch (err) {
-                error(&#39;Erro!&#39;, &#39;Falha ao deletar conta&#39;);
-            }
-        }
-    });
+  confirm.require({
+    message: &#39;Tem certeza que deseja deletar esta conta? Esta ação é irreversível.&#39;,
+    header: &#39;Deletar Conta&#39;,
+    icon: &#39;pi pi-exclamation-triangle&#39;,
+    rejectButtonProps: {
+      label: &#39;Cancelar&#39;,
+      severity: &#39;secondary&#39;
+    },
+    acceptButtonProps: {
+      label: &#39;Deletar&#39;,
+      severity: &#39;danger&#39;
+    },
+    accept: async () =&gt; {
+      try {
+        await deleteAccount();
+        toast.add({ severity: &#39;success&#39;, summary: &#39;Sucesso!&#39;, detail: &#39;Conta deletada&#39; });
+      } catch (err) {
+        toast.add({ severity: &#39;error&#39;, summary: &#39;Erro!&#39;, detail: &#39;Falha ao deletar conta&#39; });
+      }
+    }
+  });
 };
 &lt;/script&gt;</code></pre>
 <h3 id="exemplo-2-formulário-em-dialog">Exemplo 2: Formulário em
@@ -470,50 +463,50 @@ Dialog</h3>
 
 &lt;script setup&gt;
 import { ref } from &#39;vue&#39;;
-import { useNotifications } from &#39;@/composables/useNotifications&#39;;
+import { useToast } from &#39;primevue/usetoast&#39;;
 
 const displayEdit = ref(false);
-const { success, error } = useNotifications();
+const toast = useToast();
 
 const form = ref({
-    name: &#39;&#39;,
-    email: &#39;&#39;
+  name: &#39;&#39;,
+  email: &#39;&#39;
 });
 
 const showEdit = () =&gt; {
-    // Carregar dados
-    form.value = { /* dados */ };
-    displayEdit.value = true;
+  // Carregar dados
+  form.value = { /* dados */ };
+  displayEdit.value = true;
 };
 
 const handleSave = async () =&gt; {
-    try {
-        // Salvar
-        success(&#39;Perfil atualizado!&#39;, &#39;&#39;);
-        displayEdit.value = false;
-    } catch (err) {
-        error(&#39;Erro ao salvar&#39;, err.message);
-    }
+  try {
+    // Salvar
+    toast.add({ severity: &#39;success&#39;, summary: &#39;Perfil atualizado!&#39; });
+    displayEdit.value = false;
+  } catch (err) {
+    toast.add({ severity: &#39;error&#39;, summary: &#39;Erro ao salvar&#39;, detail: err.message });
+  }
 };
 &lt;/script&gt;</code></pre>
-<h3 id="exemplo-3-usar-notificationcenter-recomendado">Exemplo 3: Usar
-NotificationCenter (recomendado)</h3>
+<h3 id="exemplo-3-primevue-toast">Exemplo 3: Usar PrimeVue Toast
+(recomendado)</h3>
 <pre class="vue"><code>&lt;script setup&gt;
-import { useNotifications } from &#39;@/composables/useNotifications&#39;;
+import { useToast } from &#39;primevue/usetoast&#39;;
 
-const { success, error, warning, info, remove, clearAll } = useNotifications();
+const toast = useToast();
+
+const success = (summary, detail = &#39;&#39;) =>
+  toast.add({ severity: &#39;success&#39;, summary, detail, life: 5000 });
+const error = (summary, detail = &#39;&#39;) =>
+  toast.add({ severity: &#39;error&#39;, summary, detail, life: 6000 });
 
 // Ao invés de:
 // confirm.require({ message: &#39;Sucesso!&#39; });
 
 // Use:
 success(&#39;Operação concluída!&#39;, &#39;Tudo funcionou perfeitamente&#39;);
-
-// Ou apenas título:
-success(&#39;✅ Sucesso!&#39;);
-
-// Ou apenas mensagem:
-error(&#39;❌ Erro ao processar&#39;);
+error(&#39;Erro ao processar&#39;, &#39;Revise os campos obrigatórios.&#39;);
 &lt;/script&gt;</code></pre>
 <hr />
 <h2 id="styling">🎨 Styling</h2>
@@ -586,8 +579,8 @@ class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb18
 <li><a href="https://primevue.org/confirmdialog/">PrimeVue ConfirmDialog
 Docs</a></li>
 <li><a href="https://primevue.org/toast/">PrimeVue Toast Docs</a></li>
-<li><code>src/composables/useNotifications.js</code> - Sistema
-customizado</li>
+<li><code>src/assets/docs/toast_service.html</code> - Guia interno do
+PrimeVue Toast</li>
 </ul>
 <hr />
 <h2 id="checklist-antes-de-usar-dialog">🎯 Checklist antes de usar
@@ -607,7 +600,7 @@ notificação?)</li>
 <hr />
 <h2 id="dicas">💡 Dicas</h2>
 <ol type="1">
-<li><strong>Prefira NotificationCenter para mensagens simples</strong> -
+<li><strong>Prefira PrimeVue Toast para mensagens simples</strong> -
 Melhor UX</li>
 <li><strong>Use ConfirmDialog para deletions</strong> - Padrão
 esperado</li>

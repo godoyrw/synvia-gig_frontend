@@ -6,9 +6,8 @@ import { useRoute, useRouter } from 'vue-router'; // 👈 aqui
 import backgroundLogin from '@/assets/images/backgrounds/background-login.jpg';
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import NotificationCenter from '@/components/NotificationCenter.vue';
 import ToggleSwitch from '@/components/ToggleSwitch.vue';
-import { useNotifications } from '@/composables/useNotifications';
+import { useToast } from 'primevue/usetoast';
 
 const email = ref('');
 const password = ref('');
@@ -19,7 +18,11 @@ const passwordFieldRef = ref(null);
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
-const { success, error, warning } = useNotifications();
+const toast = useToast();
+
+const pushToast = (severity, summary, detail) => {
+    toast.add({ severity, summary, detail, life: 5000 });
+};
 
 const handleEmailKeydown = (event) => {
     if (event.key === 'Enter') {
@@ -38,30 +41,30 @@ const handlePasswordKeydown = (event) => {
 const handleLogin = async () => {
     // Validação de campos vazios
     if (!email.value?.trim()) {
-        warning('Credencial de Usuário', 'Usuário em branco', 'Por favor, digite seu usuário/email');
+        pushToast('warn', 'Credencial de usuário', 'Usuário em branco. Por favor, digite seu usuário/email.');
         return;
     }
 
     if (!password.value?.trim()) {
-        warning('Credencial de Usuário', 'Senha em branco', 'Por favor, digite sua senha');
+        pushToast('warn', 'Credencial de usuário', 'Senha em branco. Por favor, digite sua senha.');
         return;
     }
 
     try {
         await auth.loginWithCredentials(email.value, password.value);
-        success('Credencial de Usuário', 'Login realizado com sucesso!');
+        pushToast('success', 'Credencial de usuário', 'Login realizado com sucesso!');
 
         // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
         const redirect = route.query.redirect || '/synvia-gig';
         router.push(redirect);
     } catch (err) {
-        error(err.message || 'Erro ao autenticar');
+        pushToast('error', 'Autenticação', err.message || 'Erro ao autenticar');
     }
 };
 
 onMounted(() => {
     if (route.query.expired) {
-        warning('Credencial de Usuário', 'Por segurança sua sessão expira em 05 minutos de inatividade. Faça login novamente.');
+        pushToast('warn', 'Credencial de usuário', 'Por segurança a sessão expira em 5 minutos de inatividade. Faça login novamente.');
     }
 });
 </script>
@@ -112,7 +115,6 @@ onMounted(() => {
             </div>
         </div>
     </div>
-    <NotificationCenter />
 </template>
 
 <style scoped>

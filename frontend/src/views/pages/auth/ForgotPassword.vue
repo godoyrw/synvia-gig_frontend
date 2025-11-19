@@ -5,8 +5,7 @@ import { useRouter } from 'vue-router';
 import backgroundLogin from '@/assets/images/backgrounds/background-login.jpg';
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import NotificationCenter from '@/components/NotificationCenter.vue';
-import { useNotifications } from '@/composables/useNotifications';
+import { useToast } from 'primevue/usetoast';
 
 const email = ref('');
 const verificationCode = ref('');
@@ -14,7 +13,11 @@ const isDarkTheme = false;
 const step = ref('email'); // 'email' ou 'verify'
 
 const router = useRouter();
-const { success, error, warning, info } = useNotifications();
+const toast = useToast();
+
+const pushToast = (severity, summary, detail) => {
+    toast.add({ severity, summary, detail, life: 5000 });
+};
 
 const isValidEmail = computed(() => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
@@ -22,38 +25,38 @@ const isValidEmail = computed(() => {
 
 const handleRequestCode = async () => {
     if (!email.value?.trim()) {
-        warning('Email em branco', 'Por favor, digite seu email');
+        pushToast('warn', 'Email em branco', 'Por favor, digite seu email.');
         return;
     }
 
     if (!isValidEmail.value) {
-        warning('Email inválido', 'Por favor, digite um email válido');
+        pushToast('warn', 'Email inválido', 'Por favor, digite um email válido.');
         return;
     }
 
     try {
         // TODO: Chamar API para solicitar código de recuperação
-        info('Código enviado', `Um código de verificação foi enviado para ${email.value}`);
+        pushToast('info', 'Código enviado', `Um código de verificação foi enviado para ${email.value}.`);
         step.value = 'verify';
     } catch (err) {
-        error(err.message || 'Erro ao solicitar código de recuperação');
+        pushToast('error', 'Recuperação de senha', err.message || 'Erro ao solicitar código de recuperação.');
     }
 };
 
 const handleVerifyCode = async () => {
     if (!verificationCode.value?.trim()) {
-        warning('Código em branco', 'Por favor, digite o código de verificação');
+        pushToast('warn', 'Código em branco', 'Por favor, digite o código de verificação.');
         return;
     }
 
     try {
         // TODO: Chamar API para verificar código
-        success('Senha recuperada com sucesso!');
+        pushToast('success', 'Recuperação de senha', 'Senha recuperada com sucesso!');
         setTimeout(() => {
             router.push('/auth/login');
         }, 1500);
     } catch (err) {
-        error(err.message || 'Erro ao verificar código');
+        pushToast('error', 'Recuperação de senha', err.message || 'Erro ao verificar código.');
     }
 };
 
@@ -118,7 +121,6 @@ const handleBackToLogin = () => {
             </div>
         </div>
     </div>
-    <NotificationCenter />
 </template>
 
 <style scoped>

@@ -181,8 +181,6 @@
         color: #aaaaaa;
       }
     pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
     @media screen {
     pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
     }
@@ -200,7 +198,6 @@
     code span.dt { color: #902000; } /* DataType */
     code span.dv { color: #40a070; } /* DecVal */
     code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
     code span.im { color: #008000; font-weight: bold; } /* Import */
@@ -219,6 +216,12 @@
   </style>
 </head>
 <body>
+  <div style="border: 2px solid #f97316; background: #fff7ed; padding: 1rem; border-radius: 0.75rem;">
+  <strong>Atualização (nov/2025):</strong> os exemplos envolvendo o
+  centro de notificações legado foram mantidos apenas para histórico da
+  sprint. O aplicativo agora usa exclusivamente o <strong>PrimeVue
+  Toast</strong> (<code>useToast</code>) para feedback rápido.
+  </div>
 <h1 id="implementações-realizadas---synvia-gig-frontend">📋
 Implementações Realizadas - SYNVIA-GIG Frontend</h1>
 <p><strong>Data:</strong> 14-15 de Novembro de 2025<br />
@@ -295,71 +298,55 @@ data-cites="change">@change</span></p>
 <p><strong>Integrado em:</strong> - Settings.vue (Notificações,
 Privacidade) - Login.vue (“Lembrar-me”)</p>
 <hr />
-<h4 id="srccomponentsnotificationcenter.vue">2.
-<code>src/components/NotificationCenter.vue</code></h4>
-<p><strong>Propósito:</strong> Renderizador visual centralizado de
-notificações push com animações</p>
-<p><strong>Características principais:</strong> - TransitionGroup com
-animações suaves - Enter: slidedown 0.4s - Exit: fadeout 0.3s - 4 tipos
-com cores distintas: - ✅ Success (verde: rgb(22, 163, 74)) - ❌ Error
-(vermelho: rgb(220, 38, 38)) - ⚠️ Warning (amarelo: rgb(202, 138, 4)) -
-ℹ️ Info (azul: rgb(37, 99, 235)) - Ícones SVG customizados (34x34px) -
-Auto-dismiss: 5000ms para todos os tipos - Clicável para dismiss manual
-- Posição: fixed top-20 right-4 - Z-index: 9999 - Responsivo em mobile
-(right padding ajustado) - Suporte completo a dark mode</p>
-<p><strong>Posicionamento:</strong></p>
-<pre class="vue"><code>&lt;NotificationCenter 
-  class=&quot;fixed top-20 right-4 z-[9999]&quot;
-/&gt;</code></pre>
-<p><strong>Integrado em:</strong> - AppLayout.vue (renderizado
-globalmente)</p>
+<h4 id="toast-service">2. PrimeVue Toast Service</h4>
+<p><strong>Propósito:</strong> Centralizar todas as notificações visuais
+utilizando o componente oficial do PrimeVue.</p>
+<p><strong>Características principais:</strong> - Renderização global em
+<code>src/App.vue</code> com <code>&lt;Toast /&gt;</code> - Estilos e
+dark-mode herdados do tema Aura configurado em <code>main.js</code> - 4
+severidades nativas (<code>success</code>, <code>info</code>,
+<code>warn</code>, <code>error</code>) - Auto-dismiss configurável com a
+propriedade <code>life</code> - Suporte a grupos/posições via
+<code>group</code> e <code>position</code> - Nenhuma dependência de
+store Pinia.</p>
+<p><strong>Uso base:</strong></p>
+<pre class="vue"><code>&lt;script setup&gt;
+import { useToast } from &#39;primevue/usetoast&#39;;
+
+const toast = useToast();
+
+const notifySuccess = () =&gt; {
+  toast.add({ severity: &#39;success&#39;, summary: &#39;Tudo certo!&#39;, detail: &#39;Dados sincronizados.&#39;, life: 3000 });
+};
+
+const notifyError = (message) =&gt; {
+  toast.add({ severity: &#39;error&#39;, summary: &#39;Falha&#39;, detail: message, life: 6000, closable: true });
+};
+&lt;/script&gt;</code></pre>
+<p><strong>Integrado em:</strong> - Todas as páginas via
+<code>&lt;Toast /&gt;</code> em <code>App.vue</code> - Serviços que
+consomem <code>useToast()</code> diretamente (Login, Importações,
+Settings, etc.).</p>
 <h3 id="store-e-composables">Store e Composables</h3>
-<h4 id="srcstoresnotifications.js">3.
-<code>src/stores/notifications.js</code></h4>
-<p><strong>Propósito:</strong> Store Pinia para gerenciamento
-centralizado de estado de notificações</p>
-<p><strong>Estado (State):</strong></p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>notifications<span class="op">:</span> []<span class="op">,</span>    <span class="co">// Fila de notificações ativas</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nextId<span class="op">:</span> <span class="dv">0</span><span class="op">,</span>           <span class="co">// Counter para IDs únicos</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>isClosing<span class="op">:</span> <span class="kw">false</span>     <span class="co">// Flag para animação de fechamento</span></span></code></pre></div>
-<p><strong>Actions:</strong> - <code>add(config)</code> - Adiciona
-notificação à fila com auto-dismiss - Parâmetro:
-<code>{ type, message, duration }</code> - Auto-remover após duration -
-<code>remove(id)</code> - Remove notificação com delay de animação
-(300ms) - <code>clearAll()</code> - Limpa todas as notificações</p>
-<p><strong>Helper Methods:</strong> - <code>success(message)</code> -
-Notificação de sucesso (5s) - <code>error(message)</code> - Notificação
-de erro (5s) - <code>warning(message)</code> - Notificação de aviso (5s)
-- <code>info(message)</code> - Notificação informativa (5s)</p>
-<p><strong>Exemplo de uso:</strong></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useNotificationStore } <span class="im">from</span> <span class="st">&#39;@/stores/notifications&#39;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> notifications <span class="op">=</span> <span class="fu">useNotificationStore</span>()</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>notifications<span class="op">.</span><span class="fu">success</span>(<span class="st">&#39;Operação realizada com sucesso!&#39;</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>notifications<span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Erro ao processar request&#39;</span>)</span></code></pre></div>
-<hr />
-<h4 id="srccomposablesusenotifications.js">4.
-<code>src/composables/useNotifications.js</code></h4>
-<p><strong>Propósito:</strong> Composable simplificado para acesso às
-notificações em componentes</p>
-<p><strong>API Simplificada:</strong></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> { </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  success<span class="op">,</span>    <span class="co">// (message) =&gt; void</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  error<span class="op">,</span>      <span class="co">// (message) =&gt; void</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  warning<span class="op">,</span>    <span class="co">// (message) =&gt; void</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  info<span class="op">,</span>       <span class="co">// (message) =&gt; void</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  remove<span class="op">,</span>     <span class="co">// (id) =&gt; void</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  clearAll    <span class="co">// () =&gt; void</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>} <span class="op">=</span> <span class="fu">useNotifications</span>()</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Uso direto</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">success</span>(<span class="st">&#39;Login realizado!&#39;</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">error</span>(<span class="st">&#39;Email inválido&#39;</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">warning</span>(<span class="st">&#39;Ação não pode ser desfeita&#39;</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="fu">info</span>(<span class="st">&#39;Aguarde carregamento...&#39;</span>)</span></code></pre></div>
-<p><strong>Benefícios:</strong> - Wrapper mais limpo sobre o store -
-Menos imports necessários - API amigável e consistenteext install
-Vue.volar</p>
+<h4 id="primevue-toast-composable">3. <code>useToast()</code> (PrimeVue)</h4>
+<p><strong>Propósito:</strong> Substituir completamente a store/custom
+hook de notificações por uma API oficial e leve.</p>
+<p><strong>API:</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> { useToast } <span class="im">from</span> <span class="st">&#39;primevue/usetoast&#39;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> toast <span class="op">=</span> <span class="fu">useToast</span>()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Helpers locais</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> success <span class="op">=</span> (<span class="dt">summary</span><span class="op">,</span> <span class="dt">detail</span> <span class="op">=</span> <span class="st">&#39;&#39;</span>) =&gt;
+  toast<span class="op">.</span><span class="fu">add</span>({ <span class="dt">severity</span><span class="op">:</span> <span class="st">&#39;success&#39;</span><span class="op">,</span> summary<span class="op">,</span> detail<span class="op">,</span> <span class="dt">life</span><span class="op">:</span> <span class="dv">3500</span> })</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> error <span class="op">=</span> (<span class="dt">summary</span><span class="op">,</span> <span class="dt">detail</span> <span class="op">=</span> <span class="st">&#39;&#39;</span>) =&gt;
+  toast<span class="op">.</span><span class="fu">add</span>({ <span class="dt">severity</span><span class="op">:</span> <span class="st">&#39;error&#39;</span><span class="op">,</span> summary<span class="op">,</span> detail<span class="op">,</span> <span class="dt">life</span><span class="op">:</span> <span class="dv">6000</span><span class="op">,</span> <span class="dt">closable</span><span class="op">:</span> <span class="kw">true</span> })</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Uso</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">success</span>(<span class="st">&#39;Login realizado!&#39;</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">error</span>(<span class="st">&#39;Email inválido&#39;</span>)</span></code></pre></div>
+<p><strong>Benefícios:</strong> - Sem store extra - API oficial com
+suporte do PrimeVue - Integração direta com tema.</p>
 <hr />
 <h4 id="srcconfigconstants.js">5.
 <code>src/config/constants.js</code></h4>
@@ -391,9 +378,9 @@ enviado para: user@email.com” - Input para código de 4 dígitos - Botão
 “Verificar Código” - Botão “Voltar ao Login”</p>
 <p><strong>Features:</strong> - Background: Mesma imagem do Login em
 escala cinza (100% filter) com 40% opacity - Layout:
-<code>md:w-[30rem]</code> (responsivo) - NotificationCenter integrado -
-useNotifications() para feedback - useRouter() para navegação - Dark
-mode completo - Animação entre steps</p>
+<code>md:w-[30rem]</code> (responsivo) - Feedback via PrimeVue Toast
+(<code>useToast()</code>) - useRouter() para navegação - Dark mode
+completo - Animação entre steps</p>
 <p><strong>Estado Gerenciado:</strong></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode js"><code class="sourceCode javascript"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> step <span class="op">=</span> <span class="fu">ref</span>(<span class="dv">1</span>)              <span class="co">// Step atual (1 ou 2)</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> email <span class="op">=</span> <span class="fu">ref</span>(<span class="st">&#39;&#39;</span>)            <span class="co">// Email informado</span></span>
@@ -414,7 +401,7 @@ não encontrada” - Descrição: “A página que você procura não existe ou
 foi movida” - Ícone de erro animado - Botões de ação: - “Ir para
 Dashboard” → rota <code>/</code> - “Voltar ao Login” → rota
 <code>/auth/login</code> - Layout: centrado e responsivo - Animação de
-entrada suave - NotificationCenter integrado</p>
+entrada suave - Toaster global configurado em <code>App.vue</code></p>
 <p><strong>Styled Components:</strong></p>
 <pre class="vue"><code>&lt;div class=&quot;min-h-screen flex items-center justify-center&quot;&gt;
   &lt;!-- Logo SYNVIA --&gt;
@@ -493,8 +480,8 @@ automaticamente - Componentes PrimeVue adaptam cores</p>
 <ul>
 <li><code>src/layout/AppUserMenu.vue</code>: Router navigation para
 profile/settings</li>
-<li><code>src/layout/AppLayout.vue</code>: NotificationCenter importado
-e renderizado</li>
+<li><code>src/layout/AppLayout.vue</code>: renderização global do
+<code>&lt;Toast /&gt;</code> e shell principal</li>
 <li><code>src/layout/AppMenu.vue</code>: Link para documentação</li>
 <li><code>src/assets/layout/_main.scss</code>: Padding responsivo
 (.layout-main-content)</li>
@@ -505,7 +492,7 @@ e renderizado</li>
 <ul>
 <li>Keyboard navigation (Enter submit)</li>
 <li>Validação de campos vazios</li>
-<li>NotificationCenter integrado</li>
+<li>PrimeVue Toast configurado e disponível globalmente</li>
 <li>ToggleSwitch para “Lembrar-me”</li>
 <li>Background em grayscale com 40% opacidade</li>
 <li>Link para forgot password</li>
@@ -570,15 +557,15 @@ sidebar e demais estados estruturais.</td>
 <tr class="even">
 <td><code>src/components</code></td>
 <td>Componentes visuais reutilizáveis e agnósticos de layout
-(<code>NotificationCenter.vue</code>, <code>ToggleSwitch.vue</code>,
-futuros widgets)</td>
+(<code>ToggleSwitch.vue</code>, <code>PageHero.vue</code>, futuros
+widgets)</td>
 <td>Podem ser importados por qualquer página ou layout. Mantidos fora de
 <code>layout</code> para evitar dependências circulares.</td>
 </tr>
 <tr class="odd">
 <td><code>src/composables</code></td>
-<td>Hooks globais (<code>useNotifications</code>,
-<code>useActivityTracker</code>, etc.)</td>
+<td>Hooks globais (<code>useActivityTracker</code>, utilitários de
+layout, etc.)</td>
 <td>Compartilham lógica entre páginas, serviços e layouts; continuam na
 raiz para refletir o escopo amplo.</td>
 </tr>
@@ -681,7 +668,7 @@ Optimization</h3>
 <ul>
 <li><strong>Lazy-loaded Pages:</strong> Profile, Settings,
 ForgotPassword, Documentation, NotFound</li>
-<li><strong>Shared Components:</strong> ToggleSwitch, NotificationCenter
+<li><strong>Shared Components:</strong> ToggleSwitch, PageHero, utilitários comuns
 (global)</li>
 <li><strong>Stores:</strong> Notifications (global), Auth (global)</li>
 </ul>
@@ -841,7 +828,7 @@ Soluções</h3>
 <tbody>
 <tr class="odd">
 <td>Notificações não aparecem</td>
-<td>Verificar se AppLayout está renderizando NotificationCenter</td>
+<td>Verificar se AppLayout está renderizando o componente global <code>&lt;Toast /&gt;</code></td>
 </tr>
 <tr class="even">
 <td>Dark mode não funciona</td>
@@ -895,8 +882,8 @@ Keyboard navigation (Enter no login)</li>
 <strong>Próxima Review:</strong> Após testes em homolog</p>
 <hr />
 <h2 id="documentação-relacionada">📚 Documentação Relacionada</h2>
-<p>Veja também: - <code>NOTIFICATION_SYSTEM.md</code> - Guia completo do
-sistema de notificações - <code>DIALOG_SYSTEM.md</code> - Referência de
+<p>Veja também: - <code>TOAST_SERVICE.md</code> - Guia completo do
+serviço de toasts do PrimeVue - <code>DIALOG_SYSTEM.md</code> - Referência de
 Dialogs (deprecated em login) - <code>DEPLOYMENT_SETUP.md</code> -
 Configuração de secrets e deploy -
 <code>SYNVIA_SESSION_MANAGEMENT_REPORT.md</code> - Relatório técnico de

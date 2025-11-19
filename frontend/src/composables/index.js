@@ -1,5 +1,3 @@
-// Barrel de composables - atualmente vazio porque `useDialog` foi substituído por uma store Pinia.
-// Adicione exportações aqui quando criar novos composables.
+// Barrel de composables - atualmente exporta hooks compartilhados.
 
 export { useActivityTracker } from './useActivityTracker';
-export { useNotifications } from './useNotifications';

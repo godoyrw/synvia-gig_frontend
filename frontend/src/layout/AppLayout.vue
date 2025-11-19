@@ -1,5 +1,4 @@
 <script setup>
-import NotificationCenter from '@/components/NotificationCenter.vue';
 import { useActivityTracker } from '@/composables';
 import { useLayout } from '@/layout/composables/layout';
 import { useAuthStore } from '@/stores/auth';
@@ -96,6 +95,4 @@ function isOutsideClicked(event) {
         </div>
         <div class="layout-mask animate-fadein"></div>
     </div>
-    <NotificationCenter />
-    <Toast />
 </template>

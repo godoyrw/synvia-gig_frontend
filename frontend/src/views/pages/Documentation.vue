@@ -3,7 +3,7 @@ import deploymentContent from '@/assets/docs/deployment_setup.html?raw';
 import dialogContent from '@/assets/docs/dialog_system.html?raw';
 import importFilesContent from '@/assets/docs/import_files.html?raw';
 import logsContent from '@/assets/docs/logs_microservices.html?raw';
-import notificationContent from '@/assets/docs/notification_system.html?raw';
+import toastContent from '@/assets/docs/toast_service.html?raw';
 import dashboardContent from '@/assets/docs/syngig_dashboard.html?raw';
 import sessionContent from '@/assets/docs/synvia_session_management_report.html?raw';
 import { computed, ref } from 'vue';
@@ -14,7 +14,7 @@ const DOCS = [
     { id: 'dashboard', name: 'Dashboard', icon: '📊', content: dashboardContent },
     { id: 'imports', name: 'Importações', icon: '📤', content: importFilesContent },
     { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent },
-    { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
+    { id: 'toast', name: 'Toasts', icon: '🔔', content: toastContent },
     { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent }
 ];
 

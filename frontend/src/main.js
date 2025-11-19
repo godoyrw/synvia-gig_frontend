@@ -17,8 +17,19 @@ import '@/assets/styles.scss';
 import '@/assets/tailwind.css';
 import 'primeicons/primeicons.css';
 
-// Força dark-mode baseado no seletor configurado no PrimeVue
-document.documentElement.classList.add('app-dark');
+// Aplica preferência de tema persistida (default dark se não houver valor salvo)
+try {
+    const storedDark = localStorage.getItem('darkTheme');
+    const useDark = storedDark ? storedDark === 'true' : true;
+    if (useDark) {
+        document.documentElement.classList.add('app-dark');
+    } else {
+        document.documentElement.classList.remove('app-dark');
+    }
+} catch (e) {
+    // Se localStorage indisponível, mantém padrão dark
+    document.documentElement.classList.add('app-dark');
+}
 
 const app = createApp(App);
 

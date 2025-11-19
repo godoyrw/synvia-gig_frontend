@@ -1,12 +1,23 @@
 import { computed, reactive } from 'vue';
 
+// Recupera preferência de tema armazenada (se existir)
+const storedDark = typeof window !== 'undefined' ? localStorage.getItem('darkTheme') : null;
+
 const layoutConfig = reactive({
     preset: 'Aura',
     primary: 'synvia',
     surface: null,
-    darkTheme: true,
+    // Usa valor salvo ou mantém padrão (true = dark)
+    darkTheme: storedDark ? storedDark === 'true' : true,
     menuMode: 'static'
 });
+
+// Aplica classe inicial se necessário
+if (layoutConfig.darkTheme) {
+    document.documentElement.classList.add('app-dark');
+} else {
+    document.documentElement.classList.remove('app-dark');
+}
 
 const layoutState = reactive({
     staticMenuDesktopInactive: false,
@@ -41,6 +52,13 @@ export function useLayout() {
     const executeDarkModeToggle = () => {
         layoutConfig.darkTheme = !layoutConfig.darkTheme;
         document.documentElement.classList.toggle('app-dark');
+        // Persistência
+        try {
+            localStorage.setItem('darkTheme', layoutConfig.darkTheme.toString());
+        } catch (e) {
+            // Fallback silencioso (ex: modo privado bloqueando localStorage)
+            console.warn('[layout] Não foi possível persistir darkTheme:', e);
+        }
     };
 
     const toggleMenu = () => {

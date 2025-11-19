@@ -1,21 +1,21 @@
 <script setup>
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import { useNotifications } from '@/composables';
 import { useLayout } from '@/layout/composables/layout';
 import { useRouter } from 'vue-router';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter();
-const notify = useNotifications();
 const { isDarkTheme } = useLayout();
+const toast = useToast();
 
 const goHome = () => {
-    notify.info('Redirecionando', 'Voltando ao dashboard...');
+    toast.add({ severity: 'info', summary: 'Redirecionando', detail: 'Voltando ao dashboard...', life: 4000 });
     router.push('/synvia-gig');
 };
 
 const goLogin = () => {
-    notify.info('Redirecionando', 'Voltando ao login...');
+    toast.add({ severity: 'info', summary: 'Redirecionando', detail: 'Voltando ao login...', life: 4000 });
     router.push('/auth/login');
 };
 </script>

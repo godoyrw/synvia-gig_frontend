@@ -12,7 +12,7 @@ const appVersion = pkg.version ?? '1.0.0-Beta';
         </div>
 
         <div class="sidebar-footer">
-            <span class="sidebar-footer__pill">v{{ appVersion }}</span>
+            <span class="sidebar-footer__pill">Versão: {{ appVersion }}</span>
         </div>
     </div>
 </template>
@@ -38,12 +38,12 @@ const appVersion = pkg.version ?? '1.0.0-Beta';
 }
 
 .sidebar-footer__pill {
-    align-self: flex-end;
+    align-self: flex-start;
     display: inline-flex;
     gap: 0.25rem;
     padding: 0.2rem 0.8rem;
     border-radius: 999px;
-    font-size: 0.78rem;
+    font-size: 0.65rem;
     font-weight: 600;
     background: color-mix(in srgb, var(--primary-color) 10%, transparent);
     color: var(--primary-color);

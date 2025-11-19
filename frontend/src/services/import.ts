@@ -46,13 +46,24 @@ export interface ImportHistoryResponse {
     items: ImportHistoryItem[];
 }
 
-export async function uploadCsv(file: File): Promise<UploadCsvResponse> {
+export async function uploadCsv(
+    file: File,
+    options: { onProgress?: (percent: number, event: any) => void } = {}
+): Promise<UploadCsvResponse> {
     const formData = new FormData();
     formData.append('file', file);
 
     const { data } = await api.post('/synvia-gig/import/upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
+        },
+        onUploadProgress: (event) => {
+            const total = (event.total || 0) as number;
+            const loaded = (event.loaded || 0) as number;
+            if (total > 0) {
+                const percent = Math.round((loaded / total) * 100);
+                options.onProgress?.(percent, event);
+            }
         }
     });
 

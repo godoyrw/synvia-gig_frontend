@@ -181,8 +181,6 @@
         color: #aaaaaa;
       }
     pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-    div.sourceCode
-      {   }
     @media screen {
     pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
     }
@@ -200,7 +198,6 @@
     code span.dt { color: #902000; } /* DataType */
     code span.dv { color: #40a070; } /* DecVal */
     code span.er { color: #ff0000; font-weight: bold; } /* Error */
-    code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
     code span.im { color: #008000; font-weight: bold; } /* Import */
@@ -219,6 +216,12 @@
   </style>
 </head>
 <body>
+<div style="border: 2px solid #f97316; background: #fff7ed; padding: 1rem; border-radius: 0.75rem;">
+<strong>Atualização (nov/2025):</strong> o componente personalizado <code>NotificationCenter</code>, o composable
+<code>useNotifications</code> e a store Pinia correspondente foram removidos. Agora toda a comunicação visual
+usa apenas o <strong>PrimeVue Toast Service</strong>, com <code>useToast</code> disponível em cada view e o
+componente global <code>&lt;Toast /&gt;</code> renderizado em <code>src/App.vue</code>.
+</div>
 <h1 id="sistema-de-notificações-push">🔔 Sistema de Notificações
 Push</h1>
 <p>Documentação completa do sistema de notificações da aplicação SYNVIA
@@ -249,6 +252,8 @@ usuário de forma não-intrusiva. Suporta:</p>
 </ul>
 <hr />
 <h2 id="arquitetura">🏗️ Arquitetura</h2>
+<p><em>Seção mantida apenas como histórico.</em> Para novos fluxos,
+utilize o serviço de toast do PrimeVue descrito no aviso acima.</p>
 <h3 id="componentes-do-sistema">Componentes do Sistema</h3>
 <pre><code>┌─────────────────────────────────────┐
 │    useNotifications() [Composable]   │  ← Interface do usuário
