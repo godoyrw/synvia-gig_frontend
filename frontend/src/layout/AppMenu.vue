@@ -19,6 +19,11 @@ const model = ref([
                         to: '/synvia-gig'
                     },
                     {
+                        label: 'Importados',
+                        icon: 'pi pi-fw pi-history',
+                        to: '/synvia-gig/import-files/history'
+                    },
+                    {
                         label: 'Importações',
                         icon: 'pi pi-fw pi-upload',
                         to: '/synvia-gig/import-files'
@@ -28,12 +33,17 @@ const model = ref([
         ]
     },
     {
-        label: 'DESENVOLVIMENTO',
+        label: 'Documentação Devs',
         items: [
             {
-                label: 'Documentação | Front-end',
+                label: 'Front-end',
                 icon: 'pi pi-fw pi-book',
                 to: '/documentation'
+            },
+            {
+                label: 'Micro Serviços',
+                icon: 'pi pi-fw pi-server',
+                to: '/documentation/micro-services'
             }
         ]
     }

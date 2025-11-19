@@ -1,21 +1,15 @@
 <script setup>
 import deploymentContent from '@/assets/docs/deployment_setup.html?raw';
-import dialogContent from '@/assets/docs/dialog_system.html?raw';
 import importFilesContent from '@/assets/docs/import_files.html?raw';
-import logsContent from '@/assets/docs/logs_microservices.html?raw';
-import notificationContent from '@/assets/docs/notification_system.html?raw';
-import dashboardContent from '@/assets/docs/syngig_dashboard.html?raw';
-import sessionContent from '@/assets/docs/synvia_session_management_report.html?raw';
+import logsContent from '@/assets/docs/logs_implementados.html?raw';
+import workflowContent from '@/assets/docs/workflow_protocol.html?raw';
 import { computed, ref } from 'vue';
 
 const DOCS = [
-    { id: 'logs', name: 'Implementações', icon: '📋', content: logsContent },
-    { id: 'deployment', name: 'Deploy', icon: '🚀', content: deploymentContent },
-    { id: 'dashboard', name: 'Dashboard', icon: '📊', content: dashboardContent },
-    { id: 'imports', name: 'Importações', icon: '📤', content: importFilesContent },
-    { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent },
-    { id: 'notification', name: 'Notificações', icon: '🔔', content: notificationContent },
-    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent }
+    { id: 'imports', name: 'Importações CSV', icon: '📤', content: importFilesContent },
+    { id: 'workflow', name: 'Workflow & Jobs', icon: '⚙️', content: workflowContent },
+    { id: 'deploy', name: 'Deployment', icon: '🚀', content: deploymentContent },
+    { id: 'logs', name: 'Logs & Observabilidade', icon: '🧾', content: logsContent }
 ];
 
 const currentDoc = ref(DOCS[0].id);
@@ -56,13 +50,11 @@ const docs = DOCS;
 
 <template>
     <div class="documentation-container">
-        <!-- Header -->
         <div class="mb-6">
-            <h1 class="text-4xl font-bold mb-2 dark:text-surface-0">📋 Documentação</h1>
-            <p class="text-surface-600 dark:text-surface-400">Guias, protocolos e referências técnicas</p>
+            <h1 class="text-4xl font-bold mb-2 dark:text-surface-0">🛠️ Documentação — Micro Serviços</h1>
+            <p class="text-surface-600 dark:text-surface-400">Arquitetura, fluxos e operação do backend Synvia GIG</p>
         </div>
 
-        <!-- Tabs/Navigation -->
         <div class="mb-6 flex gap-2 flex-wrap border-b border-surface-200 dark:border-surface-700">
             <button
                 v-for="doc in docs"
@@ -77,7 +69,6 @@ const docs = DOCS;
             </button>
         </div>
 
-        <!-- Search -->
         <div class="mb-6">
             <input
                 v-model="searchQuery"
@@ -87,12 +78,10 @@ const docs = DOCS;
             />
         </div>
 
-        <!-- Content -->
         <div class="markdown-content bg-surface-0 dark:bg-surface-900 rounded-lg p-6 border border-surface-200 dark:border-surface-700">
             <div v-html="renderedMarkdown" class="prose dark:prose-invert max-w-none"></div>
         </div>
 
-        <!-- Footer -->
         <div class="mt-8 p-4 bg-primary-50 dark:bg-surface-800 rounded-lg border border-primary-200 dark:border-surface-700">
             <p class="text-sm text-surface-600 dark:text-surface-400"><strong>Última atualização:</strong> 18 de Novembro de 2025</p>
         </div>

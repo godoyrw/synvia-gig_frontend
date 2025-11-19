@@ -2,106 +2,245 @@
 <html lang="pt-BR">
     <head>
         <meta charset="UTF-8" />
-        <title>Documentação - Importação de Arquivos</title>
+        <title>Synvia GIG &mdash; Importação CSV</title>
     </head>
     <body>
-        <h1>Importação de Arquivos &mdash; Módulo CSV</h1>
+        <h1>Guia do Módulo de Importação CSV</h1>
         <p>
-            Esta documentação descreve o fluxo atual de importação de arquivos para o Synvia GIG. No momento, apenas o
-            formato <strong>CSV</strong> está disponível, mas o design foi pensado para suportar novos tipos de arquivo sem
-            refatorações profundas. Utilize este guia para conhecer o comportamento da interface, o contrato com os micro-services e as
-            regras de validação aplicadas.
+            Este documento descreve o fluxo completo de importação do Synvia GIG, cobrindo responsabilidades do frontend (Vue 3 + PrimeVue),
+            contrato com o micro-serviço Node/Express e os mecanismos de observabilidade adicionados em novembro/2025.
+            O objetivo é garantir uploads auditáveis, validações consistentes e segregação clara entre o que o usuário enxerga e o que é persistido no S3.
         </p>
 
-        <h2>Visão Geral</h2>
+        <h2>Arquitetura do fluxo</h2>
         <ul>
-            <li><strong>Página:</strong> <code>/synvia-gig/import-files</code>, acessível via menu “Importações”.</li>
-            <li><strong>Componente:</strong> <code>ImportFilesView.vue</code>, reutilizando o <code>PageHero</code> e cartões PrimeVue.</li>
-            <li><strong>Serviço:</strong> <code>uploadCsv</code> em <code>src/services/import.ts</code>.</li>
-            <li><strong>Endpoint:</strong> <code>POST /synvia-gig/import/upload</code> (multipart/form-data).</li>
-            <li><strong>Armazenamento:</strong> os micro-services enviam o arquivo validado para o S3 e devolvem a URL/path no payload.</li>
+            <li>
+                <strong>Frontend</strong> (<code>frontend/src/views/import/ImportFilesView.vue</code>):
+                exibe o formulário, aplica validações rápidas (tipo, tamanho, presença) e mostra o resumo retornado pela API.
+                Nenhuma referência direta ao caminho do S3 é exibida para o usuário.
+            </li>
+            <li>
+                <strong>Micro-serviço</strong> (<code>micro-services/src/routes/import.ts</code>):
+                recebe o <em>multipart/form-data</em>, executa as validações estruturais/semânticas em <code>src/utils/csv.ts</code>,
+                monta os nomes dos arquivos via <code>src/utils/filename.ts</code> e envia o conteúdo para o S3 usando o client configurado em <code>src/config/s3.ts</code>.
+                Toda operação gera logs estruturados com ajuda de <code>src/utils/logger.ts</code>.
+            </li>
+            <li>
+                <strong>Armazenamento</strong> (Amazon S3): bucket definido por <code>AWS_BUCKET</code> com dois prefixos dedicados: <code>imports/</code> para arquivos enviados
+                e <code>logs/</code> para auditoria de cada requisição.
+            </li>
         </ul>
 
-        <h2>Fluxo do Usuário</h2>
+        <h2>Fluxo resumido</h2>
         <ol>
-            <li><strong>Seleção:</strong> o usuário escolhe um arquivo CSV (máximo 30&nbsp;MB). O componente exibe nome e tamanho.</li>
-            <li><strong>Envio:</strong> o botão “Enviar” chama <code>handleUpload</code>, que usa PrimeVue Toast para feedback imediato.</li>
-            <li><strong>Processamento:</strong> enquanto o upload ocorre, um <code>ProgressSpinner</code> informa “Enviando e validando arquivo…”.</li>
-            <li><strong>Resultado:</strong> ao final, o card “Resumo da importação” mostra totais e a seção “Linhas com erro” lista as inconsistências.</li>
-            <li><strong>Retentativas:</strong> o botão “Limpar” reseta o input e o estado local sem recarregar a página.</li>
+            <li>Usuário seleciona o CSV (até 30&nbsp;MB, UTF-8, <code>.csv</code> além de <code>text/csv</code>).</li>
+            <li>Frontend valida tamanho/MIME, cria o <code>FormData</code>, injeta os cabeçalhos <code>x-client-id</code> e <code>x-request-id</code> e envia para <code>POST /synvia-gig/import/upload</code>.</li>
+            <li>O micro-serviço utiliza Multer para armazenar o arquivo em memória, valida o conteúdo linha a linha e contabiliza métricas.</li>
+            <li>Se o arquivo for válido, ele é salvo no S3 e um log JSON é anexado (INFO). Em caso de erro, um log WARN/ERROR é gravado com o motivo.</li>
+            <li>O frontend exibe apenas o resumo (totais, erros de linha) e disponibiliza o ID do log para consulta interna.</li>
         </ol>
 
-        <h2>Contrato da API</h2>
+        <h2>Estrutura no Amazon S3</h2>
+        <h3>Uploads</h3>
+        <pre><code>imports/&lt;clientId&gt;/&lt;ano&gt;/&lt;mês&gt;/&lt;dia&gt;/&lt;timestamp&gt;-&lt;arquivo-sanitizado&gt;.csv</code></pre>
+        <ul>
+            <li><strong>clientId</strong>: cabeçalho <code>x-client-id</code> (padrão <code>demo</code>).</li>
+            <li><strong>Sanitização</strong>: remove acentos, converte para minúsculo e restringe caracteres a <code>[a-z0-9.-]</code>.</li>
+            <li><strong>Timestamp</strong>: <code>Date.now()</code> garante unicidade.</li>
+        </ul>
+        <p><em>Importante:</em> o caminho completo (<code>s3://...</code>) não é retornado no payload para evitar exposição desnecessária. Apenas o hash lógico e o <code>logKey</code> são enviados.</p>
+
+        <h3>Logs por upload</h3>
+        <pre><code>logs/&lt;clientId&gt;/&lt;ano&gt;/&lt;mês&gt;/&lt;dia&gt;.log</code></pre>
+        <p>
+            Cada arquivo de log contém várias linhas JSON (LJSON). Novas entradas são anexadas ao final do arquivo do dia.
+            O utilitário <code>appendLogEntry</code> busca o objeto existente, concatena o novo registro e grava novamente minimizando leituras.
+        </p>
+        <pre><code class="language-json">{
+  "timestamp": "2025-11-18T19:24:12.123Z",
+  "level": "INFO",
+  "environment": "development",
+  "requestId": "imp_7f52a6",
+  "clientId": "acme",
+  "upload": {
+    "fileName": "contratos-q4.csv",
+    "s3Key": "imports/acme/2025/11/18/1731951256123-contratos-q4.csv",
+    "hash": "0x47ac...",
+    "durationMs": 1842,
+    "sizeBytes": 94523
+  },
+  "summary": {
+    "totalRows": 2500,
+    "importedRows": 2490,
+    "errorRows": 10
+  },
+  "validationErrors": []
+}
+</code></pre>
+        <p>Níveis possíveis: <code>INFO</code> (sucesso/sem bloqueios), <code>WARN</code> (arquivo aceito com ressalvas) e <code>ERROR</code> (falha antes do PutObject).</p>
+
+        <h2>Contrato HTTP</h2>
         <h3>Requisição</h3>
         <pre><code class="language-http">POST /synvia-gig/import/upload
 Content-Type: multipart/form-data
+X-Client-Id: acme
+X-Request-Id: imp_7f52a6
 
 { "file": &lt;CSV&gt; }
 </code></pre>
-        <p>O arquivo é enviado no campo <code>file</code>. Não há parâmetros adicionais obrigatórios na primeira versão.</p>
+        <p>Os cabeçalhos customizados são opcionais, porém recomendados para rastreabilidade. Sem <code>X-Client-Id</code> o serviço assume <code>demo</code>.</p>
 
         <h3>Resposta (sucesso)</h3>
         <pre><code class="language-json">{
   "ok": true,
-  "message": "Importação concluída com sucesso",
+  "message": "Importação concluída",
   "summary": {
-    "totalRows": 1200,
-    "importedRows": 1185,
-    "errorRows": 15
+    "totalRows": 2500,
+    "importedRows": 2490,
+    "errorRows": 10
   },
-  "s3": {
-    "path": "s3://bucket/synvia-gig/imports/2025-11-18-14-53.csv",
-    "url": "https://aws.amazon.com/..."
-  },
+  "logKey": "logs/acme/2025/11/18.log",
+  "requestId": "imp_7f52a6",
+  "hash": "0x47ac...",
   "errors": [
-    { "line": 42, "reason": "Campo 'prestador' vazio" }
+    {
+      "line": 42,
+      "column": "valor_total",
+      "code": "missing-required-field",
+      "details": "Campo obrigatório em branco"
+    }
   ]
 }
 </code></pre>
 
-        <h3>Resposta (falha de validação)</h3>
+        <h3>Resposta (falha de validação ou sistema)</h3>
         <pre><code class="language-json">{
   "ok": false,
   "message": "Arquivo inválido. Verifique o cabeçalho e tente novamente.",
+  "logKey": "logs/acme/2025/11/18.log",
+  "requestId": "imp_7f52a6",
   "errors": [
-    { "line": 1, "reason": "Cabeçalho precisa conter as colunas obrigatórias" }
+    {
+      "line": 1,
+      "column": "header",
+      "code": "missing-header",
+      "details": "Colunas obrigatórias ausentes: id_prestador, data_inicio"
+    }
   ]
 }
 </code></pre>
+        <p>Falhas internas (ex.: <code>AccessDenied</code> no S3) retornam HTTP 500, porém ainda registram o <code>logKey</code> para investigação.</p>
 
-        <h2>Regras de Validação (Frontend + Micro-services)</h2>
+        <h2>Tabela de códigos de validação</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descrição</th>
+                    <th>Ação recomendada</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>missing-header</code></td>
+                    <td>Cabeçalho diferente do esperado.</td>
+                    <td>Atualizar planilha para conter 100% das colunas obrigatórias.</td>
+                </tr>
+                <tr>
+                    <td><code>missing-required-field</code></td>
+                    <td>Campo obrigatório vazio.</td>
+                    <td>Preencher a célula indicada ou remover a linha.</td>
+                </tr>
+                <tr>
+                    <td><code>invalid-date</code></td>
+                    <td>Datas fora do padrão <code>yyyy-MM-dd</code>.</td>
+                    <td>Normalizar datas no ERP ou utilizar fórmulas de conversão.</td>
+                </tr>
+                <tr>
+                    <td><code>invalid-number</code></td>
+                    <td>Valores que não podem ser convertidos para número decimal.</td>
+                    <td>Remover separadores de milhar e usar ponto como decimal.</td>
+                </tr>
+                <tr>
+                    <td><code>row-length-mismatch</code></td>
+                    <td>Número de colunas diferente do cabeçalho.</td>
+                    <td>Conferir delimitadores (vírgula vs ponto e vírgula).</td>
+                </tr>
+                <tr>
+                    <td><code>duplicated-header</code></td>
+                    <td>Arquivo contém colunas repetidas.</td>
+                    <td>Renomear colunas duplicadas antes do upload.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Regras de validação aplicadas</h2>
         <ul>
-            <li><strong>Tamanho:</strong> máximo de 30&nbsp;MB (checado antes do upload quando disponível e reforçado nos micro-services).</li>
-            <li><strong>Formato:</strong> apenas <code>.csv</code> com MIME <code>text/csv</code>; o input utiliza <code>accept=".csv,text/csv"</code>.</li>
-            <li><strong>Cabeçalho obrigatório:</strong> a primeira linha deve conter o cabeçalho esperado pelo pipeline.</li>
-            <li><strong>Colunas mínimas:</strong> as colunas 1 e 2 precisam estar preenchidas em todas as linhas.</li>
-            <li><strong>Reset seguro:</strong> ao clicar em “Trocar” ou “Limpar”, o estado interno zera o arquivo selecionado para evitar reuso indevido.</li>
+            <li><strong>Arquivo</strong>: tamanho &le; 30&nbsp;MB, extensão <code>.csv</code>, encoding UTF-8, delimitador <code>,</code>.</li>
+            <li><strong>Cabeçalho</strong>: deve conter todas as colunas exigidas na ordem oficial; duplicatas e colunas extras são rejeitadas.</li>
+            <li><strong>Linhas</strong>: mínimo de 2 colunas obrigatórias preenchidas, número de colunas fixo, sem células vazias em campos críticos.</li>
+            <li><strong>Datas</strong>: formato ISO <code>yyyy-MM-dd</code>, validado via <code>Date</code> + regex.</li>
+            <li><strong>Números</strong>: aceitam apenas dígitos e ponto decimal. Vírgulas são convertidas automaticamente antes do parse.</li>
+            <li><strong>Limite de erros</strong>: as primeiras 100 ocorrências são retornadas ao frontend para evitar payloads gigantes.</li>
         </ul>
 
-        <h2>Feedback e Observabilidade</h2>
+        <h2>Comportamento da interface</h2>
         <ul>
-            <li>PrimeVue Toasts são usados para mensagens de sucesso, erro e warnings (arquivo ausente).</li>
-            <li>Quando há erros por linha, o usuário recebe uma tabela resumindo <code>line</code> e <code>reason</code>.</li>
-            <li>Links do S3 podem ser exibidos para auditoria rápida; abrem em nova aba.</li>
+            <li>Botão “Enviar” só habilita após seleção de arquivo válido.</li>
+            <li>Durante o upload, o usuário vê um <code>ProgressSpinner</code> e o texto “Enviando e validando arquivo…”.</li>
+            <li>O card “Resumo da importação” mostra totais e permite baixar o CSV original em memória (não mais via link do S3).</li>
+            <li>A tabela “Linhas com erro” utiliza os campos <code>line</code>, <code>column</code> e <code>details</code> retornados pela API.</li>
+            <li>Uma badge informa o <code>requestId</code> para o time de suporte cruzar com os logs.</li>
         </ul>
 
-        <h2>Extensões Futuras</h2>
-        <p>
-            Quando novos formatos forem implementados, recomenda-se manter a mesma experiência de usuário:
-        </p>
+        <h2>Monitoramento e troubleshooting</h2>
         <ul>
-            <li>Criar novos métodos no serviço <code>import.ts</code> (ex.: <code>uploadXlsx</code>), compartilhando o mesmo layout.</li>
-            <li>Adicionar regras rápidas específicas no card lateral, mantendo o componente genérico.</li>
-            <li>Descrever cada formato em seções adicionais deste documento, seguindo o padrão de “Fluxo”, “Contrato” e “Regras”.</li>
+            <li>Para investigar problemas, abra o arquivo em <code>logs/&lt;clientId&gt;/&lt;ano&gt;/&lt;mês&gt;/&lt;dia&gt;.log</code> e procure pelo <code>requestId</code>.</li>
+            <li>Falhas de permissão no S3 aparecem com <code>error.type = "S3Error"</code> e <code>error.code</code> igual ao erro AWS (ex.: <code>AccessDenied</code>).</li>
+            <li>Uploads rejeitados antes do PutObject não criam objetos em <code>imports/</code>, mas ainda possuem log <code>ERROR</code>.</li>
+            <li>O hash lógico do arquivo (SHA-256 abreviado) permite detectar envios repetidos.</li>
         </ul>
 
         <h2>Checklist de QA</h2>
         <ol>
-            <li>Upload com arquivo válido retorna resumo e notificação de sucesso.</li>
-            <li>Upload sem arquivo exibe Toast de aviso e não chama os micro-services.</li>
-            <li>Upload com arquivo acima de 30&nbsp;MB ou formato incorreto bloqueia o envio.</li>
-            <li>Botão “Trocar” limpa o input e permite escolher novo arquivo sem recarregar a página.</li>
-            <li>A tabela de erros lista corretamente o número de linhas inconsistentes.</li>
+            <li>Upload válido retorna 200 + resumo correto + log registrado como <code>INFO</code>.</li>
+            <li>Upload com cabeçalho incorreto retorna 400 + código <code>missing-header</code> + log <code>ERROR</code>.</li>
+            <li>Arquivo acima de 30&nbsp;MB é bloqueado no Multer e o frontend mostra Toast de erro.</li>
+            <li>Linhas inválidas aparecem no painel com numeração correta e limite de 100 registros.</li>
+            <li>Log diário contém todas as entradas do dia e preserva ordem cronológica.</li>
         </ol>
+
+        <h2>Policy IAM recomendada</h2>
+        <p>Conceda apenas as permissões necessárias ao usuário/role utilizado pelo micro-serviço:</p>
+        <pre><code class="language-json">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ListBucketPrefix",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::synvia",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "imports/*",
+            "logs/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "ObjectsReadWrite",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:PutObject"],
+      "Resource": [
+        "arn:aws:s3:::synvia/imports/*",
+        "arn:aws:s3:::synvia/logs/*"
+      ]
+    }
+  ]
+}
+</code></pre>
+        <p>Ajuste o ARN para o bucket correto e mantenha as políticas separadas quando houver múltiplos ambientes.</p>
     </body>
 </html>

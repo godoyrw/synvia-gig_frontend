@@ -1,7 +1,7 @@
 {
     "users": [
         {
-            "id": "0001",
+            "id": 1,
             "username": "admin@synvia.com.br",
             "password": "R0b19G0d81",
             "displayName": "Roberto Godoy",
@@ -13,7 +13,7 @@
             ]
         },
         {
-            "id": "0002",
+            "id": 2,
             "username": "dev@synvia.com.br",
             "password": "dev1234",
             "displayName": "Desenvolvimento Synvia",
@@ -26,7 +26,7 @@
             ]
         },
         {
-            "id": "0003",
+            "id": 3,
             "username": "analista@synvia.com.br",
             "password": "analista",
             "displayName": "Ana Paula",

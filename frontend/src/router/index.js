@@ -38,8 +38,24 @@ const router = createRouter({
                     }
                 },
                 {
+                    path: '/documentation/micro-services',
+                    name: 'documentationMicroServices',
+                    component: () => import('@/views/pages/DocumentationMicroServices.vue'),
+                    meta: {
+                        permission: 'documentation:read'
+                    }
+                },
+                {
                     path: '/synvia-gig/import-files',
                     name: 'importFiles',
+                    component: () => import('@/views/import/ImportFilesView.vue'),
+                    meta: {
+                        requiresAuth: true
+                    }
+                },
+                {
+                    path: '/synvia-gig/import-files/history',
+                    name: 'importHistory',
                     component: () => import('@/views/import/ImportFilesView.vue'),
                     meta: {
                         requiresAuth: true
