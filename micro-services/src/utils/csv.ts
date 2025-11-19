@@ -1,18 +1,39 @@
 import { parse } from 'csv-parse/sync';
-
-export interface CsvRowError {
-  line: number;
-  reason: string;
-}
+import type { ImportRowError } from '../types/import.js';
 
 export interface CsvAnalysis {
   totalRows: number;
   importedRows: number;
   errorRows: number;
-  errors: CsvRowError[];
+  errors: ImportRowError[];
+  header: string[];
+  missingColumns: string[];
 }
 
-export const analyzeCsvBuffer = (buffer: Buffer): CsvAnalysis => {
+export interface AnalyzeCsvOptions {
+  requiredColumns?: string[];
+  numericColumns?: string[];
+  dateColumns?: string[];
+  maxErrors?: number;
+}
+
+const DEFAULT_OPTIONS: Required<AnalyzeCsvOptions> = {
+  requiredColumns: [],
+  numericColumns: [],
+  dateColumns: [],
+  maxErrors: 25
+};
+
+const isISODate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+const pushError = (errors: ImportRowError[], error: ImportRowError, limit: number) => {
+  if (errors.length < limit) {
+    errors.push(error);
+  }
+};
+
+export const analyzeCsvBuffer = (buffer: Buffer, options: AnalyzeCsvOptions = {}): CsvAnalysis => {
+  const opts = { ...DEFAULT_OPTIONS, ...options };
   const rows = parse(buffer, {
     skip_empty_lines: true,
     relax_column_count: true,
@@ -20,32 +41,139 @@ export const analyzeCsvBuffer = (buffer: Buffer): CsvAnalysis => {
   }) as string[][];
 
   if (!rows.length) {
-    return { totalRows: 0, importedRows: 0, errorRows: 0, errors: [] };
+    return { totalRows: 0, importedRows: 0, errorRows: 0, errors: [], header: [], missingColumns: [] };
   }
 
-  const [, ...dataRows] = rows;
+  const [headerRow, ...dataRows] = rows;
+  const normalizedHeader = headerRow.map((col) => col?.trim?.().toLowerCase?.() ?? '');
+  const header = headerRow.map((col) => col?.trim?.() ?? '');
 
-  const errors: CsvRowError[] = [];
+  const headerMap = new Map<string, number>();
+  normalizedHeader.forEach((value, index) => {
+    if (!headerMap.has(value)) {
+      headerMap.set(value, index);
+    }
+  });
+
+  const missingColumns = opts.requiredColumns.filter((required) => !headerMap.has(required));
+
+  const errors: ImportRowError[] = [];
   let errorRows = 0;
 
-  dataRows.forEach((row, index) => {
-    const requiredA = row[0]?.trim();
-    const requiredB = row[1]?.trim();
-    const lineNumber = index + 2; // +2 considera cabeçalho e índice base 0
+  if (missingColumns.length) {
+    pushError(
+      errors,
+      {
+        line: 1,
+        reason: `Cabeçalho inválido. Colunas ausentes: ${missingColumns.join(', ')}.`,
+        code: 'INVALID_HEADER',
+        details: {
+          missingColumns,
+          expectedColumns: opts.requiredColumns,
+          receivedColumns: header
+        }
+      },
+      opts.maxErrors
+    );
+  }
 
-    if (!requiredA) {
-      errorRows += 1;
-      if (errors.length < 25) {
-        errors.push({ line: lineNumber, reason: 'Coluna 1 obrigatória em branco.' });
-      }
-      return;
+  dataRows.forEach((row, index) => {
+    const lineNumber = index + 2;
+    let rowHasError = false;
+
+    if (row.length !== header.length) {
+      rowHasError = true;
+      pushError(
+        errors,
+        {
+          line: lineNumber,
+          reason: 'Estrutura da linha não coincide com o cabeçalho.',
+          code: 'ROW_PARSE_FAILURE',
+          details: {
+            expectedColumns: header.length,
+            receivedColumns: row.length,
+            raw_line_preview: row.join(',')
+          }
+        },
+        opts.maxErrors
+      );
     }
 
-    if (!requiredB) {
-      errorRows += 1;
-      if (errors.length < 25) {
-        errors.push({ line: lineNumber, reason: 'Coluna 2 obrigatória em branco.' });
+    opts.requiredColumns.forEach((column) => {
+      const columnIndex = headerMap.get(column);
+      if (columnIndex === undefined) {
+        return;
       }
+
+      const value = row[columnIndex]?.trim?.();
+      if (!value) {
+        rowHasError = true;
+        pushError(
+          errors,
+          {
+            line: lineNumber,
+            reason: `Coluna obrigatória "${column}" vazia.`,
+            code: 'MISSING_REQUIRED_FIELD',
+            details: { column }
+          },
+          opts.maxErrors
+        );
+      }
+    });
+
+    opts.dateColumns.forEach((column) => {
+      const columnIndex = headerMap.get(column);
+      if (columnIndex === undefined) {
+        return;
+      }
+
+      const value = row[columnIndex]?.trim?.();
+      if (value && !isISODate(value)) {
+        rowHasError = true;
+        pushError(
+          errors,
+          {
+            line: lineNumber,
+            reason: `Formato de data inválido em "${column}".`,
+            code: 'INVALID_DATE_FORMAT',
+            details: {
+              column,
+              invalidValue: value,
+              expectedFormat: 'YYYY-MM-DD'
+            }
+          },
+          opts.maxErrors
+        );
+      }
+    });
+
+    opts.numericColumns.forEach((column) => {
+      const columnIndex = headerMap.get(column);
+      if (columnIndex === undefined) {
+        return;
+      }
+
+      const value = row[columnIndex]?.trim?.();
+      if (value && Number.isNaN(Number(value))) {
+        rowHasError = true;
+        pushError(
+          errors,
+          {
+            line: lineNumber,
+            reason: `Valor numérico inválido em "${column}".`,
+            code: 'INVALID_NUMBER',
+            details: {
+              column,
+              invalidValue: value
+            }
+          },
+          opts.maxErrors
+        );
+      }
+    });
+
+    if (rowHasError) {
+      errorRows += 1;
     }
   });
 
@@ -56,6 +184,8 @@ export const analyzeCsvBuffer = (buffer: Buffer): CsvAnalysis => {
     totalRows,
     importedRows,
     errorRows,
-    errors
+    errors,
+    header,
+    missingColumns
   };
 };

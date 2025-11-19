@@ -26,5 +26,14 @@ export const buildS3Key = (clientId: string, originalName: string, date = new Da
   const day = String(date.getUTCDate()).padStart(2, '0');
   const timestamp = date.getTime();
 
-  return `${safeClient}imports/${year}/${month}/${day}/${timestamp}-${sanitizedName}`;
+  return `imports/${safeClient}/${year}/${month}/${day}/${timestamp}-${sanitizedName}`;
+};
+
+export const buildLogKey = (clientId: string, date = new Date()) => {
+  const safeClient = sanitizeSegment(clientId) || 'client';
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(date.getUTCDate()).padStart(2, '0');
+
+  return `logs/${safeClient}/${year}/${month}/${day}.log`;
 };
