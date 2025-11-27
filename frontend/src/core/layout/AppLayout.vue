@@ -22,6 +22,14 @@ onMounted(() => {
         const inactivityDurationMs = auth.durationMinutes * 60 * 1000;
         stopActivityTracker = startTracking(inactivityDurationMs);
     }
+
+    // ⚡ Garantir que o menu fique aberto após login/redirecionamento
+    // Se veio de uma rota de auth, manter menu aberto
+    if (route.path.includes('/gig') || route.path === '/') {
+        layoutState.staticMenuDesktopInactive = false;
+        layoutState.overlayMenuActive = false;
+        layoutState.staticMenuMobileActive = false;
+    }
 });
 
 onUnmounted(() => {
@@ -40,8 +48,12 @@ watch(isSidebarActive, (newVal) => {
 
 watch(
     () => route.fullPath,
-    () => {
-        closeMenu();
+    (newPath, oldPath) => {
+        // Não fechar menu se for redirecionamento após login (de /auth/login para /gig)
+        const isLoginRedirect = oldPath?.includes('/auth/login') && (newPath?.includes('/gig') || newPath === '/');
+        if (!isLoginRedirect) {
+            closeMenu();
+        }
     }
 );
 

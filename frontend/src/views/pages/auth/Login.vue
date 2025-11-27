@@ -56,6 +56,9 @@ const handleLogin = async () => {
 
         // 🔁 Usa o redirect da query, se existir; senão vai pra /gig
         const redirect = route.query.redirect || '/gig';
+
+        // ⚡ Garantir que o menu fique aberto após login
+        // O menu será aberto automaticamente quando o AppLayout montar
         router.push(redirect);
     } catch (err) {
         pushToast('error', 'Autenticação', err.message || 'Erro ao autenticar');
