@@ -37,6 +37,18 @@
                 "synvia-gig:read",
                 "synvia-gig:imports"
             ]
+        },
+        {
+            "id": 4,
+            "username": "viewer@synvia.com.br",
+            "password": "viewer123",
+            "displayName": "Carlos Viewer",
+            "clientId": 1,
+            "role": "viewer",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/asiyajavayant.png",
+            "permissions": [
+                "synvia-gig:read"
+            ]
         }
     ]
 }
