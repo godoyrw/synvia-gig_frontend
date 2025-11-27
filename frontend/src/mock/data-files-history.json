@@ -11,7 +11,7 @@
       "clientId": 1,
       "fileName": "glosas_novembro_01.csv",
       "fileSizeBytes": 254321,
-      "fileHash": "0x1a2b3c",
+      "fileHash": "a3f4d1c8e29b7b4f0cd9132a9f8840d762fa9b0e6e1f3b7a8c4d51f0b2e97a10",
       "durationMs": 1720,
       "totalRows": 1200,
       "errorRows": 0
@@ -27,7 +27,7 @@
       "clientId": 2,
       "fileName": "prestadores_atualizacao.csv",
       "fileSizeBytes": 189433,
-      "fileHash": "0x4d5e6f",
+      "fileHash": "b9e2c4f7a1d0831fe64a2cc5d17e0b9c3f8d1e41a2b9c0d7e5f44aa9c3e128f",
       "durationMs": 920,
       "totalRows": 860,
       "errorRows": 14
@@ -43,7 +43,7 @@
       "clientId": 1,
       "fileName": "base_procedimentos_erros.csv",
       "fileSizeBytes": 103221,
-      "fileHash": "0x7a8b9c",
+      "fileHash": "c4d7a9b1f03e2489de7a2c5fb19a0e7f21c3b5d4a6f7e8c9b0a1d2e3f4b5c6d7",
       "durationMs": 420,
       "totalRows": 0,
       "errorRows": 0
@@ -59,7 +59,7 @@
       "clientId": 1,
       "fileName": "glosas_novembro_02.csv",
       "fileSizeBytes": 244981,
-      "fileHash": "0x11aa22",
+      "fileHash": "d1e2f3c4b5a6978877665544332211aa0b1c2d3e4f5061728394a5b6c7d8e9f",
       "durationMs": 1304,
       "totalRows": 1184,
       "errorRows": 0
@@ -75,7 +75,7 @@
       "clientId": 2,
       "fileName": "prestadores_atualizacao_2.csv",
       "fileSizeBytes": 194221,
-      "fileHash": "0x33bb44",
+      "fileHash": "e7f6a5b4c3d2e1f0918273645a4b3c2d1e0f9a8b7c6d5e4f3a2b19081726354",
       "durationMs": 1010,
       "totalRows": 920,
       "errorRows": 8
@@ -91,7 +91,7 @@
       "clientId": 1,
       "fileName": "producao_octubro.csv",
       "fileSizeBytes": 165223,
-      "fileHash": "0x55cc66",
+      "fileHash": "fae1d2c3b4a5968778695a4b3c2d1e0ffedcba9876543210011223344556677a",
       "durationMs": 845,
       "totalRows": 765,
       "errorRows": 0
@@ -107,7 +107,7 @@
       "clientId": 2,
       "fileName": "teste_invalidacao.csv",
       "fileSizeBytes": 56321,
-      "fileHash": "0x77dd88",
+      "fileHash": "ab12cd34ef56ab78cd90ef12ab34cd56ef7890ab12cd34ef56ab78cd90ef12ab",
       "durationMs": 350,
       "totalRows": 0,
       "errorRows": 0
@@ -123,7 +123,7 @@
       "clientId": 1,
       "fileName": "glosas_novembro_03.csv",
       "fileSizeBytes": 231004,
-      "fileHash": "0x99eeaa",
+      "fileHash": "bc23de45f067bc89de01f234bc56de78f0123456789abcdeffedcba987654321",
       "durationMs": 1187,
       "totalRows": 1150,
       "errorRows": 0
@@ -139,7 +139,7 @@
       "clientId": 1,
       "fileName": "prestadores_dados_incompletos.csv",
       "fileSizeBytes": 142331,
-      "fileHash": "0xbb22cc",
+      "fileHash": "cd34ef56a178c3d4e5f60718293ab4cd5e6f708192a3bc4de5f60718293ab4cd",
       "durationMs": 690,
       "totalRows": 650,
       "errorRows": 4
@@ -155,7 +155,7 @@
       "clientId": 2,
       "fileName": "contratos_glosas_ajustes.csv",
       "fileSizeBytes": 205502,
-      "fileHash": "0xcc33dd",
+      "fileHash": "de45f08901ab23cd45ef67ab89cd01ef23ab45cd67ef89ab01cd23ef45ab67cd",
       "durationMs": 1340,
       "totalRows": 1004,
       "errorRows": 0
@@ -171,7 +171,7 @@
       "clientId": 1,
       "fileName": "prestadores_dados_incompletos_2.csv",
       "fileSizeBytes": 152883,
-      "fileHash": "0xdd44ee",
+      "fileHash": "ef56a19023bc45de67f089ab01cd23ef45ab67cd89ef01ab23cd45ef67ab89cd",
       "durationMs": 777,
       "totalRows": 720,
       "errorRows": 6
@@ -187,7 +187,7 @@
       "clientId": 1,
       "fileName": "glosas_setembro_reprocesso.csv",
       "fileSizeBytes": 176002,
-      "fileHash": "0xee55ff",
+      "fileHash": "f067b2a134cd56ef7890ab12cd34ef56ab7890cd12ef34ab56cd78ef90ab12cd",
       "durationMs": 980,
       "totalRows": 812,
       "errorRows": 0
@@ -203,7 +203,7 @@
       "clientId": 1,
       "fileName": "arquivo_com_permissoes_erradas.csv",
       "fileSizeBytes": 32155,
-      "fileHash": "0xff66aa",
+      "fileHash": "a178c3b245de67f089ab01cd23ef45ab67cd89ef01ab23cd45ef67ab89cd01ef",
       "durationMs": 300,
       "totalRows": 0,
       "errorRows": 0
@@ -219,7 +219,7 @@
       "clientId": 2,
       "fileName": "glosas_outubro_resumo.csv",
       "fileSizeBytes": 210442,
-      "fileHash": "0xab12cd",
+      "fileHash": "b289d4c356ef7890ab12cd34ef56ab78cd90ef12ab34cd56ef7890ab12cd34ef",
       "durationMs": 1280,
       "totalRows": 990,
       "errorRows": 0
@@ -235,7 +235,7 @@
       "clientId": 1,
       "fileName": "prestadores_enderecos.csv",
       "fileSizeBytes": 134550,
-      "fileHash": "0xbc23de",
+      "fileHash": "c39ae5d467f089ab01cd23ef45ab67cd89ef01ab23cd45ef67ab89cd01ef23ab",
       "durationMs": 612,
       "totalRows": 610,
       "errorRows": 5
@@ -251,7 +251,7 @@
       "clientId": 1,
       "fileName": "glosas_novembro_04.csv",
       "fileSizeBytes": 238818,
-      "fileHash": "0xcd34ef",
+      "fileHash": "d4abf6e57890ab12cd34ef56ab78cd90ef12ab34cd56ef78ab90cd12ef34ab56",
       "durationMs": 1404,
       "totalRows": 1198,
       "errorRows": 0
@@ -267,7 +267,7 @@
       "clientId": 2,
       "fileName": "prestadores_sem_data.csv",
       "fileSizeBytes": 122441,
-      "fileHash": "0xde45f0",
+      "fileHash": "e5bc070689ab01cd23ef45ab67cd89ef01ab23cd45ef67ab89cd01ef23ab45cd",
       "durationMs": 540,
       "totalRows": 580,
       "errorRows": 12
@@ -283,7 +283,7 @@
       "clientId": 1,
       "fileName": "contratos_setembro_export.csv",
       "fileSizeBytes": 184220,
-      "fileHash": "0xef56a1",
+      "fileHash": "f5cd1890ab12cd34ef56ab78cd90ef12ab34cd56ef78ab90cd12ef34ab56cd78",
       "durationMs": 1008,
       "totalRows": 830,
       "errorRows": 0
@@ -299,7 +299,7 @@
       "clientId": 1,
       "fileName": "arquivo_bucket_errado.csv",
       "fileSizeBytes": 41234,
-      "fileHash": "0xf067b2",
+      "fileHash": "a6de29ab34cd56ef78ab90cd12ef34ab56cd78ef90ab12cd34ef56ab78cd90ef",
       "durationMs": 270,
       "totalRows": 0,
       "errorRows": 0
@@ -315,7 +315,7 @@
       "clientId": 2,
       "fileName": "glosas_novembro_05.csv",
       "fileSizeBytes": 236781,
-      "fileHash": "0xa178c3",
+      "fileHash": "b7ef3acd56ef78ab90cd12ef34ab56cd78ef90ab12cd34ef56ab78cd90ef12ab",
       "durationMs": 1333,
       "totalRows": 1190,
       "errorRows": 0
@@ -331,7 +331,7 @@
       "clientId": 1,
       "fileName": "prestadores_com_campos_vazios.csv",
       "fileSizeBytes": 118734,
-      "fileHash": "0xb289d4",
+      "fileHash": "c8f03bde78ab90cd12ef34ab56cd78ef90ab12cd34ef56ab78cd90ef12ab34cd",
       "durationMs": 508,
       "totalRows": 560,
       "errorRows": 7
@@ -347,7 +347,7 @@
       "clientId": 1,
       "fileName": "glosas_novembro_06.csv",
       "fileSizeBytes": 242110,
-      "fileHash": "0xc39ae5",
+      "fileHash": "d9a14cef90cd12ef34ab56cd78ef90ab12cd34ef56ab78cd90ef12ab34cd56ef",
       "durationMs": 1492,
       "totalRows": 1210,
       "errorRows": 0
@@ -361,7 +361,7 @@
       "clientId": 2,
       "fileName": "prestadores_sem_header.csv",
       "fileSizeBytes": 101223,
-      "fileHash": "0xd4abf6",
+      "fileHash": "ea254df1ab34cd56ef78ab90cd12ef34ab56cd78ef90ab12cd34ef56ab78cd90",
       "durationMs": 430,
       "totalRows": 0,
       "errorRows": 0
@@ -377,7 +377,7 @@
       "clientId": 1,
       "fileName": "glosas_novembro_07.csv",
       "fileSizeBytes": 248902,
-      "fileHash": "0xe5bc07",
+      "fileHash": "fb365e02cd56ef78ab90cd12ef34ab56cd78ef90ab12cd34ef56ab78cd90ef12",
       "durationMs": 1502,
       "totalRows": 1230,
       "errorRows": 0

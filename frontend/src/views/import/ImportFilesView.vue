@@ -4,6 +4,8 @@ import { computed, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { isAxiosError } from 'axios';
 import { uploadCsv, type UploadCsvResponse } from '@/services/import';
+import { useAuthStore } from '@/stores/auth';
+import { useImportHistoryStore } from '@/stores/importHistory';
 
 const toast = useToast();
 const fileInputRef = ref<HTMLInputElement | null>(null);
@@ -11,6 +13,8 @@ const selectedFile = ref<File | null>(null);
 const isUploading = ref(false);
 const uploadProgress = ref(0);
 const response = ref<UploadCsvResponse | null>(null);
+const auth = useAuthStore();
+const importHistoryStore = useImportHistoryStore();
 
 
 const hasResult = computed(() => !!response.value);
@@ -58,6 +62,11 @@ const handleUpload = async () => {
         // Garantir que barra finalize
         uploadProgress.value = 100;
         response.value = result;
+        await importHistoryStore.recordUploadAttempt({
+            file: selectedFile.value,
+            response: result,
+            user: auth.user
+        });
 
         if (result.ok) {
             toast.add({ severity: 'success', summary: 'Importação concluída', detail: result.message, life: 5000 });
@@ -69,10 +78,20 @@ const handleUpload = async () => {
         if (isAxiosError<UploadCsvResponse>(error)) {
             const serverResponse = error.response?.data;
             response.value = serverResponse ?? null;
+            await importHistoryStore.recordUploadAttempt({
+                file: selectedFile.value,
+                response: serverResponse ?? null,
+                user: auth.user
+            });
             const detail = serverResponse?.message ?? 'Não foi possível enviar o CSV. Tente novamente.';
             toast.add({ severity: 'error', summary: 'Importação falhou', detail, life: 6000 });
         } else {
             response.value = null;
+            await importHistoryStore.recordUploadAttempt({
+                file: selectedFile.value,
+                response: null,
+                user: auth.user
+            });
             toast.add({ severity: 'error', summary: 'Erro inesperado', detail: 'Não foi possível enviar o CSV. Tente novamente.', life: 6000 });
         }
     } finally {

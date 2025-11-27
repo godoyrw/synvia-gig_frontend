@@ -18,6 +18,10 @@ export interface UploadResponseBody {
     path: string;
     url?: string;
   };
+  fileHash?: string;
+  fileName?: string;
+  fileSizeBytes?: number;
+  durationMs?: number;
   summary?: ImportSummary;
   errors?: ImportRowError[];
 }

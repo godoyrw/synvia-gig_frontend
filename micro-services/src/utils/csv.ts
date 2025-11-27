@@ -24,6 +24,32 @@ const DEFAULT_OPTIONS: Required<AnalyzeCsvOptions> = {
   maxErrors: 25
 };
 
+const escapeForRegExp = (value: string) => value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+const detectDelimiter = (buffer: Buffer, fallback = ','): string => {
+  const sample = buffer.toString('utf8', 0, Math.min(buffer.length, 1024));
+  const firstLine = sample.split(/\r?\n/).find((line) => line.trim().length);
+  if (!firstLine) {
+    return fallback;
+  }
+
+  const candidates: Array<{ delimiter: string; count: number }> = [',', ';', '\t', '|'].map((delimiter) => {
+    const regex = new RegExp(escapeForRegExp(delimiter), 'g');
+    const matches = firstLine.match(regex);
+    return {
+      delimiter,
+      count: matches ? matches.length : 0
+    };
+  });
+
+  const best = candidates.reduce(
+    (prev, current) => (current.count > prev.count ? current : prev),
+    { delimiter: fallback, count: 0 }
+  );
+
+  return best.count > 0 ? best.delimiter : fallback;
+};
+
 const isISODate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value);
 
 const pushError = (errors: ImportRowError[], error: ImportRowError, limit: number) => {
@@ -57,10 +83,12 @@ export const analyzeCsvBuffer = (buffer: Buffer, options: AnalyzeCsvOptions = {}
   const opts = { ...DEFAULT_OPTIONS, ...options };
   let rows: string[][] = [];
   try {
+    const delimiter = detectDelimiter(buffer);
     rows = parse(buffer, {
       skip_empty_lines: true,
       relax_column_count: true,
-      trim: true
+      trim: true,
+      delimiter
     }) as string[][];
   } catch (parseErr) {
     const rawMessage = parseErr instanceof Error ? parseErr.message : 'Falha desconhecida ao ler CSV.';

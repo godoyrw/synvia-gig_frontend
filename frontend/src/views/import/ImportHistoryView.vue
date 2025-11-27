@@ -2,8 +2,8 @@
 import PageHero from '@/components/PageHero.vue';
 import { computed, ref, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import historyMock from '@/mock/data-files-history.json';
 import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@/config/constants';
+import { useImportHistoryStore } from '@/stores/importHistory';
 import FloatLabel from 'primevue/floatlabel';
 
 // Somente mock: sem chamadas à API nem tipos externos
@@ -11,7 +11,7 @@ const toast = useToast();
 
 // Tipos locais baseados no mock
 type ImportHistoryItem = {
-    requestId: string;
+    requestId: number | string;
     timestamp: string;
     level: 'INFO' | 'WARN' | 'ERROR';
     status: 'UPLOADED' | 'FAILED' | 'VALIDATION_ERROR';
@@ -92,18 +92,19 @@ const addFileManual = () => {
 };
 
 // Distinct status labels derivados do mock
+const importHistoryStore = useImportHistoryStore();
+const historySourceItems = computed<ImportHistoryItem[]>(() =>
+    importHistoryStore.items.map((item) => ({
+        ...item,
+        timestamp: new Date(item.timestamp).toISOString()
+    }))
+);
+
 const distinctStatusLabels = computed(() => {
     const set = new Set<string>();
-    mockHistoryItems.forEach((raw) => set.add(statusTagLabel(raw)));
-    return Array.from(set.values()).map(lbl => ({ label: lbl, value: lbl }));
+    historySourceItems.value.forEach((raw) => set.add(statusTagLabel(raw)));
+    return Array.from(set.values()).map((lbl) => ({ label: lbl, value: lbl }));
 });
-
-// Normaliza o mock (timestamp ISO)
-// Relaxa cast de mock para evitar conflito de tipos entre requestId number e definição esperada.
-const mockHistoryItems = (((historyMock as unknown as { items?: any[] })?.items) ?? []).map((item) => ({
-    ...item,
-    timestamp: new Date(item.timestamp).toISOString()
-}));
 
 // Decora usando displayName/avatar do mock, com fallbacks
 const decorateHistoryItem = (item: ImportHistoryItem): DecoratedHistoryItem => ({
@@ -116,7 +117,7 @@ const decorateHistoryItem = (item: ImportHistoryItem): DecoratedHistoryItem => (
 const historySearchTerm = computed(() => historySearch.value.trim().toLowerCase());
 
 // 1) (Anteriormente filtrava por nível) agora retorna direto os itens
-const historyFilteredByLevel = computed<ImportHistoryItem[]>(() => mockHistoryItems);
+const historyFilteredByLevel = computed<ImportHistoryItem[]>(() => historySourceItems.value);
 
 // 2) Aplica busca em cima do resultado filtrado
 const historyItemsFiltered = computed<DecoratedHistoryItem[]>(() => {
@@ -372,7 +373,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                 <div class="history-table mt-4">
                     <DataTable :value="historyPageItems" size="small" :loading="isHistoryLoading" responsiveLayout="scroll">
                         <!-- COLUNA: ID -->
-                        <Column style="width: 7%">
+                        <Column style="width: 5%">
                             <template #header>
                                 <button type="button" :class="['sortable-header', { active: sortField === 'requestId' }]" @click="toggleSort('requestId')" aria-label="Ordenar por ID" :aria-sort="sortField === 'requestId' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
                                     <span class="title">ID</span>
@@ -386,7 +387,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                             </template>
                         </Column>
 
-                        <Column style="width: 24%">
+                        <Column style="width: 20%">
                             <template #header>
                                 <div class="header-with-filter">
                                     <button type="button" :class="['sortable-header', { active: sortField === 'userName' }]" @click="toggleSort('userName')" aria-label="Ordenar por Usuário" :aria-sort="sortField === 'userName' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
@@ -452,7 +453,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                             </template>
                         </Column>
 
-                        <Column style="width: 26%">
+                        <Column style="width: 40%">
                             <template #header>
                                 <div class="header-with-filter">
                                     <button type="button" :class="['sortable-header', { active: sortField === 'fileName' }]" @click="toggleSort('fileName')" aria-label="Ordenar por Arquivo" :aria-sort="sortField === 'fileName' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
@@ -498,7 +499,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                             </template>
                         </Column>
 
-                        <Column style="width: 14%">
+                        <Column style="width: 10%">
                             <template #header>
                                 <button type="button" :class="['sortable-header', { active: sortField === 'timestamp' }]" @click="toggleSort('timestamp')" aria-label="Ordenar por Data/Hora" :aria-sort="sortField === 'timestamp' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'">
                                     <span class="title">Data/Hora</span>
@@ -512,7 +513,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                             </template>
                         </Column>
 
-                        <Column header="Linhas" style="width: 8%">
+                        <Column header="Linhas" style="width: 10%">
                             <template #body="{ data }">
                                 <div class="flex flex-col text-sm">
                                     <span class="text-surface-600 dark:text-surface-200">
@@ -575,7 +576,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                             </template>
                         </Column>
 
-                        <Column header="Ações" style="width: 3%; text-align:center;">
+                        <Column header="Ações" style="width: 5%; text-align:center;">
                             <template #body="{ data }">
                                 <div class="actions-menu-wrapper">
                                     <Button
