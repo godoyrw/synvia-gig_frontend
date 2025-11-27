@@ -525,6 +525,38 @@
       "durationMs": null,
       "totalRows": 0,
       "errorRows": 1
+    },
+    {
+      "requestId": 34,
+      "timestamp": "2025-11-27T04:51:42.953Z",
+      "level": "INFO",
+      "status": "UPLOADED",
+      "userId": 1,
+      "displayName": "Roberto Godoy",
+      "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+      "clientId": 1,
+      "fileName": "gig-2.csv",
+      "fileSizeBytes": 336,
+      "fileHash": "718a81d7b6d4cbddac3bb750ac2d112e0bc1fca13584f5fc0b8179789f5ecc31",
+      "durationMs": 551,
+      "totalRows": 7,
+      "errorRows": 0
+    },
+    {
+      "requestId": 35,
+      "timestamp": "2025-11-27T16:20:00.084Z",
+      "level": "INFO",
+      "status": "UPLOADED",
+      "userId": 1,
+      "displayName": "Roberto Godoy",
+      "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+      "clientId": 1,
+      "fileName": "gig-2.csv",
+      "fileSizeBytes": 336,
+      "fileHash": "718a81d7b6d4cbddac3bb750ac2d112e0bc1fca13584f5fc0b8179789f5ecc31",
+      "durationMs": 575,
+      "totalRows": 7,
+      "errorRows": 0
     }
   ]
 }
