@@ -50,7 +50,6 @@ watch(response, (val) => {
     } catch {}
 });
 
-
 const hasResult = computed(() => !!response.value);
 const isSuccess = computed(() => response.value?.ok);
 const summary = computed(() => response.value?.summary);
@@ -76,7 +75,9 @@ const resetSelection = () => {
     if (fileInputRef.value) {
         fileInputRef.value.value = '';
     }
-    try { sessionStorage.removeItem(LAST_RESPONSE_KEY); } catch {}
+    try {
+        sessionStorage.removeItem(LAST_RESPONSE_KEY);
+    } catch {}
 };
 
 const handleUpload = async () => {

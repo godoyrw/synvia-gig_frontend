@@ -27,6 +27,11 @@ const model = ref([
                         label: 'Importações',
                         icon: 'pi pi-fw pi-upload',
                         to: '/synvia-gig/import-files'
+                    },
+                    {
+                        label: 'Usuários',
+                        icon: 'pi pi-fw pi-users',
+                        to: '/synvia-gig/users'
                     }
                 ]
             }

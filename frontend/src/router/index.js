@@ -60,6 +60,15 @@ const router = createRouter({
                     meta: {
                         requiresAuth: true
                     }
+                },
+                {
+                    path: '/synvia-gig/users',
+                    name: 'users',
+                    component: () => import('@/views/users/UsersListView.vue'),
+                    meta: {
+                        requiresAuth: true,
+                        permission: 'synvia-gig:*'
+                    }
                 }
             ]
         },
