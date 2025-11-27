@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import PageHero from '@/components/PageHero.vue';
+import PageHero from '@core/components/PageHero.vue';
 import { computed, ref, onMounted, watch } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { isAxiosError } from 'axios';
-import { uploadCsv, type UploadCsvResponse } from '@/services/import';
-import { useAuthStore } from '@/stores/auth';
-import { useImportHistoryStore } from '@/stores/importHistory';
+import { uploadCsv, type UploadCsvResponse } from '@modules/gig/services/import';
+import { useAuthStore } from '@core/auth/store';
+import { useImportHistoryStore } from '@modules/gig/stores/importHistory';
 
 const toast = useToast();
 const fileInputRef = ref<HTMLInputElement | null>(null);

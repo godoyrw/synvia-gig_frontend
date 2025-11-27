@@ -557,6 +557,54 @@
       "durationMs": 575,
       "totalRows": 7,
       "errorRows": 0
+    },
+    {
+      "requestId": 36,
+      "timestamp": "2025-11-27T18:27:49.094Z",
+      "level": "INFO",
+      "status": "UPLOADED",
+      "userId": 1,
+      "displayName": "Roberto Godoy",
+      "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+      "clientId": 1,
+      "fileName": "gig-2.csv",
+      "fileSizeBytes": 336,
+      "fileHash": "718a81d7b6d4cbddac3bb750ac2d112e0bc1fca13584f5fc0b8179789f5ecc31",
+      "durationMs": 561,
+      "totalRows": 7,
+      "errorRows": 0
+    },
+    {
+      "requestId": 37,
+      "timestamp": "2025-11-27T19:11:26.962Z",
+      "level": "INFO",
+      "status": "UPLOADED",
+      "userId": 1,
+      "displayName": "Roberto Godoy",
+      "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+      "clientId": 1,
+      "fileName": "gig-2.csv",
+      "fileSizeBytes": 336,
+      "fileHash": "718a81d7b6d4cbddac3bb750ac2d112e0bc1fca13584f5fc0b8179789f5ecc31",
+      "durationMs": 541,
+      "totalRows": 7,
+      "errorRows": 0
+    },
+    {
+      "requestId": 38,
+      "timestamp": "2025-11-27T19:11:34.534Z",
+      "level": "ERROR",
+      "status": "FAILED",
+      "userId": 1,
+      "displayName": "Roberto Godoy",
+      "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+      "clientId": 1,
+      "fileName": "gig-csv.csv",
+      "fileSizeBytes": 8795771,
+      "fileHash": "bbc22a2ef8cae6c3de2f615c1b7c05774c095b96a928d74e4e4fc4c7ed14b1e8",
+      "durationMs": null,
+      "totalRows": 0,
+      "errorRows": 1
     }
   ]
 }

@@ -1,6 +1,6 @@
 <script setup>
-import PageHero from '@/components/PageHero.vue';
-import { useAuthStore } from '@/stores/auth';
+import PageHero from '@core/components/PageHero.vue';
+import { useAuthStore } from '@core/auth/store';
 import { ref } from 'vue';
 
 const auth = useAuthStore();

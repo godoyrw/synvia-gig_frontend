@@ -1,5 +1,5 @@
 <script setup>
-import pkg from '../../package.json';
+import pkg from '../../../package.json';
 import AppMenu from './AppMenu.vue';
 
 const appVersion = pkg.version ?? '1.0.0-Beta';

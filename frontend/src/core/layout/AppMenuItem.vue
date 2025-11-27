@@ -1,6 +1,6 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { onBeforeMount, ref, watch } from 'vue';
+import { useLayout } from '@core/layout/composables/layout';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -36,6 +36,11 @@ onBeforeMount(() => {
 
     isActiveMenu.value = !!(activeItem && (activeItem === itemKey.value || activeItem.startsWith(itemKey.value + '-')));
 
+    activateIfMatchesRoute();
+});
+
+onMounted(() => {
+    // Garantir que o item seja ativado na montagem também
     activateIfMatchesRoute();
 });
 
@@ -97,6 +102,7 @@ function activateIfMatchesRoute() {
 watch(
     () => route.path,
     () => {
+        // Sempre tentar ativar se a rota corresponder
         activateIfMatchesRoute();
     }
 );

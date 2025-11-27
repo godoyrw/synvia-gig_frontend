@@ -1,12 +1,12 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@core/auth/store';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // 👈 aqui
 
 import backgroundLogin from '@/assets/images/backgrounds/background-login.jpg';
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import ToggleSwitch from '@/components/ToggleSwitch.vue';
+import ToggleSwitch from '@core/components/ToggleSwitch.vue';
 import { useToast } from 'primevue/usetoast';
 
 const email = ref('');

@@ -1,7 +1,7 @@
 <script setup>
-import { useActivityTracker } from '@/composables';
-import { useLayout } from '@/layout/composables/layout';
-import { useAuthStore } from '@/stores/auth';
+import { useActivityTracker } from '@core/auth/useActivityTracker';
+import { useLayout } from '@core/layout/composables/layout';
+import { useAuthStore } from '@core/auth/store';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import AppFooter from './AppFooter.vue';

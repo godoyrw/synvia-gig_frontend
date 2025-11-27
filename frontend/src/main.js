@@ -3,10 +3,10 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import App from './App.vue';
-import router from './router';
+import router from '@core/router';
 
-import { EXPIRATION_CHECK_INTERVAL_MS } from '@/config/constants';
-import { useAuthStore } from '@/stores/auth';
+import { EXPIRATION_CHECK_INTERVAL_MS } from '@core/config/constants';
+import { useAuthStore } from '@core/auth/store';
 import { $t } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';

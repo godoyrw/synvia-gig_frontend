@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@core/layout/composables/layout';
 
 import AppMenuItem from './AppMenuItem.vue';
 
@@ -16,17 +16,17 @@ const model = ref([
                     {
                         label: 'Dashboard',
                         icon: 'pi pi-fw pi-compass',
-                        to: '/synvia-gig'
-                    },
-                    {
-                        label: 'Importados',
-                        icon: 'pi pi-fw pi-history',
-                        to: '/synvia-gig/import-files/history'
+                        to: '/gig'
                     },
                     {
                         label: 'Importações',
                         icon: 'pi pi-fw pi-upload',
-                        to: '/synvia-gig/import-files'
+                        to: '/gig/import'
+                    },
+                    {
+                        label: 'Histórico',
+                        icon: 'pi pi-fw pi-history',
+                        to: '/gig/history'
                     }
                 ]
             }
@@ -85,9 +85,9 @@ watch(
 
 <template>
     <ul class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
-            <li v-if="item.separator" class="menu-separator"></li>
+        <template v-for="(item, i) in model">
+            <app-menu-item v-if="!item.separator" :item="item" :index="i" :key="item.label || i"></app-menu-item>
+            <li v-if="item.separator" class="menu-separator" :key="'separator-' + i"></li>
         </template>
     </ul>
 </template>

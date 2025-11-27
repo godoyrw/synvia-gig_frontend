@@ -1,8 +1,8 @@
-// src/stores/auth.js
-import { HEARTBEAT_INTERVAL_MS, SESSION_DURATION_MINUTES } from '@/config/constants';
+// src/core/auth/store.js
+import { HEARTBEAT_INTERVAL_MS, SESSION_DURATION_MINUTES } from '@core/config/constants';
 import usersData from '@/mock/data-users.json';
-import router from '@/router';
-import { login as mockLogin } from '@/services/auth';
+import router from '@core/router';
+import { login as mockLogin } from '@core/auth/service';
 import { defineStore } from 'pinia';
 
 const usersById = usersData.users.reduce((map, user) => {

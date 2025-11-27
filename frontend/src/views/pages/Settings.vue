@@ -1,7 +1,7 @@
 <script setup>
-import PageHero from '@/components/PageHero.vue';
-import ToggleSwitch from '@/components/ToggleSwitch.vue';
-import { useLayout } from '@/layout/composables/layout';
+import PageHero from '@core/components/PageHero.vue';
+import ToggleSwitch from '@core/components/ToggleSwitch.vue';
+import { useLayout } from '@core/layout/composables/layout';
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 

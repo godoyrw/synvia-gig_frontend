@@ -1,7 +1,7 @@
 <script setup>
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@core/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
 import AppUserMenu from './AppUserMenu.vue';
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import PageHero from '@/components/PageHero.vue';
+import PageHero from '@core/components/PageHero.vue';
 import { computed, ref, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@/config/constants';
-import { useImportHistoryStore } from '@/stores/importHistory';
+import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@core/config/constants';
+import { useImportHistoryStore } from '@modules/gig/stores/importHistory';
 import FloatLabel from 'primevue/floatlabel';
 
 // Somente mock: sem chamadas à API nem tipos externos

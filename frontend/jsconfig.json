@@ -1,9 +1,11 @@
 {
     "compilerOptions": {
+        "ignoreDeprecations": "6.0",
         "paths": {
-            "@/*": [
-                "./src/*"
-            ]
+            "@/*": ["./src/*"],
+            "@core/*": ["./src/core/*"],
+            "@modules/*": ["./src/modules/*"],
+            "@modules/gig/*": ["./src/modules/gig/*"]
         }
     },
     "exclude": [
