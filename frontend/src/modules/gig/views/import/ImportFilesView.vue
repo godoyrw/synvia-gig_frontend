@@ -14,15 +14,14 @@ const selectedFile = ref<File | null>(null);
 const isUploading = ref(false);
 const uploadProgress = ref(0);
 const response = ref<UploadCsvResponse | null>(null);
-<<<<<<< HEAD
-const auth = useAuthStore();
-const importHistoryStore = useImportHistoryStore();
-||||||| parent of b15b685 (Dev import files (#47))
-=======
+
 const auth = useAuthStore();
 const importHistoryStore = useImportHistoryStore();
 
-// Limpa toasts persistentes ao sair da página
+// Chave para persistir o último resultado durante HMR/reload
+const LAST_RESPONSE_KEY = 'synvia-import-last-response';
+
+// Limpa toasts persistentes e o último resultado ao sair da página
 onBeforeRouteLeave(() => {
     try {
         // remove apenas toasts do grupo específico desta tela
@@ -36,41 +35,6 @@ onBeforeRouteLeave(() => {
 });
 
 // Restaura o último resultado após HMR/reload para não sumir o resumo
-const LAST_RESPONSE_KEY = 'synvia-import-last-response';
-onMounted(() => {
-    try {
-        const raw = sessionStorage.getItem(LAST_RESPONSE_KEY);
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            if (parsed && typeof parsed === 'object') {
-                response.value = parsed as UploadCsvResponse;
-            }
-        }
-    } catch {}
-});
-
-watch(response, (val) => {
-    try {
-        if (val) sessionStorage.setItem(LAST_RESPONSE_KEY, JSON.stringify(val));
-    } catch {}
-});
->>>>>>> b15b685 (Dev import files (#47))
-
-// Limpa toasts persistentes ao sair da página
-onBeforeRouteLeave(() => {
-    try {
-        // remove apenas toasts do grupo específico desta tela
-        // @ts-ignore
-        toast.removeGroup?.('upload-status');
-        // Fallback para versões antigas
-        // @ts-ignore
-        toast.removeAllGroups?.();
-        sessionStorage.removeItem(LAST_RESPONSE_KEY);
-    } catch {}
-});
-
-// Restaura o último resultado após HMR/reload para não sumir o resumo
-const LAST_RESPONSE_KEY = 'synvia-import-last-response';
 onMounted(() => {
     try {
         const raw = sessionStorage.getItem(LAST_RESPONSE_KEY);
@@ -115,22 +79,7 @@ const resetSelection = () => {
     if (fileInputRef.value) {
         fileInputRef.value.value = '';
     }
-<<<<<<< Updated upstream
     try { sessionStorage.removeItem(LAST_RESPONSE_KEY); } catch {}
-||||||| Stash base
-    try {
-        sessionStorage.removeItem(LAST_RESPONSE_KEY);
-    } catch {}
-=======
-<<<<<<< HEAD
-    try {
-        sessionStorage.removeItem(LAST_RESPONSE_KEY);
-    } catch {}
-||||||| parent of b15b685 (Dev import files (#47))
-=======
-    try { sessionStorage.removeItem(LAST_RESPONSE_KEY); } catch {}
->>>>>>> b15b685 (Dev import files (#47))
->>>>>>> Stashed changes
 };
 
 const handleUpload = async () => {
