@@ -1,5 +1,5 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@core/layout/composables/layout';
 import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import Lara from '@primeuix/themes/lara';

@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@core/auth/store';
 
 /**
  * useActivityTracker - Rastreia atividade do usuário e renova token se estiver ativo

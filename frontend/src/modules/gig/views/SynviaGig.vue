@@ -1,6 +1,6 @@
 <script setup>
-import PageHero from '@/components/PageHero.vue';
-import BaseChart from '@/components/charts/BaseChart.vue';
+import PageHero from '@core/components/PageHero.vue';
+import BaseChart from '@core/components/charts/BaseChart.vue';
 import dashboardData from '@/mock/data-dashboard.json';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 

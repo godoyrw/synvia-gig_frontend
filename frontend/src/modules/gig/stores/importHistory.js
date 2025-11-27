@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import historyMock from '@/mock/data-files-history.json';
-import api from '@/services/api';
+import api from '@core/services/api';
 
 // Persistência pedida: escrever diretamente no mock via endpoint dev
 // (não usa localStorage)

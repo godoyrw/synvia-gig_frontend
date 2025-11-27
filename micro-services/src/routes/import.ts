@@ -96,7 +96,7 @@ const parseDateParam = (value?: string | string[]) => {
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 };
 
-router.post('/synvia-gig/import/upload', (req, res) => {
+router.post('/gig/import/upload', (req, res) => {
   const clientId = getClientId(req);
   const userId = req.header('x-user-id') ?? null;
   const requestId = randomUUID();

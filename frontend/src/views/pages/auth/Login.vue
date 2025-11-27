@@ -1,12 +1,12 @@
 <script setup>
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@core/auth/store';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router'; // 👈 aqui
 
 import backgroundLogin from '@/assets/images/backgrounds/background-login.jpg';
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import ToggleSwitch from '@/components/ToggleSwitch.vue';
+import ToggleSwitch from '@core/components/ToggleSwitch.vue';
 import { useToast } from 'primevue/usetoast';
 
 const email = ref('');
@@ -54,8 +54,11 @@ const handleLogin = async () => {
         await auth.loginWithCredentials(email.value, password.value);
         pushToast('success', 'Credencial de usuário', 'Login realizado com sucesso!');
 
-        // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
-        const redirect = route.query.redirect || '/synvia-gig';
+        // 🔁 Usa o redirect da query, se existir; senão vai pra /gig
+        const redirect = route.query.redirect || '/gig';
+
+        // ⚡ Garantir que o menu fique aberto após login
+        // O menu será aberto automaticamente quando o AppLayout montar
         router.push(redirect);
     } catch (err) {
         pushToast('error', 'Autenticação', err.message || 'Erro ao autenticar');

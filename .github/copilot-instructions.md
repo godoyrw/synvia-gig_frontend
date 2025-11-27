@@ -12,15 +12,15 @@
 ## Frontend architecture highlights
 - Entry point `src/main.js` wires Pinia, Vue Router, PrimeVue, `@primeuix/themes/aura`, Tailwind utilities, and global dark-mode toggling via `.app-dark` class.
 - Layout shell sits in `src/layout/` and `AppLayout.vue`; `layout/composables/layout.js` manages menu state and persisted theme (localStorage `darkTheme`). Prefer tapping this composable rather than managing DOM classes manually.
-- Router (`src/router/index.js`) keeps everything under `AppLayout` behind `requiresAuth` and optional `meta.permission`. Navigation guard uses `useAuthStore()` to enforce session expiration, permission filtering, and redirect to `/auth/login`.
-- Authentication is mock-based (`src/services/auth.js` + `src/mock/data-users.json`). The Pinia store (`src/stores/auth.js`) persists session data in `sessionStorage`, runs a heartbeat timer, and cooperates with `useActivityTracker` to auto-renew `expiresAt` on user activity.
-- HTTP calls must go through `src/services/api.ts`, which injects `x-client-id` headers from the stored user. Add new services beside `src/services/import.ts` to keep axios config centralized.
-- Styling combines PrimeVue tokens and custom SCSS under `src/assets/layout/`. Favor the existing utility partials (`_mixins.scss`, `_responsive.scss`) instead of ad-hoc inline styles.
+- Router (`src/core/router/index.ts`) keeps everything under `AppLayout` behind `requiresAuth` and optional `meta.permission`. Navigation guard uses `useAuthStore()` to enforce session expiration, permission filtering, and redirect to `/auth/login`.
+- Authentication is mock-based (`src/core/auth/` + `src/mock/data-users.json`). The Pinia store (`src/stores/auth.js`) persists session data in `sessionStorage`, runs a heartbeat timer, and cooperates with `useActivityTracker` to auto-renew `expiresAt` on user activity.
+- HTTP calls must go through `src/services/api.ts`, which injects `x-client-id` headers from the stored user. Add new services beside `src/modules/gig/services/import.ts` to keep axios config centralized.
+- Styling combines PrimeVue tokens and custom SCSS under `src/core/layout/`. Favor the existing utility partials (`_mixins.scss`, `_responsive.scss`) instead of ad-hoc inline styles.
 
 ## Import experience flow
-- UI entrypoints live in `src/views/import/ImportFilesView.vue` (upload + result cards) and `ImportHistoryView.vue` (filters, pagination, overlays). These use PrimeVue components extensively; prefer script-setup + refs/computed patterns already in place.
-- `ImportFilesView` calls `uploadCsv` from `src/services/import.ts`, which wraps a multipart POST to `/synvia-gig/import/upload`, tracks progress, and surfaces validation errors returned by the backend.
-- History view currently consumes `src/mock/data-files-history.json`. To integrate with the API, reuse `fetchImportHistory` (already defined in `src/services/import.ts`) and keep the local filtering/pagination logic intact.
+- UI entrypoints live in `src/modules/gig/views/import/ImportFilesView.vue` (upload + result cards) and `ImportHistoryView.vue` (filters, pagination, overlays). These use PrimeVue components extensively; prefer script-setup + refs/computed patterns already in place.
+- `ImportFilesView` calls `uploadCsv` from `src/services/import.ts`, which wraps a multipart POST to `/gig/import/upload`, tracks progress, and surfaces validation errors returned by the backend.
+- History view currently consumes `src/mock/data-files-history.json`. To integrate with the API, reuse `fetchImportHistory` (already defined in `src/modules/gig/services/import.ts`) and keep the local filtering/pagination logic intact.
 
 ## Micro-service architecture
 - `src/server.ts` bootstraps Express, enables CORS (reads `CORS_ORIGIN`), mounts `/health` and the import router. Errors fall through to a last-resort handler returning `{ ok: false }`.
@@ -33,7 +33,7 @@
 
 ## Conventions & tips
 - Prefer TypeScript in the backend (all `src/**/*.ts`); stick to `<script setup lang="ts">` for new Vue SFCs when touching TypeScript-aware views like the import screens.
-- Reuse shared constants from `src/config/constants.js` (session timings, toast durations, history page size) instead of hardcoding numbers.
+- Reuse shared constants from `src/core/config/constants.js` (session timings, toast durations, history page size) instead of hardcoding numbers.
 - Dashboard and chart features rely on `src/components/charts/BaseChart.vue`; register new chart types through this component rather than instantiating `vue-echarts` directly to keep theming consistent.
 - Mock data powering dashboards/history sits under `src/mock/`. When replacing mocks with live data, maintain the existing shape defined in `src/services/import.ts` and Pinia stores to avoid breaking computed decorators.
 - Logging in the micro-service appends JSON lines to `logs/<client>/<yyyy>/<mm>/<dd>.log` in S3. If you add new operations, extend `ImportLogEntry` in `micro-services/src/types/import.ts` so both upload and history endpoints stay in sync.

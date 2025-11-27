@@ -1,6 +1,6 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { onBeforeMount, ref, watch } from 'vue';
+import { useLayout } from '@core/layout/composables/layout';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
@@ -39,6 +39,11 @@ onBeforeMount(() => {
     activateIfMatchesRoute();
 });
 
+onMounted(() => {
+    // Garantir que o item seja ativado na montagem também
+    activateIfMatchesRoute();
+});
+
 watch(
     () => layoutState.activeMenuItem,
     (newVal) => {
@@ -58,7 +63,18 @@ function itemClick(event, item) {
     }
 
     if ((item.to || item.url) && (layoutState.staticMenuMobileActive || layoutState.overlayMenuActive)) {
-        toggleMenu();
+        // Evita fechar o menu quando navegando dentro do módulo GIG (ex: /gig -> /gig/import)
+        try {
+            const currentPath = (typeof window !== 'undefined' && window.location && window.location.pathname) || '';
+            const targetPath = item.to || item.url || '';
+            const navigatingWithinGig = currentPath.includes('/gig') && targetPath.includes('/gig');
+
+            if (!navigatingWithinGig) {
+                toggleMenu();
+            }
+        } catch (e) {
+            toggleMenu();
+        }
     }
 
     if (item.command) {
@@ -97,6 +113,7 @@ function activateIfMatchesRoute() {
 watch(
     () => route.path,
     () => {
+        // Sempre tentar ativar se a rota corresponder
         activateIfMatchesRoute();
     }
 );

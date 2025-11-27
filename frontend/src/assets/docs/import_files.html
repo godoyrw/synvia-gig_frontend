@@ -15,7 +15,7 @@
         <h2>Arquitetura do fluxo</h2>
         <ul>
             <li>
-                <strong>Frontend</strong> (<code>frontend/src/views/import/ImportFilesView.vue</code>):
+                <strong>Frontend</strong> (<code>frontend/src/modules/gig/views/import/ImportFilesView.vue</code>):
                 exibe o formulário, aplica validações rápidas (tipo, tamanho, presença) e mostra o resumo retornado pela API.
                 Nenhuma referência direta ao caminho do S3 é exibida para o usuário.
             </li>
@@ -34,7 +34,7 @@
         <h2>Fluxo resumido</h2>
         <ol>
             <li>Usuário seleciona o CSV (até 30&nbsp;MB, UTF-8, <code>.csv</code> além de <code>text/csv</code>).</li>
-            <li>Frontend valida tamanho/MIME, cria o <code>FormData</code>, injeta os cabeçalhos <code>x-client-id</code> e <code>x-request-id</code> e envia para <code>POST /synvia-gig/import/upload</code>.</li>
+            <li>Frontend valida tamanho/MIME, cria o <code>FormData</code>, injeta os cabeçalhos <code>x-client-id</code> e <code>x-request-id</code> e envia para <code>POST /gig/import/upload</code>.</li>
             <li>O micro-serviço utiliza Multer para armazenar o arquivo em memória, valida o conteúdo linha a linha e contabiliza métricas.</li>
             <li>Se o arquivo for válido, ele é salvo no S3 e um log JSON é anexado (INFO). Em caso de erro, um log WARN/ERROR é gravado com o motivo.</li>
             <li>O frontend exibe apenas o resumo (totais, erros de linha) e disponibiliza o ID do log para consulta interna.</li>
@@ -81,7 +81,7 @@
 
         <h2>Contrato HTTP</h2>
         <h3>Requisição</h3>
-        <pre><code class="language-http">POST /synvia-gig/import/upload
+        <pre><code class="language-http">POST /gig/import/upload
 Content-Type: multipart/form-data
 X-Client-Id: acme
 X-Request-Id: imp_7f52a6

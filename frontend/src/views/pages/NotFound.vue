@@ -1,7 +1,7 @@
 <script setup>
 import SynviaLogoNegativo from '@/assets/images/logos/synvia_negativo.png';
 import SynviaLogoPositivo from '@/assets/images/logos/synvia_positivo.png';
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@core/layout/composables/layout';
 import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 
@@ -11,7 +11,7 @@ const toast = useToast();
 
 const goHome = () => {
     toast.add({ severity: 'info', summary: 'Redirecionando', detail: 'Voltando ao dashboard...', life: 4000 });
-    router.push('/synvia-gig');
+    router.push('/auth/login');
 };
 
 const goLogin = () => {
