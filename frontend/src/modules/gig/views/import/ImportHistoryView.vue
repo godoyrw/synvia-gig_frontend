@@ -575,7 +575,19 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                             </template>
                         </Column>
 
+<<<<<<< Updated upstream
                         <Column header="Ações" style="width: 5%; text-align:center;">
+||||||| Stash base
+                        <Column header="Ações" style="width: 5%; text-align: center">
+=======
+<<<<<<< HEAD
+                        <Column header="Ações" style="width: 5%; text-align: center">
+||||||| parent of b15b685 (Dev import files (#47))
+                        <Column header="Ações" style="width: 3%; text-align:center;">
+=======
+                        <Column header="Ações" style="width: 5%; text-align:center;">
+>>>>>>> b15b685 (Dev import files (#47))
+>>>>>>> Stashed changes
                             <template #body="{ data }">
                                 <div class="actions-menu-wrapper">
                                     <Button
