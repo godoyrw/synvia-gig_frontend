@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import type { NextFunction, Request, Response } from 'express';
 import importRoutes from './routes/import.js';
+import devRoutes from './routes/dev.js';
 import { env } from './config/env.js';
 
 const app = express();
@@ -19,6 +20,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use(importRoutes);
+app.use(devRoutes);
 
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);

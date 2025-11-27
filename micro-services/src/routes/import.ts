@@ -288,6 +288,10 @@ router.post('/synvia-gig/import/upload', (req, res) => {
           path: objectKey,
           url: `https://${env.aws.bucket}.s3.${env.aws.region}.amazonaws.com/${objectKey}`
         },
+        fileHash: fileHash,
+        fileName: file.originalname,
+        fileSizeBytes: file.size,
+        durationMs: duration,
         summary,
         errors: summary.errors
       };
@@ -314,7 +318,9 @@ router.post('/synvia-gig/import/upload', (req, res) => {
                 reason: parsedError.reason
               }
             ]
-          : []
+          : [],
+        fileName: req.file?.originalname,
+        fileSizeBytes: req.file?.size
       });
     }
   });
