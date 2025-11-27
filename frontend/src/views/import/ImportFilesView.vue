@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PageHero from '@/components/PageHero.vue';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { isAxiosError } from 'axios';
 import { uploadCsv, type UploadCsvResponse } from '@/services/import';
@@ -15,6 +16,39 @@ const uploadProgress = ref(0);
 const response = ref<UploadCsvResponse | null>(null);
 const auth = useAuthStore();
 const importHistoryStore = useImportHistoryStore();
+
+// Limpa toasts persistentes ao sair da página
+onBeforeRouteLeave(() => {
+    try {
+        // remove apenas toasts do grupo específico desta tela
+        // @ts-ignore
+        toast.removeGroup?.('upload-status');
+        // Fallback para versões antigas
+        // @ts-ignore
+        toast.removeAllGroups?.();
+        sessionStorage.removeItem(LAST_RESPONSE_KEY);
+    } catch {}
+});
+
+// Restaura o último resultado após HMR/reload para não sumir o resumo
+const LAST_RESPONSE_KEY = 'synvia-import-last-response';
+onMounted(() => {
+    try {
+        const raw = sessionStorage.getItem(LAST_RESPONSE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+                response.value = parsed as UploadCsvResponse;
+            }
+        }
+    } catch {}
+});
+
+watch(response, (val) => {
+    try {
+        if (val) sessionStorage.setItem(LAST_RESPONSE_KEY, JSON.stringify(val));
+    } catch {}
+});
 
 
 const hasResult = computed(() => !!response.value);
@@ -42,6 +76,7 @@ const resetSelection = () => {
     if (fileInputRef.value) {
         fileInputRef.value.value = '';
     }
+    try { sessionStorage.removeItem(LAST_RESPONSE_KEY); } catch {}
 };
 
 const handleUpload = async () => {
@@ -53,7 +88,7 @@ const handleUpload = async () => {
     try {
         isUploading.value = true;
         uploadProgress.value = 0;
-        toast.add({ severity: 'info', summary: 'Processando', detail: 'Iniciando envio do arquivo...', life: 2000 });
+        (toast as any).add({ severity: 'info', summary: 'Processando', detail: 'Iniciando envio do arquivo...', group: 'upload-status', sticky: true, closable: false, life: 0 });
         const result = await uploadCsv(selectedFile.value, {
             onProgress: (percent) => {
                 uploadProgress.value = percent;
@@ -69,9 +104,9 @@ const handleUpload = async () => {
         });
 
         if (result.ok) {
-            toast.add({ severity: 'success', summary: 'Importação concluída', detail: result.message, life: 5000 });
+            (toast as any).add({ severity: 'success', summary: 'Importação concluída', detail: result.message, group: 'upload-status', sticky: true, closable: false, life: 0 });
         } else {
-            toast.add({ severity: 'error', summary: 'Importação falhou', detail: result.message, life: 6000 });
+            (toast as any).add({ severity: 'error', summary: 'Importação falhou', detail: result.message, group: 'upload-status', sticky: true, closable: false, life: 0 });
         }
     } catch (error) {
         console.error(error);
@@ -84,7 +119,7 @@ const handleUpload = async () => {
                 user: auth.user
             });
             const detail = serverResponse?.message ?? 'Não foi possível enviar o CSV. Tente novamente.';
-            toast.add({ severity: 'error', summary: 'Importação falhou', detail, life: 6000 });
+            (toast as any).add({ severity: 'error', summary: 'Importação falhou', detail, group: 'upload-status', sticky: true, closable: false, life: 0 });
         } else {
             response.value = null;
             await importHistoryStore.recordUploadAttempt({
@@ -92,7 +127,7 @@ const handleUpload = async () => {
                 response: null,
                 user: auth.user
             });
-            toast.add({ severity: 'error', summary: 'Erro inesperado', detail: 'Não foi possível enviar o CSV. Tente novamente.', life: 6000 });
+            (toast as any).add({ severity: 'error', summary: 'Erro inesperado', detail: 'Não foi possível enviar o CSV. Tente novamente.', group: 'upload-status', sticky: true, closable: false, life: 0 });
         }
     } finally {
         // Pequeno atraso para o usuário ver 100%
