@@ -605,6 +605,22 @@
       "durationMs": null,
       "totalRows": 0,
       "errorRows": 1
+    },
+    {
+      "requestId": 39,
+      "timestamp": "2025-11-27T21:30:45.008Z",
+      "level": "INFO",
+      "status": "UPLOADED",
+      "userId": 1,
+      "displayName": "Roberto Godoy",
+      "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+      "clientId": 1,
+      "fileName": "gig-2.csv",
+      "fileSizeBytes": 336,
+      "fileHash": "718a81d7b6d4cbddac3bb750ac2d112e0bc1fca13584f5fc0b8179789f5ecc31",
+      "durationMs": 543,
+      "totalRows": 7,
+      "errorRows": 0
     }
   ]
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLayout } from '@core/layout/composables/layout';
 
@@ -52,6 +52,45 @@ const model = ref([
 const route = useRoute();
 const { setActiveMenuItem } = useLayout();
 
+// Busca recursiva no model para construir a chave do item que corresponde à rota
+const findItemKeyForPath = (path) => {
+    const sections = model.value;
+
+    for (let s = 0; s < sections.length; s++) {
+        const section = sections[s];
+
+        if (!section.items) continue;
+
+        for (let i = 0; i < section.items.length; i++) {
+            const item = section.items[i];
+            // chave base para o item filho da seção: `${s}-${i}`
+            const baseKey = `${s}-${i}`;
+            const found = findInItem(item, baseKey);
+            if (found) return found;
+        }
+    }
+
+    return null;
+};
+
+function findInItem(item, keyPrefix) {
+    // Se o item tem um `to` e corresponde à rota, retorna a chave construída
+    if (item.to && item.to === route.path) {
+        return keyPrefix;
+    }
+
+    if (item.items) {
+        for (let j = 0; j < item.items.length; j++) {
+            const child = item.items[j];
+            const childKey = `${keyPrefix}-${j}`;
+            const found = findInItem(child, childKey);
+            if (found) return found;
+        }
+    }
+
+    return null;
+}
+
 const matchesRoute = (item, path) => {
     if (!item) return false;
 
@@ -76,11 +115,22 @@ const routeMatchesAnyItem = (path) => {
 watch(
     () => route.path,
     (currentPath) => {
-        if (!routeMatchesAnyItem(currentPath)) {
+        // Ativa o item correspondente à rota atual (ou limpa se não houver match)
+        const foundKey = findItemKeyForPath(currentPath);
+        if (foundKey) {
+            setActiveMenuItem(foundKey);
+        } else {
             setActiveMenuItem(null);
         }
     }
 );
+
+onMounted(() => {
+    const foundKey = findItemKeyForPath(route.path);
+    if (foundKey) {
+        setActiveMenuItem(foundKey);
+    }
+});
 </script>
 
 <template>

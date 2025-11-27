@@ -62,14 +62,29 @@ export function useLayout() {
     };
 
     const toggleMenu = () => {
-        if (layoutConfig.menuMode === 'overlay') {
-            layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
-        }
+        try {
+            // useRoute() pode falhar quando toggleMenu é chamado fora do setup
+            const path = (typeof window !== 'undefined' && window.location && window.location.pathname) || '';
+            const isGigRoute = path.includes('/gig') || path === '/';
 
-        if (window.innerWidth > 991) {
-            layoutState.staticMenuDesktopInactive = !layoutState.staticMenuDesktopInactive;
-        } else {
-            layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
+            // toggleMenu invoked
+
+            if (layoutConfig.menuMode === 'overlay') {
+                layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
+            }
+
+            if (window.innerWidth > 991) {
+                // Para rotas GIG, sempre manter menu aberto (não permitir fechar)
+                if (!isGigRoute) {
+                    layoutState.staticMenuDesktopInactive = !layoutState.staticMenuDesktopInactive;
+                } else {
+                    layoutState.staticMenuDesktopInactive = false;
+                }
+            } else {
+                layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
+            }
+        } catch (e) {
+            console.warn('[layout] toggleMenu error', e);
         }
     };
 

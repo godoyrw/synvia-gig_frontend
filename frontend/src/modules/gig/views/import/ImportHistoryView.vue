@@ -280,7 +280,6 @@ const handleRetryHistory = (item: ImportHistoryItem) => {
 };
 
 const handleDeleteHistory = (item: ImportHistoryItem) => {
-    console.log('Solicitar remoção de log', item.requestId);
     toast.add({
         severity: 'warn',
         summary: 'Deletar',

@@ -2,7 +2,7 @@
 import { useActivityTracker } from '@core/auth/useActivityTracker';
 import { useLayout } from '@core/layout/composables/layout';
 import { useAuthStore } from '@core/auth/store';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import AppFooter from './AppFooter.vue';
 import AppSidebar from './AppSidebar.vue';
@@ -15,6 +15,7 @@ const { startTracking, stopTracking } = useActivityTracker();
 let stopActivityTracker = null;
 
 const outsideClickListener = ref(null);
+const suppressOutsideClick = ref(false);
 
 onMounted(() => {
     // Inicia rastreamento de atividade (AppLayout só monta se autenticado)
@@ -22,14 +23,11 @@ onMounted(() => {
         const inactivityDurationMs = auth.durationMinutes * 60 * 1000;
         stopActivityTracker = startTracking(inactivityDurationMs);
     }
-
-    // ⚡ Garantir que o menu fique sempre aberto para rotas GIG
-    const isGigRoute = route.path.includes('/gig') || route.path === '/';
-    if (isGigRoute) {
-        layoutState.staticMenuDesktopInactive = false;
-        layoutState.overlayMenuActive = false;
-        layoutState.staticMenuMobileActive = false;
-    }
+    // Ao montar, suprimir cliques externos por curto período para evitar race conditions
+    nextTick(() => {
+        suppressOutsideClick.value = true;
+        setTimeout(() => (suppressOutsideClick.value = false), 500);
+    });
 });
 
 onUnmounted(() => {
@@ -49,18 +47,16 @@ watch(isSidebarActive, (newVal) => {
 watch(
     () => route.fullPath,
     (newPath, oldPath) => {
-        // ⚡ Manter menu aberto para rotas principais do GIG
-        const isGigRoute = newPath?.includes('/gig') || newPath === '/';
-        if (!isGigRoute) {
+        // Ao navegar, fechar apenas menus do tipo overlay / mobile e suprimir
+        // cliques externos por curto período para evitar race conditions.
+        if (layoutConfig.menuMode === 'overlay' || window.innerWidth <= 991) {
             closeMenu();
-        } else {
-            // Garantir que menu fique aberto para rotas GIG
-            layoutState.staticMenuDesktopInactive = false;
-            layoutState.overlayMenuActive = false;
-            layoutState.staticMenuMobileActive = false;
         }
+        suppressOutsideClick.value = true;
+        setTimeout(() => (suppressOutsideClick.value = false), 500);
     }
 );
+
 
 const containerClass = computed(() => {
     return {
@@ -76,9 +72,17 @@ function bindOutsideClickListener() {
     if (!outsideClickListener.value) {
         outsideClickListener.value = (event) => {
             if (isOutsideClicked(event)) {
-                layoutState.overlayMenuActive = false;
-                layoutState.staticMenuMobileActive = false;
-                layoutState.menuHoverActive = false;
+                try {
+                    // Se estivermos no período de supressão (navegação/boot), ignorar clique externo
+                    if (suppressOutsideClick.value) {
+                        return;
+                    }
+                    layoutState.overlayMenuActive = false;
+                    layoutState.staticMenuMobileActive = false;
+                    layoutState.menuHoverActive = false;
+                } catch (e) {
+                    console.warn('[AppLayout] outside click handler error', e);
+                }
             }
         };
         document.addEventListener('click', outsideClickListener.value);
@@ -87,16 +91,21 @@ function bindOutsideClickListener() {
 
 function unbindOutsideClickListener() {
     if (outsideClickListener.value) {
-        document.removeEventListener('click', outsideClickListener);
+        document.removeEventListener('click', outsideClickListener.value);
         outsideClickListener.value = null;
     }
 }
 
 function isOutsideClicked(event) {
     const sidebarEl = document.querySelector('.layout-sidebar');
-    const topbarEl = document.querySelector('.layout-menu-button');
+    const topbarEl = document.querySelector('.layout-topbar');
 
-    return !(sidebarEl.isSameNode(event.target) || sidebarEl.contains(event.target) || topbarEl.isSameNode(event.target) || topbarEl.contains(event.target));
+    if (!sidebarEl) return false;
+
+    const clickedInsideSidebar = sidebarEl.isSameNode(event.target) || sidebarEl.contains(event.target);
+    const clickedInsideTopbar = topbarEl && (topbarEl.isSameNode(event.target) || topbarEl.contains(event.target));
+
+    return !(clickedInsideSidebar || clickedInsideTopbar);
 }
 </script>
 
