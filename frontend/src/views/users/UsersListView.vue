@@ -83,9 +83,10 @@ const filteredUsers = computed(() => {
 
     // Apply sorting
     if (sortField.value) {
-        result.sort((a: any, b: any) => {
-            const av = a[sortField.value!];
-            const bv = b[sortField.value!];
+        const field = sortField.value as keyof User;
+        result.sort((a: User, b: User) => {
+            const av = a[field];
+            const bv = b[field];
             if (av == null && bv != null) return -1 * sortOrder.value;
             if (av != null && bv == null) return 1 * sortOrder.value;
             if (av == null && bv == null) return 0;
@@ -183,7 +184,7 @@ const handleSave = async () => {
     try {
         if (editingUser.value) {
             // Update
-            const updateData: any = {
+            const updateData: Partial<Omit<User, 'id'>> = {
                 username: formData.value.username,
                 displayName: formData.value.displayName,
                 clientId: formData.value.clientId,
@@ -222,11 +223,12 @@ const handleSave = async () => {
             });
         }
         showFormDialog.value = false;
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Erro ao salvar usuário.';
         toast.add({
             severity: 'error',
             summary: 'Erro',
-            detail: err.message || 'Erro ao salvar usuário.',
+            detail: message,
             life: TOAST_DURATION.ERROR
         });
     }
@@ -246,11 +248,12 @@ const handleDelete = async () => {
         });
         showDeleteDialog.value = false;
         userToDelete.value = null;
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Erro ao remover usuário.';
         toast.add({
             severity: 'error',
             summary: 'Erro',
-            detail: err.message || 'Erro ao remover usuário.',
+            detail: message,
             life: TOAST_DURATION.ERROR
         });
     }
