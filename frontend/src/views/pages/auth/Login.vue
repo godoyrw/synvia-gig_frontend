@@ -54,8 +54,8 @@ const handleLogin = async () => {
         await auth.loginWithCredentials(email.value, password.value);
         pushToast('success', 'Credencial de usuário', 'Login realizado com sucesso!');
 
-        // 🔁 Usa o redirect da query, se existir; senão vai pra /synvia-gig
-        const redirect = route.query.redirect || '/synvia-gig';
+        // 🔁 Usa o redirect da query, se existir; senão vai pra /gig
+        const redirect = route.query.redirect || '/gig';
         router.push(redirect);
     } catch (err) {
         pushToast('error', 'Autenticação', err.message || 'Erro ao autenticar');

@@ -8,7 +8,7 @@ Para que o deploy para EC2 funcione, você precisa configurar os seguintes secre
 - **O quê**: IP ou DNS do servidor EC2 de homolog
 - **Exemplo**: `ec2-52-123-456-789.us-east-1.compute.amazonaws.com` ou `192.168.1.100`
 - **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/synvia-gig_frontend/settings/secrets/actions
+  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
   - Clique em "New repository secret"
   - Nome: `EC2_HML_HOST`
   - Valor: Seu IP/DNS do EC2
@@ -17,7 +17,7 @@ Para que o deploy para EC2 funcione, você precisa configurar os seguintes secre
 - **O quê**: Usuário SSH para acessar o EC2
 - **Exemplo**: `ubuntu` ou `ec2-user`
 - **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/synvia-gig_frontend/settings/secrets/actions
+  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
   - Nome: `EC2_HML_USER`
   - Valor: Seu usuário SSH
 
@@ -28,15 +28,15 @@ Para que o deploy para EC2 funcione, você precisa configurar os seguintes secre
   - Abra o arquivo em um editor de texto
   - Copie TODO o conteúdo (incluindo `-----BEGIN PRIVATE KEY-----` e `-----END PRIVATE KEY-----`)
 - **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/synvia-gig_frontend/settings/secrets/actions
+  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
   - Nome: `EC2_HML_SSH_KEY`
   - Valor: Cole todo o conteúdo da chave PEM
 
 ### 4. **EC2_HML_APP_PATH** 📁
 - **O quê**: Caminho no servidor EC2 onde a aplicação está instalada
-- **Exemplo**: `/var/www/synvia-gig` ou `/home/ubuntu/apps/synvia-gig`
+- **Exemplo**: `/var/www/gig` ou `/home/ubuntu/apps/gig`
 - **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/synvia-gig_frontend/settings/secrets/actions
+  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
   - Nome: `EC2_HML_APP_PATH`
   - Valor: Caminho da aplicação no EC2
 

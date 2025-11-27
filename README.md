@@ -1,75 +1,118 @@
-# Synvia GIG – Monorepo# SYNVIA™ | The Intelligent Infrastructure for Health Management
+# SYNVIA™ | The Intelligent Infrastructure for Health Management
 
+## 🏗️ Arquitetura Modular
 
+Este repositório está organizado como um **monorepo** com duas aplicações independentes:
 
-Este repositório agora está dividido em duas aplicações:## Getting Started PNPM
+| Diretório | Descrição | Stack Tecnológica |
+| ---------- | --------- | ----------------- |
+| `frontend/` | Interface web responsiva com arquitetura modular | Vue 3 + Vite + PrimeVue + TypeScript |
+| `micro-services/` | API backend para processamento de arquivos CSV | Node.js 18 + Express + TypeScript + AWS S3 |
 
-
-
-| Diretório  | Descrição |```bash
-
-| ---------- | --------- |# Install dependencies
-
-| `/frontend` | Aplicação Vue 3 + Vite + PrimeVue (template Sakai). |pnpm install
-
-| `/micro-services`  | Conjunto de micro-serviços Node.js + Express + TypeScript responsável pelo upload de CSV para o S3. |
-
-# Start development server
-
-## Pré-requisitospnpm dev
-
-
-
-- Node.js 18+# Build for production
-
-- pnpm (recomendado) ou npmpnpm build
-
-- Credenciais AWS com permissão de `s3:PutObject````
-
-
-
-## Micro-services
-## Visualizações interativas com ECharts
-
-
-
-```bashEste projeto agora utiliza [Apache ECharts](https://echarts.apache.org/) via [`vue-echarts`](https://github.com/ecomfe/vue-echarts) para suportar gráficos avançados (barras empilhadas, heatmap, treemap, etc.).
-
-cd micro-services
-
-pnpm install- Componentes base ficam em `src/components/charts/BaseChart.vue`.
-
-cp .env.example .env # preencha credenciais AWS- Exemplos de uso e opções podem ser vistos em `src/views/SynviaGig.vue`, alimentados por `src/mock/data-dashboard.json`.
-
-pnpm dev- Para criar um novo gráfico, importe `BaseChart` e forneça um objeto de opções ECharts:
+### 📁 Estrutura Modular do Frontend
 
 ```
+frontend/src/
+├── core/                    # Componentes e lógica compartilhada
+│   ├── auth/               # Sistema de autenticação
+│   ├── components/         # Componentes reutilizáveis
+│   ├── config/             # Constantes e configurações
+│   ├── layout/             # Layout e navegação
+│   ├── router/             # Roteamento principal
+│   └── services/           # Serviços compartilhados
+├── modules/                 # Módulos de negócio
+│   └── gig/                # Módulo GIG (upload/histórico)
+│       ├── router/         # Rotas do módulo
+│       ├── services/       # Serviços específicos
+│       ├── stores/         # Estado Pinia
+│       └── views/          # Páginas do módulo
+├── assets/                  # Recursos estáticos
+├── mock/                    # Dados de desenvolvimento
+├── services/                # Serviços globais
+├── stores/                  # Estado global
+└── views/                   # Páginas compartilhadas
+```
 
-	```vue
+## 🚀 Início Rápido
 
-O servidor sobe, por padrão, na porta `3001` e expõe:	<BaseChart :option="myOption" height="320px" />
+### Pré-requisitos
 
-	```
+- Node.js 18+
+- pnpm (recomendado) ou npm
+- Credenciais AWS com permissão `s3:PutObject`
 
-- `POST /synvia-gig/import/upload` – upload e processamento de CSV.
+### Instalação e Execução
 
-- `GET /health` – verificação simples.### Desenvolvimento
-
-
-
-## FrontendCaso tenha instalado as dependências antes da introdução dos gráficos, execute novamente:
-
-
-
-```bash```bash
-
-cd frontendpnpm install
-
+```bash
+# Instalar dependências
 pnpm install
-cp .env.example .env # ajuste VITE_API_BASE_URL se necessário
+
+# Configurar ambiente
+cp frontend/.env.example frontend/.env
+cp micro-services/.env.example micro-services/.env
+
+# Executar em desenvolvimento
 pnpm dev
+
+# Build para produção
+pnpm build
 ```
 
-A UI abre em `http://localhost:5173` e se comunica com os micro-services via `VITE_API_BASE_URL`.
+## 🎯 Funcionalidades
 
-Consulte `frontend/README.md` para instruções detalhadas do app Sakai original.
+### 📊 Dashboard Interativo
+
+- Visualizações avançadas com Apache ECharts
+- Componentes base em `src/components/charts/BaseChart.vue`
+- Dados mockados em `src/mock/data-dashboard.json`
+
+### 📤 Upload de Arquivos CSV
+
+- Validação e processamento no backend
+- Upload para AWS S3 com metadados
+- Interface responsiva com progresso em tempo real
+
+### 📋 Histórico de Importações
+
+- Listagem paginada e filtrável
+- Logs detalhados por arquivo
+- Status de processamento em tempo real
+
+## 🔧 Desenvolvimento
+
+### Frontend
+
+```bash
+cd frontend
+pnpm install
+pnpm dev  # http://localhost:5173
+```
+
+### Micro-serviços
+
+```bash
+cd micro-services
+pnpm install
+pnpm dev  # http://localhost:3001
+```
+
+### 📚 APIs Disponíveis
+
+- `POST /gig/import/upload` – Upload e processamento de CSV
+- `GET /gig/import/history` – Histórico de importações
+- `GET /health` – Verificação de saúde do serviço
+
+## 📖 Documentação
+
+- [Configuração de Deploy](frontend/DEPLOYMENT_SETUP.md)
+- [Sistema de Sessões](frontend/src/assets/docs/synvia_session_management_report.html)
+- [Importação de Arquivos](frontend/src/assets/docs/import_files.html)
+- [Sistema de Logs](frontend/src/assets/docs/logs_implementados.html)
+
+## 🏷️ Convenções
+
+- **Backend**: TypeScript obrigatório (`src/**/*.ts`)
+- **Frontend**: Vue 3 com Composition API + `<script setup>`
+- **Roteamento**: Estrutura modular com lazy loading
+- **Estado**: Pinia para gerenciamento de estado
+- **Styling**: PrimeVue + Tailwind CSS + SCSS customizado
