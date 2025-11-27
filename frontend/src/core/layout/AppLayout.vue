@@ -23,9 +23,9 @@ onMounted(() => {
         stopActivityTracker = startTracking(inactivityDurationMs);
     }
 
-    // ⚡ Garantir que o menu fique aberto após login/redirecionamento
-    // Se veio de uma rota de auth, manter menu aberto
-    if (route.path.includes('/gig') || route.path === '/') {
+    // ⚡ Garantir que o menu fique sempre aberto para rotas GIG
+    const isGigRoute = route.path.includes('/gig') || route.path === '/';
+    if (isGigRoute) {
         layoutState.staticMenuDesktopInactive = false;
         layoutState.overlayMenuActive = false;
         layoutState.staticMenuMobileActive = false;
@@ -49,10 +49,15 @@ watch(isSidebarActive, (newVal) => {
 watch(
     () => route.fullPath,
     (newPath, oldPath) => {
-        // Não fechar menu se for redirecionamento após login (de /auth/login para /gig)
-        const isLoginRedirect = oldPath?.includes('/auth/login') && (newPath?.includes('/gig') || newPath === '/');
-        if (!isLoginRedirect) {
+        // ⚡ Manter menu aberto para rotas principais do GIG
+        const isGigRoute = newPath?.includes('/gig') || newPath === '/';
+        if (!isGigRoute) {
             closeMenu();
+        } else {
+            // Garantir que menu fique aberto para rotas GIG
+            layoutState.staticMenuDesktopInactive = false;
+            layoutState.overlayMenuActive = false;
+            layoutState.staticMenuMobileActive = false;
         }
     }
 );
