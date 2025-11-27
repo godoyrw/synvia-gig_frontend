@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="protocolo-de-trabalho---github-copilot-desenvolvedor">📋
+Protocolo de Trabalho - GitHub Copilot + Desenvolvedor</h1>
+<h2 id="objetivo">🎯 Objetivo</h2>
+<p>Documentar as linhas de trabalho e fluxo de comunicação entre o
+GitHub Copilot (Assistente IA) e o desenvolvedor.</p>
+<hr />
+<h2 id="o-que-o-copilot-faz">✅ O QUE O COPILOT FAZ</h2>
+<h3 id="implementação-de-código">Implementação de Código</h3>
+<ul>
+<li>✅ Criar novos arquivos</li>
+<li>✅ Editar arquivos existentes</li>
+<li>✅ Implementar features e componentes</li>
+<li>✅ Refatorar código</li>
+<li>✅ Debugar problemas</li>
+</ul>
+<h3 id="validação">Validação</h3>
+<ul>
+<li>✅ Rodar build (<code>npm run build</code>)</li>
+<li>✅ Verificar erros (<code>eslint</code>,
+<code>type checking</code>)</li>
+<li>✅ Testar código (se aplicável)</li>
+<li>✅ Informar status e problemas</li>
+</ul>
+<h3 id="pesquisa-e-análise">Pesquisa e Análise</h3>
+<ul>
+<li>✅ Ler arquivos do projeto</li>
+<li>✅ Analisar código existente</li>
+<li>✅ Buscar padrões e implementações</li>
+<li>✅ Documentar mudanças</li>
+</ul>
+<hr />
+<h2 id="o-que-o-copilot-não-faz-sem-solicitação-explícita">❌ O QUE O
+COPILOT NÃO FAZ (sem solicitação explícita)</h2>
+<h3 id="git-operations">Git Operations</h3>
+<ul>
+<li>❌ <strong>SEM commit automático</strong> - Só quando você pedir:
+“<strong>faz commit disso</strong>”</li>
+<li>❌ <strong>SEM push automático</strong> - Só quando você pedir:
+“<strong>dá push</strong>”</li>
+<li>❌ <strong>SEM pull/rebase automático</strong> - Só quando
+necessário e você autorizar</li>
+</ul>
+<h3 id="pull-requests">Pull Requests</h3>
+<ul>
+<li>❌ <strong>SEM PR automático</strong> - Só quando você pedir:
+“<strong>abre um PR</strong>”</li>
+<li>❌ <strong>SEM merge automático</strong> - Só quando você pedir:
+“<strong>faz merge</strong>”</li>
+<li>❌ <strong>TODOS os PRs para <code>homolog</code></strong> - Nunca
+para <code>production</code></li>
+</ul>
+<h3 id="operações-destrutivas">Operações Destrutivas</h3>
+<ul>
+<li>❌ SEM hard reset</li>
+<li>❌ SEM force push</li>
+<li>❌ SEM deletar branches</li>
+</ul>
+<hr />
+<h2 id="como-solicitar-operações">🗣️ Como Solicitar Operações</h2>
+<h3 id="commit">Commit</h3>
+<pre><code>&quot;faz commit disso&quot;
+&quot;comita com mensagem: &#39;feat: implementar xyz&#39;&quot;
+&quot;comita as mudanças&quot;</code></pre>
+<h3 id="push">Push</h3>
+<pre><code>&quot;dá push&quot;
+&quot;faz push do dev-login&quot;
+&quot;envia pro repositório&quot;</code></pre>
+<h3 id="pull-request">Pull Request</h3>
+<pre><code>&quot;abre um PR&quot;
+&quot;cria uma PR para homolog&quot;
+&quot;abre PR com título &#39;feat: xyz&#39; na homolog&quot;</code></pre>
+<h3 id="merge">Merge</h3>
+<pre><code>&quot;faz merge&quot;
+&quot;merge dessa branch&quot;
+&quot;merge para homolog&quot;</code></pre>
+<hr />
+<h2 id="fluxo-padrão-de-trabalho">📊 Fluxo Padrão de Trabalho</h2>
+<pre><code>1️⃣ VOCÊ: &quot;implementa uma feature xyz&quot;
+   ↓
+2️⃣ COPILOT: Cria/edita arquivos, valida build, informa quando pronto
+   ↓
+3️⃣ VOCÊ: Revisa o código no editor
+   ↓
+4️⃣ VOCÊ: &quot;faz commit disso&quot;
+   ↓
+5️⃣ COPILOT: Faz o commit
+   ↓
+6️⃣ VOCÊ: &quot;dá push&quot;
+   ↓
+7️⃣ COPILOT: Faz o push
+   ↓
+8️⃣ VOCÊ: &quot;abre uma PR para homolog&quot;
+   ↓
+9️⃣ COPILOT: Abre PR para homolog (nunca production)
+   ↓
+🔟 VOCÊ: Revisa PR, aprova, faz merge no GitHub ou pede ao Copilot</code></pre>
+<hr />
+<h2 id="branches-seguras">🚫 Branches Seguras</h2>
+<h3 id="posso-trabalhar-livremente">✅ Posso trabalhar livremente</h3>
+<ul>
+<li><code>dev-login</code> ← Branch de trabalho atual</li>
+<li><code>feature/*</code> ← Feature branches</li>
+<li>Qualquer branch exceto <code>production</code></li>
+</ul>
+<h3 id="nunca-toco-sem-sua-aprovação">⛔ Nunca toco sem sua
+aprovação</h3>
+<ul>
+<li><code>production</code> ← Production (nunca!)</li>
+<li><code>main</code> ← Pode existir, precisa de autorização</li>
+<li><code>master</code> ← Pode existir, precisa de autorização</li>
+</ul>
+<hr />
+<h2 id="regras-de-pr">📝 Regras de PR</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Regra</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>PRs sempre para <code>homolog</code></td>
+<td>🟢 OBRIGATÓRIO</td>
+</tr>
+<tr class="even">
+<td>PRs nunca para <code>production</code></td>
+<td>🔴 PROIBIDO</td>
+</tr>
+<tr class="odd">
+<td>PR sem solicitação explícita</td>
+<td>🔴 PROIBIDO</td>
+</tr>
+<tr class="even">
+<td>Commit sem solicitação explícita</td>
+<td>🔴 PROIBIDO</td>
+</tr>
+<tr class="odd">
+<td>Push sem solicitação explícita</td>
+<td>🔴 PROIBIDO</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="exemplos-de-comunicação">💬 Exemplos de Comunicação</h2>
+<h3 id="correto">✅ Correto</h3>
+<pre><code>VOCÊ: &quot;implementa uma página de login&quot;
+COPILOT: [cria files, valida build] 
+         &quot;Pronto! Criei a página de Login com validação e notificações. 
+          Build passou com 587kb (gzip 129kb). Quando quiser, é só pedir 
+          para fazer commit.&quot;
+
+VOCÊ: &quot;faz commit&quot;
+COPILOT: [faz commit] &quot;✅ Commit realizado: &#39;feat: implementar página de login&#39;&quot;
+
+VOCÊ: &quot;dá push&quot;
+COPILOT: [faz push] &quot;✅ Push realizado para dev-login&quot;
+
+VOCÊ: &quot;abre um PR para homolog&quot;
+COPILOT: [abre PR] &quot;✅ PR #xyz criada para homolog&quot;</code></pre>
+<h3 id="errado">❌ Errado</h3>
+<pre><code>VOCÊ: &quot;implementa uma página de login&quot;
+COPILOT: [cria files, valida build, faz commit, faz push, abre PR, faz merge]
+         ❌ NÃO! Não faço nada disso sem você pedir!</code></pre>
+<hr />
+<h2 id="status-de-cada-mudança">📍 Status de Cada Mudança</h2>
+<p>Ao terminar uma implementação, informo:</p>
+<pre><code>✅ Implementação concluída:
+   - Arquivos criados/modificados: [lista]
+   - Build: ✅ Passou (587kb / 129kb gzip)
+   - Erros: ❌ Nenhum
+   - Próximo passo: Aguardando seu comando (commit/push/PR?)</code></pre>
+<hr />
+<h2 id="sincronização-com-remoto">🔄 Sincronização com Remoto</h2>
+<p>Se houver conflitos ou mudanças remotas: - ℹ️ Informo que há mudanças
+remotas - ❓ Pergunto se quer fazer <code>git pull</code> - ⏳ Aguardo
+sua autorização antes de fazer qualquer operação</p>
+<hr />
+<h2 id="resumo-rápido">📌 Resumo Rápido</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Ação</th>
+<th>Precisa pedir?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Implementar código</td>
+<td>❌ Não (faço automático)</td>
+</tr>
+<tr class="even">
+<td>Validar build</td>
+<td>❌ Não (faço automático)</td>
+</tr>
+<tr class="odd">
+<td>Fazer commit</td>
+<td>✅ SIM</td>
+</tr>
+<tr class="even">
+<td>Fazer push</td>
+<td>✅ SIM</td>
+</tr>
+<tr class="odd">
+<td>Abrir PR</td>
+<td>✅ SIM</td>
+</tr>
+<tr class="even">
+<td>Fazer merge</td>
+<td>✅ SIM</td>
+</tr>
+<tr class="odd">
+<td>Deletar branches</td>
+<td>✅ SIM</td>
+</tr>
+<tr class="even">
+<td>Mexer em production</td>
+<td>✅✅ SIM (DUPLO!)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="contato-de-mudanças">👥 Contato de Mudanças</h2>
+<p>Se você fizer mudanças no repositório (fora do Copilot): - Informo
+quando detectar - Proponho <code>git pull</code> se necessário - Aguardo
+sua autorização</p>
+<hr />
+<p><strong>Última atualização:</strong> 15 de Novembro de 2025<br />
+<strong>Versão:</strong> 1.0<br />
+<strong>Status:</strong> ✅ Ativo</p>
+</body>
+</html>

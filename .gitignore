@@ -1,4 +1,6 @@
 node_modules
+frontend/node_modules
+micro-services/node_modules
 coverage
 *.log*
 .nuxt
@@ -6,7 +8,11 @@ coverage
 .cache
 .output
 .env
+frontend/.env
+micro-services/.env
 dist
+frontend/dist
+micro-services/dist
 .DS_Store
 .idea
 .eslintcache

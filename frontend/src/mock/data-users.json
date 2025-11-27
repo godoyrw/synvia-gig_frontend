@@ -1,0 +1,54 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "username": "admin@synvia.com.br",
+            "password": "R0b19G0d81",
+            "displayName": "Roberto Godoy",
+            "clientId": 1,
+            "role": "admin",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+            "permissions": [
+                "*"
+            ]
+        },
+        {
+            "id": 2,
+            "username": "dev@synvia.com.br",
+            "password": "dev1234",
+            "displayName": "Desenvolvimento Synvia",
+            "clientId": 2,
+            "role": "analyst",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/ionibowcher.png",
+            "permissions": [
+                "synvia-gig:*",
+                "documentation:read"
+            ]
+        },
+        {
+            "id": 3,
+            "username": "analista@synvia.com.br",
+            "password": "analista",
+            "displayName": "Ana Paula",
+            "clientId": 1,
+            "role": "analyst",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png",
+            "permissions": [
+                "synvia-gig:read",
+                "synvia-gig:imports"
+            ]
+        },
+        {
+            "id": 4,
+            "username": "viewer@synvia.com.br",
+            "password": "viewer123",
+            "displayName": "Carlos Viewer",
+            "clientId": 1,
+            "role": "viewer",
+            "avatar": "https://primefaces.org/cdn/primevue/images/avatar/asiyajavayant.png",
+            "permissions": [
+                "synvia-gig:read"
+            ]
+        }
+    ]
+}

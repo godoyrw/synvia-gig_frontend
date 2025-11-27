@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>-</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<h1 id="synvia-gig---sistema-de-gerenciamento-de-sessão">📊 Synvia GIG -
+Sistema de Gerenciamento de Sessão</h1>
+<h2 id="relatório-técnico-completo">Relatório Técnico Completo</h2>
+<p><strong>Data:</strong> 14 de Novembro de 2025<br />
+<strong>Versão:</strong> 1.0<br />
+<strong>Status:</strong> Pronto para Homolog<br />
+<strong>Branch:</strong> <code>dev-login</code></p>
+<hr />
+<h2 id="sumário-executivo">📋 Sumário Executivo</h2>
+<p>Este relatório documenta a implementação completa de um sistema
+robusto de autenticação e gerenciamento de sessão para a aplicação
+Synvia GIG. O sistema inclui:</p>
+<ul>
+<li>✅ Autenticação com login/logout</li>
+<li>✅ Heartbeat para monitoramento de sessão</li>
+<li>✅ Rastreamento de atividade do usuário</li>
+<li>✅ Renovação automática de token por atividade</li>
+<li>✅ Logout automático por inatividade</li>
+<li>✅ Menu de usuário com logout</li>
+<li>✅ Constantes globais centralizadas</li>
+<li>✅ Logs completos para debugging</li>
+</ul>
+<hr />
+<h2 id="arquitetura-do-sistema">🏗️ Arquitetura do Sistema</h2>
+<h3 id="visão-geral">Visão Geral</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    App.vue (Raiz)                       │
+│              (Não inicia ActivityTracker)               │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                ┌──────┴──────┐
+                │             │
+         ┌──────▼───────┐  ┌──▼───────────────────┐
+         │  Login.vue   │  │  AppLayout.vue       │
+         │ (Sem AT)     │  │ (ActivityTracker ✓)  │
+         └──────────────┘  └──────────┬───────────┘
+                                      │
+                        ┌─────────────┴─────────────┐
+                        │                           │
+                  ┌─────▼──────┐            ┌──────▼──────┐
+                  │ AppTopbar   │            │ AppSidebar  │
+                  ├─ AppUserMenu│            ├─ AppMenu    │
+                  │  ├─ Logout  │            └─────────────┘
+                  │  ├─ Perfil  │
+                  │  └─ Config  │
+                  └─────────────┘</code></pre>
+<h3 id="stack-tecnológico">Stack Tecnológico</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Camada</th>
+<th>Tecnologia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Framework</td>
+<td>Vue 3 + Composition API</td>
+</tr>
+<tr class="even">
+<td>Roteamento</td>
+<td>Vue Router 4</td>
+</tr>
+<tr class="odd">
+<td>Estado Global</td>
+<td>Pinia 3.0+</td>
+</tr>
+<tr class="even">
+<td>UI Components</td>
+<td>PrimeVue 4.4+</td>
+</tr>
+<tr class="odd">
+<td>Styling</td>
+<td>Tailwind CSS 4.1+ + Sass</td>
+</tr>
+<tr class="even">
+<td>Tooling</td>
+<td>Vite 7.2+, ESLint 8.5+, Prettier 3.2+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fluxos-de-sessão">🔐 Fluxos de Sessão</h2>
+<h3 id="login-sessão-ativa">1. Login → Sessão Ativa</h3>
+<pre><code>┌─────────┐
+│ Login   │ (email + senha)
+└────┬────┘
+     │
+     ▼
+┌─────────────────────────┐
+│ Mock Service Auth       │
+│ (valida credenciais)    │
+└────┬────────────────────┘
+     │
+     ▼
+┌─────────────────────────┐
+│ auth.loginWithCreds()   │
+│ - Gera expiresAt        │
+│ - Salva token em SS     │
+│ - Inicia Heartbeat      │
+└────┬────────────────────┘
+     │
+     ▼
+┌─────────────────────────┐
+│ Router redirec para /   │
+│ AppLayout monta         │
+└────┬────────────────────┘
+     │
+     ▼
+┌─────────────────────────┐
+│ ActivityTracker inicia  │
+│ - Listeners attach      │
+│ - Token renovado        │
+│ - Timer inicia          │
+└─────────────────────────┘</code></pre>
+<p><strong>Logs esperados:</strong></p>
+<pre><code>[Auth] ✅ Login realizado: { usuario, role, duracao, expiresAt }
+[Heartbeat] ✅ Iniciado. Intervalo: 50 segundos
+[AppLayout] 🚀 Montado. Iniciando ActivityTracker...
+[ActivityTracker] 🎯 Rastreamento iniciado: { ... }</code></pre>
+<hr />
+<h3 id="com-atividade-do-usuário">2. Com Atividade do Usuário</h3>
+<pre><code>┌──────────────────────┐
+│ User Action          │
+│ (click/mousemove/...) │
+└────┬─────────────────┘
+     │
+     ▼
+┌──────────────────────────────┐
+│ Event Listener triggered     │
+│ resetInactivityTimer()       │
+└────┬─────────────────────────┘
+     │
+     ▼
+┌──────────────────────────────┐
+│ Token renewed                │
+│ expiresAt = now + 6min       │
+│ sessionStorage atualizado    │
+└────┬─────────────────────────┘
+     │
+     ▼
+┌──────────────────────────────┐
+│ Inactivity timer restart     │
+│ setTimeout(logout, 6min)     │
+└──────────────────────────────┘</code></pre>
+<p><strong>Logs esperados (a cada atividade):</strong></p>
+<pre><code>[ActivityTracker] ⏰ Atividade detectada: {
+  hora: 21:34:10,
+  novoExpira: 21:40:10,
+  extensaoSegundos: 360
+}</code></pre>
+<hr />
+<h3 id="sem-atividade-por-6-minutos">3. Sem Atividade por 6 Minutos</h3>
+<pre><code>┌─────────────────────────────┐
+│ Inactivity Timeout Triggers │
+│ (após 6 minutos)            │
+└────┬────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────┐
+│ auth.logout(true)           │
+│ - SessionStorage limpo      │
+│ - isLoggedOut = true        │
+│ - Heartbeat parado          │
+└────┬────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────┐
+│ Router redirect             │
+│ /auth/login?expired=true    │
+└────┬────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────┐
+│ Dialog exibe mensagem       │
+│ &quot;Sessão expirou&quot;            │
+└─────────────────────────────┘</code></pre>
+<p><strong>Logs esperados:</strong></p>
+<pre><code>[ActivityTracker] ❌ Inatividade por 360 segundos
+[Auth] ⏰ Expiração em 21:39:10
+[Heartbeat] ⏹️  Parado em 21:39:10
+[AppLayout] 👋 Desmontando. Parando ActivityTracker...
+[ActivityTracker] 🛑 Rastreamento parado em 21:39:10</code></pre>
+<hr />
+<h3 id="logout-manual">4. Logout Manual</h3>
+<pre><code>┌──────────────────────┐
+│ User clica &quot;Sair&quot;    │
+│ (Menu &gt; Sair)        │
+└────┬─────────────────┘
+     │
+     ▼
+┌──────────────────────────────┐
+│ AppUserMenu.handleLogout()   │
+│ auth.logout(false)           │
+└────┬─────────────────────────┘
+     │
+     ▼
+┌──────────────────────────────┐
+│ Session limpa                │
+│ isLoggedOut = true           │
+│ Heartbeat parado             │
+└────┬─────────────────────────┘
+     │
+     ▼
+┌──────────────────────────────┐
+│ Router redirect              │
+│ /auth/login                  │
+└──────────────────────────────┘</code></pre>
+<p><strong>Logs esperados:</strong></p>
+<pre><code>[Auth] 🚪 Logout Manual em 21:39:10
+[Heartbeat] ⏹️  Parado em 21:39:10</code></pre>
+<hr />
+<h2 id="estrutura-de-arquivos">📁 Estrutura de Arquivos</h2>
+<h3 id="criados">Criados</h3>
+<pre><code>src/
+├── config/
+│   └── constants.js                    # Constantes globais
+├── layout/
+│   └── AppUserMenu.vue                 # Menu de logout
+└── composables/
+    └── useActivityTracker.js           # Rastreamento de atividade</code></pre>
+<h3 id="modificados">Modificados</h3>
+<pre><code>src/
+├── stores/
+│   ├── auth.js                         # Login, Heartbeat, Renovação
+│   └── dialog.js                       # Diálogos reutilizáveis
+├── layout/
+│   ├── AppLayout.vue                   # ActivityTracker init
+│   ├── AppTopbar.vue                   # Menu de usuário
+│   └── composables/
+│       └── layout.js                   # (sem mudança)
+├── views/
+│   ├── pages/
+│   │   └── auth/
+│   │       └── Login.vue               # Dialog integration
+│   └── (outros views)
+├── App.vue                             # Simplificado (sem AT)
+└── main.js                             # Inicialização heartbeat</code></pre>
+<hr />
+<h2 id="configurações-globais">⚙️ Configurações Globais</h2>
+<p><strong>Arquivo:</strong> <code>src/config/constants.js</code></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"> * Constantes globais da aplicação</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Duração padrão da sessão em minutos</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> SESSION_DURATION_MINUTES <span class="op">=</span> <span class="dv">6</span><span class="op">;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">// Intervalo do heartbeat em ms</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> HEARTBEAT_INTERVAL_MS <span class="op">=</span> <span class="dv">50000</span><span class="op">;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Intervalo de check de expiração em ms</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> EXPIRATION_CHECK_INTERVAL_MS <span class="op">=</span> <span class="dv">5000</span><span class="op">;</span></span></code></pre></div>
+<h3 id="como-alterar">Como Alterar</h3>
+<p>Para mudar a duração da sessão para <strong>10 minutos</strong>:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> SESSION_DURATION_MINUTES <span class="op">=</span> <span class="dv">10</span><span class="op">;</span>  <span class="co">// ← Mude aqui</span></span></code></pre></div>
+<p>A mudança se propaga automaticamente para: -
+<code>loginWithCredentials(username, password, durationMinutes = SESSION_DURATION_MINUTES)</code>
+- <code>logout()</code> - reseta para este valor -
+<code>ActivityTracker</code> - inatividade timeout - Todas as renovações
+de token</p>
+<hr />
+<h2 id="sistema-de-logs">🔍 Sistema de Logs</h2>
+<h3 id="logs-implementados">Logs Implementados</h3>
+<h4 id="auth-store-srcstoresauth.js">Auth Store
+(<code>src/stores/auth.js</code>)</h4>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 36%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Log</th>
+<th>Trigger</th>
+<th>Informação</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[Auth] ✅ Login realizado</code></td>
+<td><code>loginWithCredentials()</code></td>
+<td>Usuario, role, duração, expiresAt</td>
+</tr>
+<tr class="even">
+<td><code>[Auth] 🚪 Logout Manual</code></td>
+<td><code>logout(false)</code></td>
+<td>Timestamp</td>
+</tr>
+<tr class="odd">
+<td><code>[Auth] ⏰ Expiração</code></td>
+<td><code>logout(true)</code></td>
+<td>Timestamp</td>
+</tr>
+<tr class="even">
+<td><code>[Auth] 🚫 Renovação bloqueada</code></td>
+<td><code>renewToken()</code></td>
+<td>Motivo</td>
+</tr>
+<tr class="odd">
+<td><code>[Auth] 🔄 Token renovado</code></td>
+<td><code>renewToken()</code></td>
+<td>Novo tempo de expiração</td>
+</tr>
+</tbody>
+</table>
+<h4 id="heartbeat-srcstoresauth.js">Heartbeat
+(<code>src/stores/auth.js</code>)</h4>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 36%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Log</th>
+<th>Trigger</th>
+<th>Informação</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[Heartbeat] ✅ Iniciado</code></td>
+<td><code>startHeartbeat()</code></td>
+<td>Intervalo em segundos</td>
+</tr>
+<tr class="even">
+<td><code>[Heartbeat] 💓 Check</code></td>
+<td>A cada intervalo</td>
+<td>Hora, segundos restantes</td>
+</tr>
+<tr class="odd">
+<td><code>[Heartbeat] ❌ Token expirado</code></td>
+<td>Timeout + expirado</td>
+<td>Triggers logout</td>
+</tr>
+<tr class="even">
+<td><code>[Heartbeat] ⏹️  Parado</code></td>
+<td><code>stopHeartbeat()</code></td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+<h4
+id="activitytracker-srccomposablesuseactivitytracker.js">ActivityTracker
+(<code>src/composables/useActivityTracker.js</code>)</h4>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 36%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Log</th>
+<th>Trigger</th>
+<th>Informação</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[ActivityTracker] 🎯 Rastreamento iniciado</code></td>
+<td><code>startTracking()</code></td>
+<td>Usuario, role, expira</td>
+</tr>
+<tr class="even">
+<td><code>[ActivityTracker] ⏰ Atividade detectada</code></td>
+<td>User event</td>
+<td>Hora, novo expira, extensão</td>
+</tr>
+<tr class="odd">
+<td><code>[ActivityTracker] ❌ Inatividade</code></td>
+<td>Timeout</td>
+<td>Segundos de inatividade</td>
+</tr>
+<tr class="even">
+<td><code>[ActivityTracker] 🛑 Rastreamento parado</code></td>
+<td><code>stopTracking()</code></td>
+<td>Timestamp</td>
+</tr>
+</tbody>
+</table>
+<h4 id="applayout-srclayoutapplayout.vue">AppLayout
+(<code>src/layout/AppLayout.vue</code>)</h4>
+<table>
+<thead>
+<tr class="header">
+<th>Log</th>
+<th>Trigger</th>
+<th>Informação</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[AppLayout] 🚀 Montado</code></td>
+<td><code>onMounted()</code></td>
+<td>Usuario, inatividade</td>
+</tr>
+<tr class="even">
+<td><code>[AppLayout] 👋 Desmontando</code></td>
+<td><code>onUnmounted()</code></td>
+<td>Parando AT</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="componentes-principais">🔑 Componentes Principais</h2>
+<h3 id="auth-store-srcstoresauth.js-1">1. Auth Store
+(<code>src/stores/auth.js</code>)</h3>
+<p><strong>Responsabilidades:</strong> - Gerenciar estado de
+autenticação - Armazenar token e dados do usuário - Controlar heartbeat
+- Renovar token - Fazer logout</p>
+<p><strong>Métodos:</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Login com credenciais</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="fu">loginWithCredentials</span>(username<span class="op">,</span> password<span class="op">,</span> durationMinutes <span class="op">=</span> SESSION_DURATION_MINUTES)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Logout (manual ou por expiração)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">logout</span>(expired <span class="op">=</span> <span class="kw">false</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Verificar expiração manual</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">checkExpiration</span>()</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Gerenciar heartbeat</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">startHeartbeat</span>(intervalMs <span class="op">=</span> HEARTBEAT_INTERVAL_MS)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="fu">stopHeartbeat</span>()</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">// Renovar token</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="fu">renewToken</span>()</span></code></pre></div>
+<p><strong>State:</strong></p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>token              <span class="co">// JWT token</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>user               <span class="co">// { displayName, role, ... }</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>expiresAt          <span class="co">// Timestamp de expiração</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>durationMinutes    <span class="co">// Duração da sessão</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>heartbeatInterval  <span class="co">// ID do setInterval</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>heartbeatEnabled   <span class="co">// Flag</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>isLoggedOut        <span class="co">// Previne renovação pós-logout</span></span></code></pre></div>
+<hr />
+<h3
+id="activitytracker-composable-srccomposablesuseactivitytracker.js">2.
+ActivityTracker Composable
+(<code>src/composables/useActivityTracker.js</code>)</h3>
+<p><strong>Responsabilidades:</strong> - Rastrear atividade do usuário -
+Renovar token quando há atividade - Fazer logout após inatividade</p>
+<p><strong>Events Rastreados:</strong> - <code>click</code> -
+<code>mousemove</code> - <code>keypress</code> - <code>scroll</code> -
+<code>touchstart</code></p>
+<p><strong>Métodos:</strong></p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Iniciar rastreamento</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">startTracking</span>(inactivityDurationMs <span class="op">=</span> <span class="dv">10</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">1000</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">// Parar rastreamento</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stopTracking</span>()</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Verificar se está rastreando</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">isTracking</span>()</span></code></pre></div>
+<hr />
+<h3 id="user-menu-srclayoutappusermenu.vue">3. User Menu
+(<code>src/layout/AppUserMenu.vue</code>)</h3>
+<p><strong>Responsabilidades:</strong> - Exibir ícone de usuário -
+Mostrar menu suspenso com opções - Fazer logout ao clicar “Sair”</p>
+<p><strong>Features:</strong> - Exibe nome e role do usuário - Botões
+para Perfil e Configurações - Botão Logout destacado em vermelho - Tema
+claro/escuro automático - Animações suaves</p>
+<hr />
+<h3 id="dialog-store-srcstoresdialog.js">4. Dialog Store
+(<code>src/stores/dialog.js</code>)</h3>
+<p><strong>Responsabilidades:</strong> - Gerenciar diálogos globais -
+Mostrar mensagens de erro/sucesso - Exibir notificações de sessão
+expirada</p>
+<p><strong>Métodos:</strong></p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">open</span>(payload <span class="op">=</span> <span class="kw">null</span>)      <span class="co">// Abre dialog</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">close</span>()                   <span class="co">// Fecha dialog</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">toggle</span>(payload <span class="op">=</span> <span class="kw">null</span>)    <span class="co">// Alterna estado</span></span></code></pre></div>
+<hr />
+<h2 id="fluxo-de-dados">📊 Fluxo de Dados</h2>
+<pre><code>┌─────────────────────────────────────────────┐
+│        sessionStorage (Persistência)        │
+├─────────────────────────────────────────────┤
+│ auth_token    │ auth_user                   │
+│ auth_expires  │ auth_duration               │
+└────────┬──────────────────────────┬─────────┘
+         │                          │
+         ▼                          ▼
+┌──────────────────────────────────────────┐
+│         Pinia Auth Store                  │
+├──────────────────────────────────────────┤
+│ state: {                                 │
+│   token, user, expiresAt, durationMins   │
+│   heartbeatInterval, isLoggedOut         │
+│ }                                        │
+└────┬──────────────────────┬──────────────┘
+     │                      │
+     ▼                      ▼
+┌───────────────────┐  ┌──────────────────┐
+│ Heartbeat Monitor │  │ ActivityTracker  │
+│ (50s intervals)   │  │ (User events)    │
+└────────┬──────────┘  └────────┬─────────┘
+         │                      │
+         ▼                      ▼
+    Token Expired?      Token Still Valid?
+         │                      │
+    YES  ▼ NO                   ▼ YES
+         │                    Renovar
+      LOGOUT              (expiresAt++)
+                              │
+                              ▼
+                        sessionStorage update</code></pre>
+<hr />
+<h2 id="teste-e-validação">🧪 Teste e Validação</h2>
+<h3 id="como-testar">Como Testar</h3>
+<h4 id="teste-1-login-básico">Teste 1: Login Básico</h4>
+<ol type="1">
+<li>Abra DevTools (F12 → Console)</li>
+<li>Navegue para <code>/auth/login</code></li>
+<li>Faça login com: <code>admin@synvia.com.br</code> /
+<code>R0b19G0d81</code></li>
+<li>Observe logs:
+<ul>
+<li><code>[Auth] ✅ Login realizado</code></li>
+<li><code>[Heartbeat] ✅ Iniciado</code></li>
+<li><code>[AppLayout] 🚀 Montado</code></li>
+<li><code>[ActivityTracker] 🎯 Rastreamento iniciado</code></li>
+</ul></li>
+</ol>
+<h4 id="teste-2-renovação-por-atividade">Teste 2: Renovação por
+Atividade</h4>
+<ol type="1">
+<li>Faça login</li>
+<li>Clique/mova mouse várias vezes</li>
+<li>Observe logs:
+<code>[ActivityTracker] ⏰ Atividade detectada</code></li>
+<li>Verifique que <code>novoExpira</code> muda a cada ação</li>
+</ol>
+<h4 id="teste-3-logout-por-inatividade">Teste 3: Logout por
+Inatividade</h4>
+<ol type="1">
+<li>Faça login</li>
+<li>Fique <strong>parado por 6 minutos</strong> sem interagir</li>
+<li>Observe logs:
+<ul>
+<li><code>[ActivityTracker] ❌ Inatividade</code></li>
+<li><code>[Auth] ⏰ Expiração</code></li>
+<li><code>[Heartbeat] ⏹️  Parado</code></li>
+</ul></li>
+<li>Será redirecionado para login com mensagem</li>
+</ol>
+<h4 id="teste-4-logout-manual">Teste 4: Logout Manual</h4>
+<ol type="1">
+<li>Faça login</li>
+<li>Clique no ícone de usuário → “Sair”</li>
+<li>Observe logs:
+<ul>
+<li><code>[Auth] 🚪 Logout Manual</code></li>
+<li><code>[Heartbeat] ⏹️  Parado</code></li>
+</ul></li>
+<li>Será redirecionado para login</li>
+</ol>
+<h4 id="teste-5-alterar-duração">Teste 5: Alterar Duração</h4>
+<ol type="1">
+<li>Altere em <code>src/config/constants.js</code>:
+<code>SESSION_DURATION_MINUTES = 1</code></li>
+<li>Faça login</li>
+<li>Observe que timeout agora é 1 minuto</li>
+<li>Verifique logs mostram <code>duracao: "1 minutos"</code></li>
+</ol>
+<hr />
+<h2 id="próximas-etapas">🚀 Próximas Etapas</h2>
+<h3 id="curto-prazo-antes-de-homolog">Curto Prazo (Antes de
+Homolog)</h3>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />
+Remover logs de debug (deixar só <code>console.error</code>)</li>
+<li><input type="checkbox" disabled="" />
+Fazer build de produção</li>
+<li><input type="checkbox" disabled="" />
+Testar em ambiente homolog</li>
+</ul>
+<h3 id="médio-prazo-próximos-sprints">Médio Prazo (Próximos
+Sprints)</h3>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />
+Integrar com API real (trocar mock login)</li>
+<li><input type="checkbox" disabled="" />
+Implementar Refresh Token mechanism</li>
+<li><input type="checkbox" disabled="" />
+Adicionar validação de roles/permissões</li>
+<li><input type="checkbox" disabled="" />
+Criar página de Perfil do usuário</li>
+<li><input type="checkbox" disabled="" />
+Criar página de Configurações</li>
+</ul>
+<h3 id="longo-prazo-roadmap-futuro">Longo Prazo (Roadmap Futuro)</h3>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />
+2FA / Autenticação multi-fator</li>
+<li><input type="checkbox" disabled="" />
+Notificações em tempo real</li>
+<li><input type="checkbox" disabled="" />
+Audit log de sessões</li>
+<li><input type="checkbox" disabled="" />
+Testes unitários completos</li>
+<li><input type="checkbox" disabled="" />
+Testes E2E (Cypress/Playwright)</li>
+</ul>
+<hr />
+<h2 id="referências-de-código">📚 Referências de Código</h2>
+<h3 id="login-com-credenciais">Login com Credenciais</h3>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/stores/auth.js</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="fu">loginWithCredentials</span>(username<span class="op">,</span> password<span class="op">,</span> durationMinutes <span class="op">=</span> SESSION_DURATION_MINUTES) {</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="fu">mockLogin</span>(username<span class="op">,</span> password)<span class="op">;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>result<span class="op">.</span><span class="at">ok</span>) <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Error</span>(result<span class="op">.</span><span class="at">message</span>)<span class="op">;</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> expiresAt <span class="op">=</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>() <span class="op">+</span> durationMinutes <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">token</span> <span class="op">=</span> result<span class="op">.</span><span class="at">token</span><span class="op">;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">user</span> <span class="op">=</span> result<span class="op">.</span><span class="at">user</span><span class="op">;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">expiresAt</span> <span class="op">=</span> expiresAt<span class="op">;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">durationMinutes</span> <span class="op">=</span> durationMinutes<span class="op">;</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="at">isLoggedOut</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;auth_token&#39;</span><span class="op">,</span> <span class="kw">this</span><span class="op">.</span><span class="at">token</span>)<span class="op">;</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;auth_user&#39;</span><span class="op">,</span> <span class="bu">JSON</span><span class="op">.</span><span class="fu">stringify</span>(<span class="kw">this</span><span class="op">.</span><span class="at">user</span>))<span class="op">;</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;auth_expires&#39;</span><span class="op">,</span> <span class="bu">String</span>(expiresAt))<span class="op">;</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;auth_duration&#39;</span><span class="op">,</span> <span class="bu">String</span>(durationMinutes))<span class="op">;</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span><span class="fu">startHeartbeat</span>()<span class="op">;</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="renovação-por-atividade">Renovação por Atividade</h3>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// src/composables/useActivityTracker.js</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (auth<span class="op">.</span><span class="at">isAuthenticated</span> <span class="op">&amp;&amp;</span> auth<span class="op">.</span><span class="at">expiresAt</span>) {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> now <span class="op">=</span> <span class="bu">Date</span><span class="op">.</span><span class="fu">now</span>()<span class="op">;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> newExpiresAt <span class="op">=</span> now <span class="op">+</span> auth<span class="op">.</span><span class="at">durationMinutes</span> <span class="op">*</span> <span class="dv">60</span> <span class="op">*</span> <span class="dv">1000</span><span class="op">;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    auth<span class="op">.</span><span class="at">expiresAt</span> <span class="op">=</span> newExpiresAt<span class="op">;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    sessionStorage<span class="op">.</span><span class="fu">setItem</span>(<span class="st">&#39;auth_expires&#39;</span><span class="op">,</span> <span class="bu">String</span>(newExpiresAt))<span class="op">;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h3 id="menu-de-logout">Menu de Logout</h3>
+<pre class="vue"><code>&lt;!-- src/layout/AppUserMenu.vue --&gt;
+&lt;button @click=&quot;handleLogout&quot; class=&quot;...&quot;&gt;
+    &lt;i class=&quot;pi pi-sign-out&quot;&gt;&lt;/i&gt;
+    &lt;span&gt;Sair&lt;/span&gt;
+&lt;/button&gt;</code></pre>
+<hr />
+<h2 id="suporte-e-manutenção">📞 Suporte e Manutenção</h2>
+<h3 id="alterar-duração-da-sessão">Alterar Duração da Sessão</h3>
+<p><strong>Arquivo:</strong> <code>src/config/constants.js</code></p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> SESSION_DURATION_MINUTES <span class="op">=</span> <span class="dv">10</span><span class="op">;</span>  <span class="co">// Altere para 10 minutos</span></span></code></pre></div>
+<h3 id="adicionar-novo-evento-de-atividade">Adicionar Novo Evento de
+Atividade</h3>
+<p><strong>Arquivo:</strong>
+<code>src/composables/useActivityTracker.js</code></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> events <span class="op">=</span> [<span class="st">&#39;click&#39;</span><span class="op">,</span> <span class="st">&#39;mousemove&#39;</span><span class="op">,</span> <span class="st">&#39;keypress&#39;</span><span class="op">,</span> <span class="st">&#39;scroll&#39;</span><span class="op">,</span> <span class="st">&#39;touchstart&#39;</span><span class="op">,</span> <span class="st">&#39;NOVO_EVENTO&#39;</span>]<span class="op">;</span></span></code></pre></div>
+<h3 id="mudar-intervalo-do-heartbeat">Mudar Intervalo do Heartbeat</h3>
+<p><strong>Arquivo:</strong> <code>src/config/constants.js</code></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> HEARTBEAT_INTERVAL_MS <span class="op">=</span> <span class="dv">30000</span><span class="op">;</span>  <span class="co">// 30 segundos ao invés de 50</span></span></code></pre></div>
+<hr />
+<h2 id="checklist-de-deployment">✅ Checklist de Deployment</h2>
+<ul class="task-list">
+<li><input type="checkbox" disabled="" />
+Remover todos os logs <code>console.log</code> (exceto
+<code>console.error</code>)</li>
+<li><input type="checkbox" disabled="" />
+Executar <code>npm run build</code></li>
+<li><input type="checkbox" disabled="" />
+Verificar bundle size</li>
+<li><input type="checkbox" disabled="" />
+Testar em staging</li>
+<li><input type="checkbox" disabled="" />
+Code review completo</li>
+<li><input type="checkbox" disabled="" />
+Testes manuais em homolog</li>
+<li><input type="checkbox" disabled="" />
+Deploy em produção</li>
+<li><input type="checkbox" disabled="" />
+Monitorar erros em produção</li>
+</ul>
+<hr />
+<h2 id="notas-técnicas">📝 Notas Técnicas</h2>
+<h3 id="sincronização-de-estado">Sincronização de Estado</h3>
+<p>O estado de autenticação é mantido sincronizado entre: 1.
+<strong>Pinia Store</strong> - Estado reativo em memória 2.
+<strong>sessionStorage</strong> - Persistência entre page refreshes 3.
+<strong>Router Guards</strong> - Proteção de rotas 4.
+<strong>Components</strong> - UI reflete estado</p>
+<h3 id="security-considerations">Security Considerations</h3>
+<ul>
+<li>✅ Token armazenado em sessionStorage (não localStorage)</li>
+<li>✅ Flag <code>isLoggedOut</code> previne renovação pós-logout</li>
+<li>✅ Heartbeat valida token a cada intervalo</li>
+<li>✅ ActivityTracker verifica autenticação antes de renovar</li>
+<li>⚠️ TODO: Implementar CSRF tokens</li>
+<li>⚠️ TODO: Usar HttpOnly cookies em produção</li>
+</ul>
+<h3 id="performance">Performance</h3>
+<ul>
+<li>Heartbeat: 50s interval (não sobrecarrega)</li>
+<li>ActivityTracker: Event listeners com <code>passive: true</code></li>
+<li>Token renovação: Apenas quando há atividade (não polling)</li>
+<li>Bundle impact: ~2KB (gzipped)</li>
+</ul>
+<hr />
+<h2 id="informações-do-projeto">📄 Informações do Projeto</h2>
+<p><strong>Projeto:</strong> Synvia GIG<br />
+<strong>Desenvolvido por:</strong> GitHub Copilot + [User]<br />
+<strong>Data:</strong> 14 de Novembro de 2025<br />
+<strong>Versão:</strong> 1.0<br />
+<strong>Status:</strong> Pronto para Homolog</p>
+<p><strong>Tecnologias:</strong> - Vue 3 + Composition API - Pinia 3.0+
+- Vue Router 4 - PrimeVue 4.4+ - Tailwind CSS 4.1+ - Vite 7.2+</p>
+<hr />
+<p><strong>Fim do Relatório</strong></p>
+<hr />
+<h2 id="referências-de-arquivos">🔗 Referências de Arquivos</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 25%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Arquivo</th>
+<th>Linha</th>
+<th>Descrição</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>src/config/constants.js</code></td>
+<td>-</td>
+<td>Constantes globais</td>
+</tr>
+<tr class="even">
+<td><code>src/stores/auth.js</code></td>
+<td>1-166</td>
+<td>Store de autenticação</td>
+</tr>
+<tr class="odd">
+<td><code>src/stores/dialog.js</code></td>
+<td>1-30</td>
+<td>Store de diálogos</td>
+</tr>
+<tr class="even">
+<td><code>src/composables/useActivityTracker.js</code></td>
+<td>1-96</td>
+<td>Rastreador de atividade</td>
+</tr>
+<tr class="odd">
+<td><code>src/layout/AppLayout.vue</code></td>
+<td>1-70</td>
+<td>Layout protegido</td>
+</tr>
+<tr class="even">
+<td><code>src/layout/AppUserMenu.vue</code></td>
+<td>1-80</td>
+<td>Menu de usuário</td>
+</tr>
+<tr class="odd">
+<td><code>src/layout/AppTopbar.vue</code></td>
+<td>1-50</td>
+<td>Topbar com menu</td>
+</tr>
+<tr class="even">
+<td><code>src/views/pages/auth/Login.vue</code></td>
+<td>1-100</td>
+<td>Página de login</td>
+</tr>
+<tr class="odd">
+<td><code>src/App.vue</code></td>
+<td>1-20</td>
+<td>Componente raiz</td>
+</tr>
+<tr class="even">
+<td><code>src/main.js</code></td>
+<td>1-80</td>
+<td>Bootstrap da app</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Documento gerado em:</strong> 14 de Novembro de 2025</p>
+</body>
+</html>
