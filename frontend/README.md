@@ -104,4 +104,4 @@ VITE_API_BASE_URL=http://localhost:3001
 - [Sistema de Sessões](src/assets/docs/synvia_session_management_report.html)
 - [Importação de Arquivos](src/assets/docs/import_files.html)
 - [Sistema de Logs](src/assets/docs/logs_implementados.html)
-- [Configuração de Deploy](../DEPLOYMENT_SETUP.md)
+- [Configuração de Deploy](src/assets/docs/DEPLOYMENT_SETUP.md)
