@@ -16,7 +16,7 @@ src/
 │   ├── router/             # Roteamento principal
 │   └── services/           # Serviços compartilhados
 ├── modules/                 # Módulos de negócio
-│   └── gig/                # Módulo GIG (upload/histórico)
+│   └── gig/                # Módulo GIG (Gestão Inteligente de Glosa)
 │       ├── router/         # Rotas do módulo
 │       ├── services/       # Serviços específicos
 │       ├── stores/         # Estado Pinia
