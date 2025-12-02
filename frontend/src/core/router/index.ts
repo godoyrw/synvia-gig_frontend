@@ -21,6 +21,12 @@ const generalRoutes: RouteRecordRaw[] = [
         meta: { permission: 'users:*' }
     },
     {
+        path: '/tenants',
+        name: 'tenants',
+        component: () => import('@/views/tenants/TenantsView.vue'),
+        meta: { permission: 'tenants:*' }
+    },
+    {
         path: '/settings',
         name: 'settings',
         component: () => import('@/views/pages/Settings.vue')
