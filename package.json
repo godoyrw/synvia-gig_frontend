@@ -1,17 +1,19 @@
 {
   "name": "synvia",
   "private": true,
-  "version": "1.0.0-Beta",
+  "version": "1.0.0",
   "scripts": {
     "dev:fe": "pnpm -C frontend dev",
     "dev:ms": "pnpm -C micro-services dev",
     "dev:all": "concurrently -n \"MS,FE\" -c \"cyan,magenta\" \"pnpm dev:ms\" \"pnpm dev:fe\"",
+
     "build:fe": "pnpm -C frontend build",
     "build:ms": "pnpm -C micro-services build",
     "build:all": "pnpm build:ms && pnpm build:fe",
+
     "lint:fe": "pnpm -C frontend lint"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.0.0"
   }
 }

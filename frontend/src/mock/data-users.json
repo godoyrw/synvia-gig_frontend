@@ -8,6 +8,10 @@
             "clientId": 1,
             "role": "admin",
             "avatar": "https://primefaces.org/cdn/primevue/images/avatar/onyamalimba.png",
+            "modules": [
+                "gig",
+                "documentation"
+            ],
             "permissions": [
                 "*"
             ]
@@ -20,8 +24,12 @@
             "clientId": 2,
             "role": "analyst",
             "avatar": "https://primefaces.org/cdn/primevue/images/avatar/ionibowcher.png",
+            "modules": [
+                "gig",
+                "documentation"
+            ],
             "permissions": [
-                "synvia-gig:*",
+                "gig:*",
                 "documentation:read"
             ]
         },
@@ -33,6 +41,9 @@
             "clientId": 1,
             "role": "analyst",
             "avatar": "https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png",
+            "modules": [
+                "gig"
+            ],
             "permissions": [
                 "synvia-gig:read",
                 "synvia-gig:imports"
