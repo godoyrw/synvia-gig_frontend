@@ -1,70 +1,38 @@
-# 📋 Configuração de Secrets para Deploy em Homolog
 
-## 🔧 Secrets Necessários no GitHub
+# 📋 Configuração de Deploy em Homolog
 
-Para que o deploy para EC2 funcione, você precisa configurar os seguintes secrets no repositório:
+## Como realizar o deploy manual para EC2
 
-### 1. **EC2_HML_HOST** 🌐
-- **O quê**: IP ou DNS do servidor EC2 de homolog
-- **Exemplo**: `ec2-52-123-456-789.us-east-1.compute.amazonaws.com` ou `192.168.1.100`
-- **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
-  - Clique em "New repository secret"
-  - Nome: `EC2_HML_HOST`
-  - Valor: Seu IP/DNS do EC2
 
-### 2. **EC2_HML_USER** 👤
-- **O quê**: Usuário SSH para acessar o EC2
-- **Exemplo**: `ubuntu` ou `ec2-user`
-- **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
-  - Nome: `EC2_HML_USER`
-  - Valor: Seu usuário SSH
+1. Certifique-se de ter acesso SSH ao servidor EC2 (IP/DNS, usuário e chave PEM).
 
-### 3. **EC2_HML_SSH_KEY** 🔑
-- **O quê**: Conteúdo da chave SSH privada (PEM format)
-- **Como obter**:
-  - Você deve ter um arquivo `.pem` da sua instância EC2
-  - Abra o arquivo em um editor de texto
-  - Copie TODO o conteúdo (incluindo `-----BEGIN PRIVATE KEY-----` e `-----END PRIVATE KEY-----`)
-- **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
-  - Nome: `EC2_HML_SSH_KEY`
-  - Valor: Cole todo o conteúdo da chave PEM
+2. Faça o build do projeto localmente:
 
-### 4. **EC2_HML_APP_PATH** 📁
-- **O quê**: Caminho no servidor EC2 onde a aplicação está instalada
-- **Exemplo**: `/var/www/gig` ou `/home/ubuntu/apps/gig`
-- **Como adicionar**: 
-  - Acesse: https://github.com/godoyrw/gig_frontend/settings/secrets/actions
-  - Nome: `EC2_HML_APP_PATH`
-  - Valor: Caminho da aplicação no EC2
+   ```bash
+   pnpm build
+   ```
 
-## ✅ Verificação
+3. Transfira os arquivos de build para o servidor EC2 usando `scp` ou similar:
 
-Após adicionar os secrets, você pode verificar se estão corretos testando:
+   ```bash
+   scp -i caminho/para/chave.pem -r dist/ usuario@host:/caminho/da/aplicacao
+   ```
 
-```bash
-# Localmente, teste a conexão SSH
-ssh -i caminho/para/chave.pem seu_usuario@seu_host "echo 'SSH funcionando!'"
-```
+4. Acesse o servidor via SSH:
 
-Se receber "SSH funcionando!" é sinal de que os credentials estão corretos.
+   ```bash
+   ssh -i caminho/para/chave.pem usuario@host
+   ```
 
-## 🚀 Deploy
+5. No servidor, reinicie o serviço da aplicação (exemplo com PM2 ou Docker, conforme sua stack).
 
-Após configurar todos os secrets, o próximo push para a branch `homolog` disparará o deploy automaticamente.
+## Troubleshooting
 
-## 🔍 Troubleshooting
+- Verifique se a chave SSH está válida e não expirou
+- Usuário SSH tem permissão para acessar o diretório de destino
+- Nginx (ou outro proxy) está instalado e rodando
+- Porta 22 (SSH) está aberta no security group do EC2
 
-Se o deploy ainda falhar, verifique:
-1. ✓ Chave SSH está válida e não expirou
-2. ✓ Usuário SSH tem permissão para acessar o diretório `EC2_HML_APP_PATH`
-3. ✓ Nginx está instalado e rodando no EC2
-4. ✓ Porta 22 (SSH) está aberta no security group do EC2
-5. ✓ IP da máquina GitHub Actions está liberado (se houver firewall)
+## Referências
 
-## 📝 Referências
-
-- [GitHub Actions Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
 - [AWS EC2 Key Pairs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html)
