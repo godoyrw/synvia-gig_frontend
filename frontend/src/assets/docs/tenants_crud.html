@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8" />
+        <title>CRUD de Clientes (Tenants)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="../styles.css" />
+    </head>
+    <body>
+        <main class="doc-container">
+            <header class="doc-header">
+                <h1>Gestão de Clientes (Tenants)</h1>
+                <p>Fluxo completo de cadastro, edição, ativação/desativação e exclusão dos clientes multitenant do SYNVIA-APP.</p>
+            </header>
+
+            <section>
+                <h2>Estrutura geral</h2>
+                <ul>
+                    <li>Listagem construída com o mesmo template de usuários (PrimeVue DataTable + Paginator externo).</li>
+                    <li>Paginação, filtros em overlay, busca global e ações seguem exatamente o mesmo comportamento.</li>
+                    <li>O layout utiliza o mesmo card, espaçamentos e classes utilitárias da tela de usuários.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Dataset mockado</h2>
+                <p>O mock reside em <code>src/mock/data-tenants.json</code> e contém a chave <code>tenants</code> com os campos:</p>
+                <pre><code>{
+  "id": number,
+  "name": string,
+  "tradeName": string,
+  "document": string,
+  "primaryEmail": string,
+  "primaryPhone": string,
+  "plan": "basic" | "pro" | "enterprise",
+  "logoUrl": string,
+  "modules": string[],
+  "notes": string,
+  "is_active": boolean,
+  "createdAt": ISODateString
+}</code></pre>
+                <p>O campo <code>is_active</code> é obrigatório e sempre booleano. Nenhum campo "status" é utilizado.</p>
+            </section>
+
+            <section>
+                <h2>is_active x active</h2>
+                <p>A interface trabalha com a propriedade <code>active</code> para facilitar a renderização dos badges. Ao persistir no mock é feita a normalização para <code>is_active</code>, mantendo os dois campos sincronizados.</p>
+            </section>
+
+            <section>
+                <h2>Serviço de dados</h2>
+                <p>
+                    Os métodos de leitura e escrita ficam em <code>src/services/tenantsService.js</code>. Assim como em usuários, ele faz o bridge entre mock e API real:
+                </p>
+                <ul>
+                    <li><strong>Mock:</strong> <code>src/services/tenantsService.mock.js</code> mantém os dados em memória com persistência via <code>localStorage</code>, suporta busca, filtros, ordenação e paginação.</li>
+                    <li><strong>API:</strong> <code>src/services/tenantsService.api.js</code> contém stubs que retornarão <code>Promise.reject</code> até que o backend esteja disponível.</li>
+                    <li>A flag <code>VITE_USE_MOCK_TENANTS</code> controla qual implementação será utilizada.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Campos do formulário</h2>
+                <p>Modal de criação/edição replica o layout dos usuários, trocando os campos por:</p>
+                <ul>
+                    <li><code>name</code> (obrigatório)</li>
+                    <li><code>tradeName</code></li>
+                    <li><code>document</code> (CNPJ)</li>
+                    <li><code>primaryEmail</code> (obrigatório)</li>
+                    <li><code>primaryPhone</code></li>
+                    <li><code>plan</code> (Dropdown: basic, pro, enterprise)</li>
+                    <li><code>modules</code> (MultiSelect)</li>
+                    <li><code>logoUrl</code> (obrigatório, com preview em tempo real)</li>
+                    <li><code>notes</code></li>
+                    <li><code>is_active</code> (toggle)</li>
+                </ul>
+                <p>As mesmas validações dos usuários são aplicadas: nome, e-mail, plano e logo são obrigatórios e exibem feedback inline quando ausentes.</p>
+            </section>
+
+            <section>
+                <h2>Troca entre mock e API</h2>
+                <p>
+                    Configure <code>VITE_USE_MOCK_TENANTS</code> no <code>.env</code> do frontend. Qualquer valor diferente de <code>'false'</code> mantém o mock ativo. Ao apontar para a API real, basta implementar os métodos em <code>tenantsService.api.js</code> reutilizando a mesma assinatura.
+                </p>
+            </section>
+
+            <section>
+                <h2>Fluxo CRUD (visão front + serviço)</h2>
+<pre aria-label="Diagrama Mermaid representando o fluxo CRUD" role="img"><code class="mermaid">
+flowchart LR
+    subgraph Frontend
+        UI["Tela Tenants (DataTable)"]
+        Dialog["Dialog Novo/Editar"]
+        ServiceJS["tenantsService.js"]
+    end
+
+    subgraph Mock
+        MockService["tenantsService.mock.js"]
+        LocalStorage[(localStorage)]
+    end
+
+    subgraph API
+        APIRoute["/tenants REST"]
+        Backend["Microservice"]
+    end
+
+    UI -->|listar/filtrar| ServiceJS
+    Dialog -->|criar/editar/excluir/ativar| ServiceJS
+    ServiceJS -->|VITE_USE_MOCK_TENANTS !== 'false'| MockService
+    MockService <--> LocalStorage
+    ServiceJS -->|VITE_USE_MOCK_TENANTS === 'false'| APIRoute
+    APIRoute --> Backend
+</code></pre>
+                <p>O serviço auxilia na troca de backend mockado para real, mantendo a tela isolada de detalhes de persistência.</p>
+            </section>
+
+            <section>
+                <h2>Fluxo API REST (detalhe)</h2>
+<pre aria-label="Diagrama Mermaid do fluxo REST" role="img"><code class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as Usuário
+    participant UI as /tenants (Vite)
+    participant Service as tenantsService.js
+    participant Backend as API REST
+
+    User->>UI: Interação (listar/criar/editar/excluir/toggle)
+    UI->>Service: Chamada listTenants(params)
+    alt Mock habilitado
+        Service->>Service: Delegação para tenantsService.mock
+        Service-->>UI: Dados com paginação (Promise)
+    else API real
+        Service->>Backend: GET /tenants?page=...&rows=...
+        Backend-->>Service: 200 + payload
+        Service-->>UI: Dados processados
+    end
+
+    User->>UI: Salvar edição
+    UI->>Service: updateTenant(id, payload)
+    alt Mock habilitado
+        Service->>Service: Atualiza coleção local
+        Service-->>UI: Tenant atualizado
+    else API real
+        Service->>Backend: PUT /tenants/:id
+        Backend-->>Service: 200 + tenant
+        Service-->>UI: Tenant atualizado
+    end
+
+    Note over Backend: Demais ações seguem roteamento REST:
+    Note over Backend: POST /tenants, DELETE /tenants/:id,
+    Note over Backend: PATCH /tenants/:id/status
+</code></pre>
+            </section>
+
+            <footer class="doc-footer">
+                <p>Atualizado em 02/12/2025.</p>
+            </footer>
+        </main>
+    </body>
+</html>
