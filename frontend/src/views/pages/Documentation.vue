@@ -6,6 +6,7 @@ import logsContent from '@/assets/docs/logs_microservices.html?raw';
 import toastContent from '@/assets/docs/toast_service.html?raw';
 import dashboardContent from '@/assets/docs/syngig_dashboard.html?raw';
 import sessionContent from '@/assets/docs/synvia_session_management_report.html?raw';
+import usersCrudContent from '@/assets/docs/users_crud.html?raw';
 import { computed, ref } from 'vue';
 
 const DOCS = [
@@ -15,7 +16,8 @@ const DOCS = [
     { id: 'imports', name: 'Importações', icon: '📤', content: importFilesContent },
     { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent },
     { id: 'toast', name: 'Toasts', icon: '🔔', content: toastContent },
-    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent }
+    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
+    { id: 'users', name: 'Usuários', icon: '👥', content: usersCrudContent }
 ];
 
 const currentDoc = ref(DOCS[0].id);
