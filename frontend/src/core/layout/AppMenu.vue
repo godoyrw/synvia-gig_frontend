@@ -29,6 +29,11 @@ const model = ref([
                         to: '/gig/history'
                     }
                 ]
+            },
+            {
+                label: 'USUÁRIOS',
+                icon: 'pi pi-fw pi-users',
+                to: '/users'
             }
         ]
     },

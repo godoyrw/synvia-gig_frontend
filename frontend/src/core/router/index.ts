@@ -15,6 +15,12 @@ const generalRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/pages/Profile.vue')
     },
     {
+        path: '/users',
+        name: 'users',
+        component: () => import('@/views/users/UsersView.vue'),
+        meta: { permission: 'users:*' }
+    },
+    {
         path: '/settings',
         name: 'settings',
         component: () => import('@/views/pages/Settings.vue')
