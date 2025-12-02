@@ -10,9 +10,51 @@
       "plan": "enterprise",
       "logoUrl": "https://cdn.synvia.com/logos/kora-saude.png",
       "modules": ["gig", "documentation"],
-      "notes": "Cliente estratégico para módulo GIG.",
+      "notes": "Cliente estratégico para o módulo GIG.",
       "is_active": true,
       "createdAt": "2025-11-01T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Synvia Demo",
+      "tradeName": "Synvia Labs",
+      "document": "98.765.432/0001-00",
+      "primaryEmail": "labs@synvia.com",
+      "primaryPhone": "+55 (21) 98888-1010",
+      "plan": "pro",
+      "logoUrl": "https://cdn.synvia.com/logos/synvia-labs.png",
+      "modules": ["gig"],
+      "notes": "Conta piloto utilizada em demonstrações comerciais.",
+      "is_active": true,
+      "createdAt": "2025-09-15T14:30:00Z"
+    },
+    {
+      "id": 3,
+      "name": "BioSoluções",
+      "tradeName": "Bio Soluções Hospitalares",
+      "document": "45.678.912/0001-55",
+      "primaryEmail": "faleconosco@biosolucoes.com.br",
+      "primaryPhone": "+55 (31) 97777-2020",
+      "plan": "basic",
+      "logoUrl": "https://cdn.synvia.com/logos/biosolucoes.png",
+      "modules": ["documentation"],
+      "notes": "Iniciou em plano básico para validar integração.",
+      "is_active": false,
+      "createdAt": "2025-08-03T09:15:00Z"
+    },
+    {
+      "id": 4,
+      "name": "InovaCardio",
+      "tradeName": "InovaCardio Clínicas",
+      "document": "11.222.333/0001-44",
+      "primaryEmail": "parcerias@inovacardio.com",
+      "primaryPhone": "+55 (41) 96666-3030",
+      "plan": "enterprise",
+      "logoUrl": "https://cdn.synvia.com/logos/inovacardio.png",
+      "modules": ["gig", "documentation"],
+      "notes": "Migração recente e onboarding em andamento.",
+      "is_active": true,
+      "createdAt": "2025-10-21T16:45:00Z"
     }
   ]
 }
