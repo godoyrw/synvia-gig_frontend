@@ -57,7 +57,6 @@ watch(
     }
 );
 
-
 const containerClass = computed(() => {
     return {
         'layout-overlay': layoutConfig.menuMode === 'overlay',
