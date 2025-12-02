@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>-</title>
+  <title>Guia de Deploy - Synvia</title>
   <style>
     html {
       line-height: 1.5;
@@ -219,99 +219,458 @@
   </style>
 </head>
 <body>
-<h1 id="configuração-de-secrets-para-deploy-em-homolog">📋 Configuração
-de Secrets para Deploy em Homolog</h1>
-<h2 id="secrets-necessários-no-github">🔧 Secrets Necessários no
-GitHub</h2>
-<p>Para que o deploy para EC2 funcione, você precisa configurar os
-seguintes secrets no repositório:</p>
-<h3 id="ec2_hml_host">1. <strong>EC2_HML_HOST</strong> 🌐</h3>
+<h1 id="guia-de-deploy-synvia">🚀 Guia de Deploy – Synvia App &amp; Microservices</h1>
+
+<h2 id="visao-geral">🌐 Visão Geral da Arquitetura de Deploy</h2>
+<p>Este documento descreve o fluxo completo de deploy do ecossistema Synvia em uma única EC2, com Nginx, Certbot (Let’s Encrypt) e Node/PM2.</p>
+
 <ul>
-<li><strong>O quê</strong>: IP ou DNS do servidor EC2 de homolog</li>
-<li><strong>Exemplo</strong>:
-<code>ec2-52-123-456-789.us-east-1.compute.amazonaws.com</code> ou
-<code>192.168.1.100</code></li>
-<li><strong>Como adicionar</strong>:
-<ul>
-<li>Acesse:
-https://github.com/godoyrw/gig_frontend/settings/secrets/actions</li>
-<li>Clique em “New repository secret”</li>
-<li>Nome: <code>EC2_HML_HOST</code></li>
-<li>Valor: Seu IP/DNS do EC2</li>
-</ul></li>
+  <li><strong>Servidor</strong>: EC2 Ubuntu com Nginx + Certbot + Node.js + pnpm + PM2</li>
+  <li><strong>Front-end SPA (Vue + Vite)</strong>:
+    <ul>
+      <li><code>homolog.synviabrasil.com</code> → diretório: <code>/var/www/synvia/app-homolog</code></li>
+      <li><code>app.synviabrasil.com</code> → diretório: <code>/var/www/synvia/app</code></li>
+    </ul>
+  </li>
+  <li><strong>Microservices (Node + Express + S3)</strong>:
+    <ul>
+      <li><code>microservices-homolog.synviabrasil.com</code> → PM2 + porta <code>3001</code></li>
+      <li><code>microservices.synviabrasil.com</code> → PM2 + porta <code>3001</code> (produção)</li>
+    </ul>
+  </li>
+  <li><strong>Certificado SSL</strong>: wildcard
+    <code>synviabrasil.com</code> / <code>*.synviabrasil.com</code>
+    emitido via DNS Cloudflare + Certbot.
+  </li>
 </ul>
-<h3 id="ec2_hml_user">2. <strong>EC2_HML_USER</strong> 👤</h3>
+
+<hr />
+
+<h2 id="estrutura-local">📁 Estrutura Local do Projeto</h2>
+
+<p>Monorepo front-end:</p>
+
 <ul>
-<li><strong>O quê</strong>: Usuário SSH para acessar o EC2</li>
-<li><strong>Exemplo</strong>: <code>ubuntu</code> ou
-<code>ec2-user</code></li>
-<li><strong>Como adicionar</strong>:
-<ul>
-<li>Acesse:
-https://github.com/godoyrw/gig_frontend/settings/secrets/actions</li>
-<li>Nome: <code>EC2_HML_USER</code></li>
-<li>Valor: Seu usuário SSH</li>
-</ul></li>
+  <li><code>frontend/</code> → SPA Vue (Synvia App)</li>
+  <li><code>micro-services/</code> → API Node (upload CSV → S3)</li>
+  <li><code>package.json</code> raiz com scripts de orquestração:</li>
 </ul>
-<h3 id="ec2_hml_ssh_key">3. <strong>EC2_HML_SSH_KEY</strong> 🔑</h3>
+
+<div class="sourceCode"><pre class="sourceCode json"><code>{
+  "name": "synvia",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:fe": "pnpm -C frontend dev",
+    "dev:ms": "pnpm -C micro-services dev",
+    "dev:all": "concurrently -n \"MS,FE\" -c \"cyan,magenta\" \"pnpm dev:ms\" \"pnpm dev:fe\"",
+
+    "build:fe": "pnpm -C frontend build",
+    "build:ms": "pnpm -C micro-services build",
+    "build:all": "pnpm build:ms && pnpm build:fe",
+
+    "lint:fe": "pnpm -C frontend lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}</code></pre></div>
+
+<hr />
+
+<h2 id="frontend-envs">⚙️ Configuração de .env – Front-end</h2>
+
+<p>O front-end usa <code>import.meta.env.VITE_API_BASE_URL</code> para apontar para a API de microservices.</p>
+
+<h3 id="env-development">1. <code>.env.development</code> (local)</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>APP_ENV=local
+VITE_API_BASE_URL=http://localhost:3001</code></pre></div>
+
+<h3 id="env-homolog">2. <code>.env.homolog</code> (homologação)</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>APP_ENV=homolog
+VITE_API_BASE_URL=https://microservices-homolog.synviabrasil.com</code></pre></div>
+
+<h3 id="env-production">3. <code>.env.production</code> (produção)</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>APP_ENV=production
+VITE_API_BASE_URL=https://microservices.synviabrasil.com</code></pre></div>
+
+<p>No código Axios:</p>
+
+<div class="sourceCode"><pre class="sourceCode ts"><code>const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001',
+  withCredentials: false,
+});</code></pre></div>
+
+<hr />
+
+<h2 id="micro-envs">🧩 Configuração de .env – Microservices</h2>
+
+<p>Cada ambiente tem seu próprio <code>.env</code> na EC2, não versionado no Git.</p>
+
+<h3 id="env-micro-homolog">1. Microservices – Homolog</h3>
+
+<p>Arquivo na EC2: <code>/var/www/synvia/microservices-homolog/.env</code></p>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>APP_ENV=homolog
+NODE_ENV=production
+PORT=3001
+
+AWS_ACCESS_KEY_ID=YOUR_HOMOLOG_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY=YOUR_HOMOLOG_SECRET_KEY
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=synvia
+
+# opcional, se houver controle de CORS:
+# CORS_ALLOWED_ORIGIN=https://homolog.synviabrasil.com</code></pre></div>
+
+<h3 id="env-micro-prod">2. Microservices – Produção</h3>
+
+<p>Arquivo na EC2: <code>/var/www/synvia/microservices/.env</code></p>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>APP_ENV=production
+NODE_ENV=production
+PORT=3001
+
+AWS_ACCESS_KEY_ID=YOUR_PROD_ACCESS_KEY
+AWS_SECRET_ACCESS_KEY=YOUR_PROD_SECRET_KEY
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=synvia
+
+# opcional:
+# CORS_ALLOWED_ORIGIN=https://app.synviabrasil.com</code></pre></div>
+
+<p><strong>Importante</strong>: as chaves acima são placeholders. Em produção, use IAM Role ou credenciais com permissão mínima necessária no S3.</p>
+
+<hr />
+
+<h2 id="deploy-frontend">🚀 Deploy Front-end (Vue) – Script Local</h2>
+
+<p>Script: <code>frontend/deploy-app.sh</code></p>
+<p>Função: build local + envio via SSH para a EC2, com suporte a <code>-h</code> (homolog) e <code>-p</code> (production).</p>
+
+<h3 id="deploy-frontend-uso">1. Uso</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code># Homolog
+./frontend/deploy-app.sh -h
+
+# Produção
+./frontend/deploy-app.sh -p</code></pre></div>
+
+<h3 id="deploy-frontend-comportamento">2. Comportamento</h3>
+
 <ul>
-<li><strong>O quê</strong>: Conteúdo da chave SSH privada (PEM
-format)</li>
-<li><strong>Como obter</strong>:
-<ul>
-<li>Você deve ter um arquivo <code>.pem</code> da sua instância EC2</li>
-<li>Abra o arquivo em um editor de texto</li>
-<li>Copie TODO o conteúdo (incluindo
-<code>-----BEGIN PRIVATE KEY-----</code> e
-<code>-----END PRIVATE KEY-----</code>)</li>
-</ul></li>
-<li><strong>Como adicionar</strong>:
-<ul>
-<li>Acesse:
-https://github.com/godoyrw/gig_frontend/settings/secrets/actions</li>
-<li>Nome: <code>EC2_HML_SSH_KEY</code></li>
-<li>Valor: Cole todo o conteúdo da chave PEM</li>
-</ul></li>
+  <li>Seleciona o ambiente (homolog ou production).</li>
+  <li>Define o diretório remoto:
+    <ul>
+      <li>Homolog: <code>/var/www/synvia/app-homolog</code></li>
+      <li>Prod: <code>/var/www/synvia/app</code></li>
+    </ul>
+  </li>
+  <li>Roda:
+    <ul>
+      <li><code>pnpm install --frozen-lockfile</code></li>
+      <li><code>pnpm build</code> dentro de <code>frontend/</code></li>
+    </ul>
+  </li>
+  <li>Cria um tar.gz do <code>dist/</code>, envia via SCP e extrai no diretório remoto.</li>
+  <li>Ajusta permissões para <code>www-data</code> e recarrega o Nginx.</li>
 </ul>
-<h3 id="ec2_hml_app_path">4. <strong>EC2_HML_APP_PATH</strong> 📁</h3>
+
+<hr />
+
+<h2 id="deploy-microservices">🧪 Deploy Microservices – Script Local</h2>
+
+<p>Script: <code>micro-services/deploy-microservices.sh</code></p>
+<p>Função: rsync do código TypeScript para a EC2 + build + PM2 restart/start.</p>
+
+<h3 id="deploy-microservices-uso">1. Uso</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code># Dentro da raiz do projeto ou em qualquer lugar:
+./micro-services/deploy-microservices.sh -h   # homolog
+./micro-services/deploy-microservices.sh -p   # produção</code></pre></div>
+
+<h3 id="deploy-microservices-script">2. Comportamento do script</h3>
+
 <ul>
-<li><strong>O quê</strong>: Caminho no servidor EC2 onde a aplicação
-está instalada</li>
-<li><strong>Exemplo</strong>: <code>/var/www/gig</code> ou
-<code>/home/ubuntu/apps/gig</code></li>
-<li><strong>Como adicionar</strong>:
-<ul>
-<li>Acesse:
-https://github.com/godoyrw/gig_frontend/settings/secrets/actions</li>
-<li>Nome: <code>EC2_HML_APP_PATH</code></li>
-<li>Valor: Caminho da aplicação no EC2</li>
-</ul></li>
+  <li>Descobre a pasta do próprio script:
+    <div class="sourceCode"><pre class="sourceCode bash"><code>SCRIPT_DIR="$(cd &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)&quot; && pwd)"
+LOCAL_SRC_DIR=&quot;${SCRIPT_DIR}&quot;</code></pre></div>
+  </li>
+  <li>Garante envio apenas de <code>micro-services/</code>, nunca do <code>frontend/</code>.</li>
+  <li>Por ambiente:
+    <ul>
+      <li>Homolog:
+        <ul>
+          <li><code>REMOTE_BASE_DIR=/var/www/synvia/microservices-homolog</code></li>
+          <li><code>PM2_NAME=synvia-micro-homolog</code></li>
+        </ul>
+      </li>
+      <li>Produção:
+        <ul>
+          <li><code>REMOTE_BASE_DIR=/var/www/synvia/microservices</code></li>
+          <li><code>PM2_NAME=synvia-micro-prod</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Prepara diretório remoto:
+    <div class="sourceCode"><pre class="sourceCode bash"><code>sudo mkdir -p &quot;${REMOTE_BASE_DIR}&quot;
+sudo chown -R ubuntu:ubuntu &quot;${REMOTE_BASE_DIR}&quot;</code></pre></div>
+  </li>
+  <li>Roda <code>rsync</code> com exclusões (.git, node_modules, logs, dist, .env etc).</li>
+  <li>No servidor:
+    <ul>
+      <li><code>pnpm install --no-frozen-lockfile</code></li>
+      <li><code>pnpm build</code> (compila TS → dist/server.js)</li>
+      <li>Se o PM2 já existir, reinicia; senão, cria:
+        <div class="sourceCode"><pre class="sourceCode bash"><code>pm2 start dist/server.js --name &quot;${PM2_NAME}&quot; --time
+pm2 save</code></pre></div>
+      </li>
+    </ul>
+  </li>
 </ul>
-<h2 id="verificação">✅ Verificação</h2>
-<p>Após adicionar os secrets, você pode verificar se estão corretos
-testando:</p>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Localmente, teste a conexão SSH</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-i</span> caminho/para/chave.pem seu_usuario@seu_host <span class="st">&quot;echo &#39;SSH funcionando!&#39;&quot;</span></span></code></pre></div>
-<p>Se receber “SSH funcionando!” é sinal de que os credentials estão
-corretos.</p>
-<h2 id="deploy">🚀 Deploy</h2>
-<p>Após configurar todos os secrets, o próximo push para a branch
-<code>homolog</code> disparará o deploy automaticamente.</p>
+
+<hr />
+
+<h2 id="nginx">🧱 Configuração Nginx – Subdomínios</h2>
+
+<h3 id="nginx-front-homolog">1. <code>homolog.synviabrasil.com</code> (Front Homolog)</h3>
+
+<p>Serve a SPA do diretório <code>/var/www/synvia/app-homolog</code>:</p>
+
+<div class="sourceCode"><pre class="sourceCode nginx"><code>server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name homolog.synviabrasil.com;
+
+    root /var/www/synvia/app-homolog;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    ssl_certificate     /etc/letsencrypt/live/synviabrasil.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/synviabrasil.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}</code></pre></div>
+
+<h3 id="nginx-front-prod">2. <code>app.synviabrasil.com</code> (Front Produção)</h3>
+
+<p>Serve a SPA do diretório <code>/var/www/synvia/app</code>:</p>
+
+<div class="sourceCode"><pre class="sourceCode nginx"><code>server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name app.synviabrasil.com;
+
+    root /var/www/synvia/app;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    ssl_certificate     /etc/letsencrypt/live/synviabrasil.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/synviabrasil.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}</code></pre></div>
+
+<h3 id="nginx-micro-homolog">3. <code>microservices-homolog.synviabrasil.com</code></h3>
+
+<p>Reverse proxy para o microservice em <code>127.0.0.1:3001</code>:</p>
+
+<div class="sourceCode"><pre class="sourceCode nginx"><code>server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name microservices-homolog.synviabrasil.com;
+
+    location / {
+        proxy_pass         http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # Uploads CSV grandes
+        client_max_body_size 30m;
+    }
+
+    ssl_certificate     /etc/letsencrypt/live/synviabrasil.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/synviabrasil.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}</code></pre></div>
+
+<h3 id="nginx-micro-prod">4. <code>microservices.synviabrasil.com</code></h3>
+
+<p>Mesmo padrão do homolog, apontando para o mesmo microservice (porta 3001) em produção:</p>
+
+<div class="sourceCode"><pre class="sourceCode nginx"><code>server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    server_name microservices.synviabrasil.com;
+
+    location / {
+        proxy_pass         http://127.0.0.1:3001;
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        client_max_body_size 30m;
+    }
+
+    ssl_certificate     /etc/letsencrypt/live/synviabrasil.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/synviabrasil.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}</code></pre></div>
+
+<p>Após qualquer alteração no Nginx:</p>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>sudo nginx -t
+sudo systemctl reload nginx</code></pre></div>
+
+<hr />
+
+<h2 id="certbot">🔐 Certificado SSL – Wildcard Let's Encrypt + Cloudflare</h2>
+
+<p>Foi gerado um certificado wildcard para <code>synviabrasil.com</code> e <code>*.synviabrasil.com</code> usando plugin DNS do Cloudflare.</p>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>sudo certbot certonly \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini \
+  -d synviabrasil.com \
+  -d '*.synviabrasil.com' \
+  --agree-tos \
+  --no-eff-email \
+  -m seu-email@dominio.com</code></pre></div>
+
+<p>Certificado em uso no Nginx:</p>
+
+<ul>
+  <li><code>/etc/letsencrypt/live/synviabrasil.com/fullchain.pem</code></li>
+  <li><code>/etc/letsencrypt/live/synviabrasil.com/privkey.pem</code></li>
+</ul>
+
+<p>Para listar certificados:</p>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>sudo certbot certificates</code></pre></div>
+
+<hr />
+
+<h2 id="testes">🧪 Testes Rápidos Após Deploy</h2>
+
+<h3 id="testes-backend">1. Backend (na EC2)</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code># Ver processos PM2
+pm2 list
+
+# Ver se a porta 3001 está escutando
+ss -tulpn | grep 3001
+
+# Testar health local
+curl -v http://127.0.0.1:3001/health</code></pre></div>
+
+<h3 id="testes-backend-externo">2. Backend (externo)</h3>
+
+<div class="sourceCode"><pre class="sourceCode bash"><code>curl -v https://microservices-homolog.synviabrasil.com/health
+curl -v https://microservices.synviabrasil.com/health</code></pre></div>
+
+<h3 id="testes-frontend">3. Front-end</h3>
+
+<ul>
+  <li>Acessar:
+    <ul>
+      <li><a href="https://homolog.synviabrasil.com">https://homolog.synviabrasil.com</a></li>
+      <li><a href="https://app.synviabrasil.com">https://app.synviabrasil.com</a></li>
+    </ul>
+  </li>
+  <li>No DevTools do navegador, verificar:
+    <ul>
+      <li>Chamadas para
+        <code>https://microservices-homolog.synviabrasil.com/...</code> em homolog.</li>
+      <li>Chamadas para
+        <code>https://microservices.synviabrasil.com/...</code> em produção.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
 <h2 id="troubleshooting">🔍 Troubleshooting</h2>
-<p>Se o deploy ainda falhar, verifique: 1. ✓ Chave SSH está válida e não
-expirou 2. ✓ Usuário SSH tem permissão para acessar o diretório
-<code>EC2_HML_APP_PATH</code> 3. ✓ Nginx está instalado e rodando no EC2
-4. ✓ Porta 22 (SSH) está aberta no security group do EC2 5. ✓ IP da
-máquina GitHub Actions está liberado (se houver firewall)</p>
-<h2 id="referências">📝 Referências</h2>
+
+<ol>
+  <li><strong>Front não sobe</strong>
+    <ul>
+      <li>Verificar se o build foi gerado:
+        <code>frontend/dist/</code></li>
+      <li>Verificar permissões em:
+        <code>/var/www/synvia/app*</code> (usuário <code>www-data</code>).</li>
+      <li>Ver logs do Nginx em
+        <code>/var/log/nginx/error.log</code>.</li>
+    </ul>
+  </li>
+  <li><strong>Microservices não responde</strong>
+    <ul>
+      <li>Verificar <code>pm2 list</code> (status deve ser
+        <code>online</code>).</li>
+      <li>Testar health local:
+        <code>curl http://127.0.0.1:3001/health</code>.</li>
+      <li>Se local ok mas HTTPS não, revisar proxy_pass no Nginx.</li>
+    </ul>
+  </li>
+  <li><strong>Erro de CORS</strong>
+    <ul>
+      <li>Conferir
+        <code>CORS_ALLOWED_ORIGIN</code> no
+        <code>.env</code> do microservice.</li>
+      <li>Conferir configuração do middleware
+        <code>cors()</code> no Node.</li>
+    </ul>
+  </li>
+  <li><strong>Erro com Certbot/SSL</strong>
+    <ul>
+      <li>Checar:
+        <code>sudo certbot certificates</code></li>
+      <li>Checar se os paths em
+        <code>ssl_certificate</code> e
+        <code>ssl_certificate_key</code> batem com o wildcard atual.</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<h2 id="resumo">✅ Resumo</h2>
+
 <ul>
-<li><a
-href="https://docs.github.com/en/actions/security-guides/encrypted-secrets">GitHub
-Actions Secrets</a></li>
-<li><a
-href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">AWS
-EC2 Key Pairs</a></li>
+  <li>Deploys são <strong>100% feitos por script local</strong>:
+    <ul>
+      <li><code>deploy-app.sh -h|-p</code> para o front</li>
+      <li><code>deploy-microservices.sh -h|-p</code> para os microservices</li>
+    </ul>
+  </li>
+  <li>Ambientes isolados via:
+    <ul>
+      <li>Subdomínios (<code>homolog</code> / <code>app</code> / <code>microservices</code>…)</li>
+      <li>.env separados (front e micro)</li>
+    </ul>
+  </li>
+  <li>Backend Node gerenciado por PM2 e exposto via Nginx Reverse Proxy com certificado wildcard.</li>
 </ul>
+
 </body>
 </html>
