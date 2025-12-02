@@ -14,7 +14,8 @@
             ],
             "permissions": [
                 "*"
-            ]
+            ],
+            "is_active": true
         },
         {
             "id": 2,
@@ -31,14 +32,15 @@
             "permissions": [
                 "gig:*",
                 "documentation:read"
-            ]
+            ],
+            "is_active": true
         },
         {
             "id": 3,
             "username": "analista@synvia.com.br",
             "password": "analista",
             "displayName": "Ana Paula",
-            "clientId": 1,
+            "clientId": 3,
             "role": "analyst",
             "avatar": "https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png",
             "modules": [
@@ -47,7 +49,8 @@
             "permissions": [
                 "synvia-gig:read",
                 "synvia-gig:imports"
-            ]
+            ],
+            "is_active": true
         }
     ]
 }

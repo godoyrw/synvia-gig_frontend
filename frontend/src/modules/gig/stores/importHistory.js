@@ -36,7 +36,7 @@ const readPersisted = () => null;
 const initialItems = () => {
     const persisted = readPersisted();
     if (persisted?.length) return persisted;
-    return ((historyMock?.items ?? [])).map(normalizeItem);
+    return (historyMock?.items ?? []).map(normalizeItem);
 };
 
 export const useImportHistoryStore = defineStore('importHistory', {
@@ -91,7 +91,7 @@ export const useImportHistoryStore = defineStore('importHistory', {
                 fileHash,
                 durationMs: response?.durationMs ?? null,
                 totalRows: summary?.totalRows ?? 0,
-                errorRows: summary?.errorRows ?? (ok ? 0 : response?.errors?.length ?? 0),
+                errorRows: summary?.errorRows ?? (ok ? 0 : (response?.errors?.length ?? 0)),
                 timestamp: new Date().toISOString()
             };
 

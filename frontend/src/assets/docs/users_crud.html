@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<title>CRUD de Usuários</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="../styles.css" />
+	</head>
+	<body>
+		<main class="doc-container">
+			<header class="doc-header">
+				<h1>Gestão de Usuários</h1>
+				<p>Descrição da tela e dos serviços responsáveis pelo cadastro, edição, ativação/desativação e exclusão de usuários do SYNVIA-APP.</p>
+			</header>
+
+			<section>
+				<h2>Estrutura geral</h2>
+				<ul>
+					<li>Interface baseada em PrimeVue DataTable com toolbar e cartão idênticos a Tenants.</li>
+					<li>Paginação, filtros overlay, busca global e ações usam o mesmo padrão visual do módulo GIG.</li>
+					<li>O layout reside em <code>src/views/users/UsersView.vue</code> utilizando <code>&lt;script setup&gt;</code> com composição reativa.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2>Dataset mockado</h2>
+				<p>Os dados ficam em <code>src/mock/data-users.json</code> com a chave <code>users</code> contendo:</p>
+				<pre><code>{
+  "id": number,
+  "clientId": number,
+  "displayName": string,
+  "username": string,
+  "role": string,
+  "modules": string[],
+  "permissions": string[],
+  "avatar": string,
+  "active": boolean,
+  "is_active": boolean
+}</code></pre>
+				<p>O mock adiciona campos auxiliares (<code>password</code>, <code>confirmPassword</code>) apenas em memória durante criação/edição.</p>
+			</section>
+
+			<section>
+				<h2>active x is_active</h2>
+				<p>A tela utiliza <code>active</code> para renderizar badges e botões; ao persistir, a propriedade é sincronizada com <code>is_active</code>, garantindo compatibilidade com o backend.</p>
+			</section>
+
+			<section>
+				<h2>Serviço de dados</h2>
+				<ul>
+					<li><code>src/services/usersService.js</code>: fachada que escolhe entre mock e API real.</li>
+					<li><code>src/services/usersService.mock.js</code>: mantém coleção em memória, persiste no <code>localStorage</code> e aplica filtros/sort/paginação idênticos ao backend.</li>
+					<li><code>src/services/usersService.api.js</code>: stubs aguardando implementação real.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h2>Campos do formulário</h2>
+				<ul>
+					<li><code>clientId</code> (somente leitura, auto-incrementado)</li>
+					<li><code>displayName</code> *</li>
+					<li><code>username</code> (email) *</li>
+					<li><code>password</code> / <code>confirmPassword</code> *</li>
+					<li><code>role</code> *</li>
+					<li><code>avatar</code></li>
+					<li><code>modules</code>, <code>permissions</code></li>
+					<li><code>active</code> (toggle)</li>
+				</ul>
+				<p>Validações: email válido, senha mínima de 8 caracteres (criação) e correspondência entre senha/confirmar.</p>
+			</section>
+
+			<section>
+				<h2>Troca entre mock e API</h2>
+				<p>
+					Configure <code>VITE_USE_MOCK_USERS</code> no <code>.env</code> do frontend. Qualquer valor diferente de <code>'false'</code> mantém o mock ativo. Ao apontar para a API real, basta implementar os métodos em <code>usersService.api.js</code> reutilizando a mesma assinatura.
+				</p>
+			</section>
+
+			<section>
+				<h2>Fluxo CRUD (visão front + serviço)</h2>
+<pre aria-label="Diagrama Mermaid representando o fluxo CRUD de usuários" role="img"><code class="mermaid">
+flowchart LR
+	subgraph Frontend
+		UI["Tela Usuários (DataTable)"]
+		Dialog["Dialog Novo/Editar"]
+		ServiceJS["usersService.js"]
+	end
+
+	subgraph Mock
+		MockService["usersService.mock.js"]
+		LocalStorage[(localStorage)]
+	end
+
+	subgraph API
+		APIRoute["/users REST"]
+		Backend["Microservice"]
+	end
+
+	UI -->|listar/filtrar| ServiceJS
+	Dialog -->|criar/editar/excluir/ativar| ServiceJS
+	ServiceJS -->|VITE_USE_MOCK_USERS !== 'false'| MockService
+	MockService <--> LocalStorage
+	ServiceJS -->|VITE_USE_MOCK_USERS === 'false'| APIRoute
+	APIRoute --> Backend
+</code></pre>
+				<p>Assim como em tenants, a tela permanece desacoplada dos detalhes de persistência, delegando ao serviço a decisão entre mock e API real.</p>
+			</section>
+
+			<section>
+				<h2>Fluxo API REST (detalhe)</h2>
+<pre aria-label="Diagrama Mermaid do fluxo REST de usuários" role="img"><code class="mermaid">
+sequenceDiagram
+	autonumber
+	actor User as Operador
+	participant UI as /users (Vite)
+	participant Service as usersService.js
+	participant Backend as API REST
+
+	User->>UI: Interação (listar/criar/editar/excluir/toggle)
+	UI->>Service: Chamada listUsers(params)
+	alt Mock habilitado
+		Service->>Service: Delegação para usersService.mock
+		Service-->>UI: Dados paginados (Promise)
+	else API real
+		Service->>Backend: GET /users?page=...&rows=...
+		Backend-->>Service: 200 + payload
+		Service-->>UI: Dados processados
+	end
+
+	User->>UI: Salvar edição
+	UI->>Service: updateUser(id, payload)
+	alt Mock habilitado
+		Service->>Service: Atualiza coleção local
+		Service-->>UI: Usuário atualizado
+	else API real
+		Service->>Backend: PUT /users/:id
+		Backend-->>Service: 200 + usuário
+		Service-->>UI: Usuário atualizado
+	end
+
+	Note over Backend: REST segue convenções:
+	Note over Backend: POST /users, DELETE /users/:id,
+	Note over Backend: PATCH /users/:id/status
+</code></pre>
+			</section>
+
+			<footer class="doc-footer">
+				<p>Atualizado em 02/12/2025.</p>
+			</footer>
+		</main>
+	</body>
+</html>

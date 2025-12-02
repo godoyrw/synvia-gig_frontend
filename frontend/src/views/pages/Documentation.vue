@@ -6,6 +6,8 @@ import logsContent from '@/assets/docs/logs_microservices.html?raw';
 import toastContent from '@/assets/docs/toast_service.html?raw';
 import dashboardContent from '@/assets/docs/syngig_dashboard.html?raw';
 import sessionContent from '@/assets/docs/synvia_session_management_report.html?raw';
+import usersCrudContent from '@/assets/docs/users_crud.html?raw';
+import tenantsCrudContent from '@/assets/docs/tenants_crud.html?raw';
 import { computed, ref } from 'vue';
 
 const DOCS = [
@@ -15,7 +17,9 @@ const DOCS = [
     { id: 'imports', name: 'Importações', icon: '📤', content: importFilesContent },
     { id: 'session', name: 'Sessão', icon: '👤', content: sessionContent },
     { id: 'toast', name: 'Toasts', icon: '🔔', content: toastContent },
-    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent }
+    { id: 'dialog', name: 'Dialogs', icon: '🗨️', content: dialogContent },
+    { id: 'users', name: 'Usuários', icon: '👥', content: usersCrudContent },
+    { id: 'tenants', name: 'Clientes', icon: '🏢', content: tenantsCrudContent }
 ];
 
 const currentDoc = ref(DOCS[0].id);
@@ -94,7 +98,7 @@ const docs = DOCS;
 
         <!-- Footer -->
         <div class="mt-8 p-4 bg-primary-50 dark:bg-surface-800 rounded-lg border border-primary-200 dark:border-surface-700">
-            <p class="text-sm text-surface-600 dark:text-surface-400"><strong>Última atualização:</strong> 18 de Novembro de 2025</p>
+            <p class="text-sm text-surface-600 dark:text-surface-400"><strong>Última atualização:</strong> 02 de Dezembro de 2025</p>
         </div>
     </div>
 </template>
