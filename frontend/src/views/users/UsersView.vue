@@ -423,7 +423,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Usuários" subtitle="Gerencie perfis, permissões e acesso aos módulos do SYNVIA-APP." />
+        <PageHero label="SYNVIA APP" title="Gestão de Usuários" subtitle="Gerencie perfis, permissões e acesso aos módulos do SYNVIA-APP." logoSrc=""/>
 
         <ConfirmDialog />
 

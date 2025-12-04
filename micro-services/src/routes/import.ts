@@ -8,7 +8,7 @@ import { s3Client } from '../config/s3.js';
 import { env } from '../config/env.js';
 import { analyzeCsvBuffer } from '../utils/csv.js';
 import { buildS3Key, sanitizeSegment } from '../utils/filename.js';
-import { appendImportLog, readImportLogs } from '../utils/logger.js';
+import { appendImportLog } from '../utils/logger.js';
 import type { ImportLogEntry, UploadResponseBody } from '../types/import.js';
 
 const router = Router();

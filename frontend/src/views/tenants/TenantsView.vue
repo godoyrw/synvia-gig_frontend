@@ -392,7 +392,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." />
+        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc=""/>
 
         <ConfirmDialog />
 
@@ -596,7 +596,7 @@ onMounted(() => {
             </template>
         </Card>
 
-        <Dialog v-model:visible="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
+        <Dialog v-model="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
             <div class="grid gap-4">
                 <div class="grid gap-2">
                     <label for="tenantId" class="font-medium">ID</label>
