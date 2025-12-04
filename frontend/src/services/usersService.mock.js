@@ -1,4 +1,3 @@
-
 import usersSeed from '@/mock/data-users.json';
 
 const storage = typeof window !== 'undefined' ? window.localStorage : null;
@@ -116,26 +115,24 @@ const applySorting = (collection, params = {}) => {
     if (!field) return collection.slice();
 
     const order = Number(params.sortOrder) === -1 ? -1 : 1;
-    return collection
-        .slice()
-        .sort((a, b) => {
-            const av = resolveSortValue(a, field);
-            const bv = resolveSortValue(b, field);
+    return collection.slice().sort((a, b) => {
+        const av = resolveSortValue(a, field);
+        const bv = resolveSortValue(b, field);
 
-            if (typeof av === 'number' && typeof bv === 'number') {
-                return (av - bv) * order;
-            }
+        if (typeof av === 'number' && typeof bv === 'number') {
+            return (av - bv) * order;
+        }
 
-            if (av == null && bv != null) return -1 * order;
-            if (av != null && bv == null) return 1 * order;
-            if (av == null && bv == null) return 0;
+        if (av == null && bv != null) return -1 * order;
+        if (av != null && bv == null) return 1 * order;
+        if (av == null && bv == null) return 0;
 
-            const aStr = String(av);
-            const bStr = String(bv);
-            if (aStr < bStr) return -1 * order;
-            if (aStr > bStr) return 1 * order;
-            return 0;
-        });
+        const aStr = String(av);
+        const bStr = String(bv);
+        if (aStr < bStr) return -1 * order;
+        if (aStr > bStr) return 1 * order;
+        return 0;
+    });
 };
 
 const applyPagination = (collection, params = {}) => {

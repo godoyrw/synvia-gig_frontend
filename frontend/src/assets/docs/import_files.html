@@ -40,6 +40,15 @@
             <li>O frontend exibe apenas o resumo (totais, erros de linha) e disponibiliza o ID do log para consulta interna.</li>
         </ol>
 
+        <h2>Modo mock vs API oficial</h2>
+        <p>
+            O histórico apresentado na aba “Histórico de Importações” pode usar os dados mockados de <code>src/mock/data-files-history.json</code> ou consultar diretamente a API REST (Laravel).
+            A variável <code>VITE_USE_MOCK_IMPORTS</code> controla o comportamento: apenas <code>'true'</code> mantém o mock ativo, registrando tentativas apenas em memória (sem uso de <code>localStorage</code>), via
+            <code>importHistoryService.mock</code>. Quando definida como <code>false</code>, o frontend delega as operações para <code>importHistoryService.api</code>, reutilizando o cliente Axios centralizado.
+        </p>
+        <pre><code>VITE_USE_MOCK_IMPORTS=true   # Ambiente local sem backend Laravel
+      VITE_USE_MOCK_IMPORTS=false  # API oficial disponível</code></pre>
+
         <h2>Estrutura no Amazon S3</h2>
         <h3>Uploads</h3>
         <pre><code>imports/&lt;clientId&gt;/&lt;ano&gt;/&lt;mês&gt;/&lt;dia&gt;/&lt;timestamp&gt;-&lt;arquivo-sanitizado&gt;.csv</code></pre>

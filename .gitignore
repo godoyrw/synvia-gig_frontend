@@ -1,20 +1,41 @@
-node_modules
-frontend/node_modules
-micro-services/node_modules
-coverage
-*.log*
-.nuxt
-.nitro
-.cache
-.output
-.env
-frontend/.env
-micro-services/.env
-dist
-frontend/dist
-micro-services/dist
+# -------------------------
+# DEPENDÊNCIAS
+# -------------------------
+node_modules/
+
+# -------------------------
+# SISTEMA / AMBIENTE
+# -------------------------
 .DS_Store
-.idea
+.vscode/
+.idea/
 .eslintcache
+*.log
+*.log.*
+
+# -------------------------
+# BUILDS
+# -------------------------
+dist/
+frontend/dist/
+micro-services/dist/
+
+# -------------------------
+# ARQUIVOS DE AMBIENTE (SECRETS)
+# -------------------------
+.env
+.env.*
+frontend/.env
+frontend/.env.*
+micro-services/.env
+micro-services/.env.*
+
+# -------------------------
+# OUTROS
+# -------------------------
+coverage/
+.nuxt/
+.nitro/
+.cache/
+.output/
 api-generator/typedoc.json
-**/.DS_Store
