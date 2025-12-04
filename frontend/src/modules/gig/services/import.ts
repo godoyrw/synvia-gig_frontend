@@ -1,4 +1,5 @@
-import api from '@core/services/api';
+import { laravelApi } from '@/core/services/laravelApi';
+import { microServiceApi } from '@/core/services/microServiceApi';
 
 export interface ImportSummary {
     totalRows: number;
@@ -57,7 +58,7 @@ export async function uploadCsv(
     const formData = new FormData();
     formData.append('file', file);
 
-    const { data } = await api.post('/gig/import/upload', formData, {
+    const { data } = await microServiceApi.post('/gig/import/upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         },
@@ -82,7 +83,7 @@ export interface FetchImportHistoryParams {
 }
 
 export async function fetchImportHistory(params: FetchImportHistoryParams = {}): Promise<ImportHistoryResponse> {
-    const { data } = await api.get('/import-files/history', {
+    const { data } = await laravelApi.get('/import-files/history', {
         params: {
             page: params.page ?? 1,
             pageSize: params.pageSize ?? 10,

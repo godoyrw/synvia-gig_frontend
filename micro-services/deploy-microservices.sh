@@ -30,10 +30,12 @@ if [[ "$ENVIRONMENT" == "homolog" ]]; then
   REMOTE_BASE_DIR="/var/www/synvia/microservices-homolog"
   SERVICE_URL="https://microservices-homolog.synviabrasil.com"
   PM2_NAME="synvia-micro-homolog"
+  PNPM_INSTALL_CMD="pnpm install --no-frozen-lockfile"
 else
   REMOTE_BASE_DIR="/var/www/synvia/microservices"
   SERVICE_URL="https://microservices.synviabrasil.com"
   PM2_NAME="synvia-micro-prod"
+  PNPM_INSTALL_CMD="pnpm install --frozen-lockfile"
 fi
 
 REMOTE_USER="ubuntu"
@@ -44,6 +46,10 @@ echo "📁 Diretório remoto: $REMOTE_BASE_DIR"
 echo "🧠 PM2 app name: $PM2_NAME"
 echo "📂 LOCAL_SRC_DIR: $LOCAL_SRC_DIR"
 echo "-------------------------------------"
+echo "📄 Lembrando: o .env de cada ambiente deve existir APENAS no servidor:"
+echo "   - Homolog:    /var/www/synvia/microservices-homolog/.env"
+echo "   - Production: /var/www/synvia/microservices/.env"
+echo "-------------------------------------"
 
 echo "0️⃣  Preparando diretório remoto (mkdir + chown)..."
 ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
@@ -52,7 +58,7 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
   sudo chown -R ${REMOTE_USER}:${REMOTE_USER} "${REMOTE_BASE_DIR}"
 EOF
 
-echo "1️⃣  Enviando código via rsync..."
+echo "1️⃣  Enviando código via rsync (sem .env / node_modules / dist)..."
 rsync -avz --delete \
   --exclude=".git" \
   --exclude=".idea" \
@@ -65,6 +71,7 @@ rsync -avz --delete \
   --exclude="logs" \
   --exclude="*.log" \
   --exclude=".env" \
+  --exclude=".env.*" \
   "${LOCAL_SRC_DIR}/" \
   "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BASE_DIR}/"
 
@@ -74,8 +81,8 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" bash << EOF
 
   cd "${REMOTE_BASE_DIR}"
 
-  echo " - pnpm install --no-frozen-lockfile"
-  pnpm install --no-frozen-lockfile
+  echo " - ${PNPM_INSTALL_CMD}"
+  ${PNPM_INSTALL_CMD}
 
   echo " - pnpm build"
   pnpm build

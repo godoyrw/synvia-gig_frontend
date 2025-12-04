@@ -20,12 +20,12 @@ const baseURL =
   API_BY_ENV[APP_ENV] ||
   'http://localhost:3001';
 
-export const api = axios.create({
+export const microServiceApi = axios.create({
   baseURL,
   withCredentials: false,
 });
 
-api.interceptors.request.use((config) => {
+microServiceApi.interceptors.request.use((config) => {
   try {
     const raw = sessionStorage.getItem('auth_user');
     if (raw) {
@@ -49,4 +49,4 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export default api;
+export default microServiceApi;

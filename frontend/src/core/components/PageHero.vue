@@ -23,7 +23,12 @@ const props = withDefaults(defineProps<Props>(), {
             <h1 class="page-hero__title">{{ props.title }}</h1>
             <p class="page-hero__subtitle">{{ props.subtitle }}</p>
         </div>
-        <img :src="props.logoSrc" :alt="props.logoAlt" class="page-hero__logo" />
+         <img
+            v-if="props.logoSrc"
+            :src="props.logoSrc"
+            :alt="props.logoAlt"
+            class="page-hero__logo"
+        />
     </div>
 </template>
 

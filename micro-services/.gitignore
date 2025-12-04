@@ -1,0 +1,11 @@
+# Microservices específico
+
+node_modules/
+dist/
+
+# Ambiente (já ignorado pelo raiz)
+.env
+.env.*
+
+.DS_Store
+.vscode/
