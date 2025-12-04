@@ -1,7 +1,8 @@
 import * as mockService from './usersService.mock';
 import * as apiService from './usersService.api';
 
-const useMock = (import.meta.env.VITE_USE_MOCK_USERS ?? 'true') !== 'false';
+const useMock = (import.meta.env.VITE_USE_MOCK_USERS ?? 'true') === 'true';
+
 const implementation = useMock ? mockService : apiService;
 
 export const listUsers = (params) => implementation.listUsers(params);

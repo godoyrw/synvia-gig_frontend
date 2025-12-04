@@ -392,7 +392,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." />
+        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc=""/>
 
         <ConfirmDialog />
 
@@ -420,13 +420,7 @@ onMounted(() => {
                     <Column field="id" style="width: 6rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'id' }]"
-                                    aria-label="Ordenar por ID"
-                                    :aria-sort="ariaSortFor('id')"
-                                    @click="toggleSort('id')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'id' }]" aria-label="Ordenar por ID" :aria-sort="ariaSortFor('id')" @click="toggleSort('id')">
                                     <span class="column-title">ID</span>
                                     <i :class="['sort-icon', sortIndicatorFor('id')]" />
                                 </button>
@@ -440,13 +434,7 @@ onMounted(() => {
                     <Column field="name">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'name' }]"
-                                    aria-label="Ordenar por cliente"
-                                    :aria-sort="ariaSortFor('name')"
-                                    @click="toggleSort('name')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'name' }]" aria-label="Ordenar por cliente" :aria-sort="ariaSortFor('name')" @click="toggleSort('name')">
                                     <span class="column-title">Cliente</span>
                                     <i :class="['sort-icon', sortIndicatorFor('name')]" />
                                 </button>
@@ -455,13 +443,7 @@ onMounted(() => {
                         <template #body="{ data }">
                             <div class="flex items-center gap-3">
                                 <span class="tenant-avatar" :aria-label="`Logo de ${data.name}`">
-                                    <img
-                                        v-if="tenantHasLogo(data)"
-                                        :src="data.logoUrl"
-                                        :alt="`Logo de ${data.name}`"
-                                        class="tenant-avatar-image"
-                                        @error="handleLogoError(data)"
-                                    />
+                                    <img v-if="tenantHasLogo(data)" :src="data.logoUrl" :alt="`Logo de ${data.name}`" class="tenant-avatar-image" @error="handleLogoError(data)" />
                                     <span v-else class="tenant-avatar-fallback">{{ data.name?.[0] ?? '?' }}</span>
                                 </span>
                                 <div class="flex flex-col">
@@ -475,13 +457,7 @@ onMounted(() => {
                     <Column field="document" style="min-width: 12rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'document' }]"
-                                    aria-label="Ordenar por documento"
-                                    :aria-sort="ariaSortFor('document')"
-                                    @click="toggleSort('document')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'document' }]" aria-label="Ordenar por documento" :aria-sort="ariaSortFor('document')" @click="toggleSort('document')">
                                     <span class="column-title">Documento</span>
                                     <i :class="['sort-icon', sortIndicatorFor('document')]" />
                                 </button>
@@ -495,22 +471,11 @@ onMounted(() => {
                     <Column field="plan" style="width: 10rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'plan' }]"
-                                    aria-label="Ordenar por plano"
-                                    :aria-sort="ariaSortFor('plan')"
-                                    @click="toggleSort('plan')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'plan' }]" aria-label="Ordenar por plano" :aria-sort="ariaSortFor('plan')" @click="toggleSort('plan')">
                                     <span class="column-title">Plano</span>
                                     <i :class="['sort-icon', sortIndicatorFor('plan')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: planFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por plano"
-                                    @click="togglePlanFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: planFilterSelected.length > 0 }]" aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -530,22 +495,11 @@ onMounted(() => {
                     <Column field="modules">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'modules' }]"
-                                    aria-label="Ordenar por módulos"
-                                    :aria-sort="ariaSortFor('modules')"
-                                    @click="toggleSort('modules')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'modules' }]" aria-label="Ordenar por módulos" :aria-sort="ariaSortFor('modules')" @click="toggleSort('modules')">
                                     <span class="column-title">Módulos</span>
                                     <i :class="['sort-icon', sortIndicatorFor('modules')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por módulos"
-                                    @click="toggleModulesFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
@@ -578,22 +532,11 @@ onMounted(() => {
                     <Column field="active" style="width: 9rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'active' }]"
-                                    aria-label="Ordenar por status"
-                                    :aria-sort="ariaSortFor('active')"
-                                    @click="toggleSort('active')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'active' }]" aria-label="Ordenar por status" :aria-sort="ariaSortFor('active')" @click="toggleSort('active')">
                                     <span class="column-title">Ativo</span>
                                     <i :class="['sort-icon', sortIndicatorFor('active')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por status"
-                                    @click="toggleStatusFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -653,7 +596,7 @@ onMounted(() => {
             </template>
         </Card>
 
-        <Dialog v-model:visible="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
+        <Dialog v-model="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
             <div class="grid gap-4">
                 <div class="grid gap-2">
                     <label for="tenantId" class="font-medium">ID</label>
@@ -704,13 +647,7 @@ onMounted(() => {
                     <small v-if="formErrors.logoUrl" class="p-error">{{ formErrors.logoUrl }}</small>
                     <div v-if="form.logoUrl" class="tenant-logo-preview mt-2">
                         <span class="tenant-avatar" :aria-label="`Pré-visualização da logo de ${form.name || 'novo cliente'}`">
-                            <img
-                                v-if="hasFormLogo"
-                                :src="form.logoUrl"
-                                :alt="`Logo de ${form.name || 'novo cliente'}`"
-                                class="tenant-avatar-image"
-                                @error="handleFormLogoError"
-                            />
+                            <img v-if="hasFormLogo" :src="form.logoUrl" :alt="`Logo de ${form.name || 'novo cliente'}`" class="tenant-avatar-image" @error="handleFormLogoError" />
                             <span v-else class="tenant-avatar-fallback">{{ form.name?.[0] ?? '?' }}</span>
                         </span>
                     </div>

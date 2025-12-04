@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PageHero from '@core/components/PageHero.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@core/config/constants';
 import { useImportHistoryStore } from '@modules/gig/stores/importHistory';
@@ -38,9 +38,8 @@ const isHistoryLoading = ref(false);
 const historyPage = ref(1);
 // Page size dinâmico com persistência (fallback para constante padrão)
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100].map((v) => ({ label: String(v), value: v }));
-const historyPageSize = ref<number>(Number(localStorage.getItem('historyPageSize')) || HISTORY_PAGE_SIZE);
-watch(historyPageSize, (val) => {
-    localStorage.setItem('historyPageSize', String(val));
+const historyPageSize = ref<number>(HISTORY_PAGE_SIZE);
+watch(historyPageSize, () => {
     historyPage.value = 1;
 });
 const historySearch = ref('');
@@ -93,6 +92,18 @@ const addFileManual = () => {
 
 // Distinct status labels derivados do mock
 const importHistoryStore = useImportHistoryStore();
+
+onMounted(async () => {
+    const forceRefresh = !importHistoryStore.usingMock;
+    if (!importHistoryStore.isLoaded || forceRefresh) {
+        isHistoryLoading.value = true;
+        try {
+            await importHistoryStore.hydrate(forceRefresh);
+        } finally {
+            isHistoryLoading.value = false;
+        }
+    }
+});
 const historySourceItems = computed<ImportHistoryItem[]>(() =>
     importHistoryStore.items.map((item) => ({
         ...item,
@@ -281,7 +292,7 @@ const handleDeleteHistory = (item: ImportHistoryItem) => {
     toast.add({
         severity: 'warn',
         summary: 'Deletar',
-        detail: 'Fluxo de deleção será implementado em breve.',
+        detail: `Fluxo de deleção será implementado em breve (registro ${item.requestId} / ${item.fileName}).`,
         life: TOAST_DURATION.WARNING
     });
 };

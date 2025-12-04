@@ -46,7 +46,7 @@ watch(isSidebarActive, (newVal) => {
 
 watch(
     () => route.fullPath,
-    (newPath, oldPath) => {
+    () => {
         // Ao navegar, fechar apenas menus do tipo overlay / mobile e suprimir
         // cliques externos por curto período para evitar race conditions.
         if (layoutConfig.menuMode === 'overlay' || window.innerWidth <= 991) {

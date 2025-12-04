@@ -47,17 +47,14 @@ const persistTenants = () => persistToStorage(ensurePersistShape(tenants));
 
 persistTenants();
 
-const resolveWithLatency = (payload, latency = DEFAULT_LATENCY) =>
-    new Promise((resolve) => setTimeout(() => resolve(clone(payload)), latency));
+const resolveWithLatency = (payload, latency = DEFAULT_LATENCY) => new Promise((resolve) => setTimeout(() => resolve(clone(payload)), latency));
 
 const findIndexById = (id) => tenants.findIndex((tenant) => Number(tenant.id) === Number(id));
 
 const normalizeStringArray = (value) => {
     if (!value) return [];
     if (Array.isArray(value)) {
-        return value
-            .map((item) => (item == null ? '' : String(item).trim()))
-            .filter((item) => item.length);
+        return value.map((item) => (item == null ? '' : String(item).trim())).filter((item) => item.length);
     }
     const single = String(value).trim();
     return single ? [single] : [];
@@ -67,9 +64,7 @@ const applyFilters = (collection, params = {}) => {
     const trimmedSearch = (params.search || '').trim().toLowerCase();
     const selectedPlans = normalizeStringArray(params.plans);
     const selectedModules = normalizeStringArray(params.modules);
-    const selectedStatus = normalizeStringArray(params.status).map((status) =>
-        status === 'inactive' ? 'inactive' : 'active'
-    );
+    const selectedStatus = normalizeStringArray(params.status).map((status) => (status === 'inactive' ? 'inactive' : 'active'));
 
     const plansSet = new Set(selectedPlans);
     const modulesSet = new Set(selectedModules);
@@ -80,17 +75,10 @@ const applyFilters = (collection, params = {}) => {
         const tradeName = tenant.tradeName?.trim() || '';
         const email = tenant.primaryEmail?.trim() || '';
         const document = tenant.document?.trim() || '';
-        const modules = Array.isArray(tenant.modules)
-            ? tenant.modules.map((module) => String(module).trim()).filter(Boolean)
-            : [];
+        const modules = Array.isArray(tenant.modules) ? tenant.modules.map((module) => String(module).trim()).filter(Boolean) : [];
         const activeStatus = tenant.active === false ? 'inactive' : 'active';
 
-        const matchesSearch = trimmedSearch
-            ? name.toLowerCase().includes(trimmedSearch) ||
-              tradeName.toLowerCase().includes(trimmedSearch) ||
-              email.toLowerCase().includes(trimmedSearch) ||
-              document.toLowerCase().includes(trimmedSearch)
-            : true;
+        const matchesSearch = trimmedSearch ? name.toLowerCase().includes(trimmedSearch) || tradeName.toLowerCase().includes(trimmedSearch) || email.toLowerCase().includes(trimmedSearch) || document.toLowerCase().includes(trimmedSearch) : true;
 
         const matchesPlan = plansSet.size ? plansSet.has((tenant.plan || '').toLowerCase()) : true;
         const matchesModules = modulesSet.size ? modules.some((module) => modulesSet.has(module)) : true;

@@ -58,28 +58,3 @@ export const appendImportLog = async (clientId: string, entry: ImportLogEntry, d
     })
   );
 };
-
-export const readImportLogs = async (clientId: string, date = new Date()): Promise<ImportLogEntry[]> => {
-  const key = buildLogKey(clientId, date);
-
-  try {
-    const currentLog = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: env.aws.bucket,
-        Key: key
-      })
-    );
-
-    const payload = await bodyToString(currentLog.Body as Readable | Uint8Array | string | undefined);
-    return payload
-      .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => JSON.parse(line) as ImportLogEntry);
-  } catch (error) {
-    if ((error as Error)?.name === 'NoSuchKey') {
-      return [];
-    }
-    throw error;
-  }
-};

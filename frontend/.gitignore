@@ -1,4 +1,11 @@
-node_modules
+# Frontend específico
+
+node_modules/
+dist/
+
+# Ambiente (serão ignorados também pelo .gitignore raiz)
+.env
+.env.*
+
 .DS_Store
-dist
-.vscode
+.vscode/

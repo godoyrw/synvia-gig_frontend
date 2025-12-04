@@ -4,6 +4,9 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "build:local": "vite build",
+        "build:homolog": "vite build --mode homolog",
+        "build:production": "vite build --mode production",
         "preview": "vite preview",
         "lint": "eslint --fix . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
     },

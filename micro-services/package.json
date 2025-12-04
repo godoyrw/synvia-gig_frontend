@@ -1,7 +1,7 @@
 {
   "name": "synvia-gig-micro-services",
   "version": "1.0.0",
-  "description": "API de importação CSV para Synvia GIG",
+  "description": "API de Micro-serviços do Synvia.",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

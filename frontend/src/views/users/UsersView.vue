@@ -423,7 +423,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Usuários" subtitle="Gerencie perfis, permissões e acesso aos módulos do SYNVIA-APP." />
+        <PageHero label="SYNVIA APP" title="Gestão de Usuários" subtitle="Gerencie perfis, permissões e acesso aos módulos do SYNVIA-APP." logoSrc=""/>
 
         <ConfirmDialog />
 
@@ -436,7 +436,7 @@ onMounted(() => {
                             <i class="pi pi-search" />
                             <InputText v-model="searchTerm" placeholder="Buscar..." />
                         </span>
-                       
+
                         <Button icon="pi pi-plus" label="Novo usuário" @click="openCreateDialog" />
                     </div>
                 </div>
@@ -451,13 +451,7 @@ onMounted(() => {
                     <Column field="clientId" style="width: 6rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'clientId' }]"
-                                    aria-label="Ordenar por ID"
-                                    :aria-sort="ariaSortFor('clientId')"
-                                    @click="toggleSort('clientId')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'clientId' }]" aria-label="Ordenar por ID" :aria-sort="ariaSortFor('clientId')" @click="toggleSort('clientId')">
                                     <span class="column-title">ID</span>
                                     <i :class="['sort-icon', sortIndicatorFor('clientId')]" />
                                 </button>
@@ -471,22 +465,11 @@ onMounted(() => {
                     <Column field="displayName">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'displayName' }]"
-                                    aria-label="Ordenar por usuário"
-                                    :aria-sort="ariaSortFor('displayName')"
-                                    @click="toggleSort('displayName')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'displayName' }]" aria-label="Ordenar por usuário" :aria-sort="ariaSortFor('displayName')" @click="toggleSort('displayName')">
                                     <span class="column-title">Usuário</span>
                                     <i :class="['sort-icon', sortIndicatorFor('displayName')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: nameFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por nome"
-                                    @click="toggleNameFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: nameFilterSelected.length > 0 }]" aria-label="Filtrar por nome" @click="toggleNameFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="nameFilterPanel" class="filter-panel" style="min-width: 16rem">
@@ -509,13 +492,7 @@ onMounted(() => {
                         <template #body="{ data }">
                             <div class="flex items-center gap-3">
                                 <span class="user-avatar" :aria-label="`Avatar de ${data.displayName}`">
-                                    <img
-                                        v-if="userHasAvatar(data)"
-                                        :src="data.avatar"
-                                        :alt="`Avatar de ${data.displayName}`"
-                                        class="user-avatar-image"
-                                        @error="handleAvatarError(data)"
-                                    />
+                                    <img v-if="userHasAvatar(data)" :src="data.avatar" :alt="`Avatar de ${data.displayName}`" class="user-avatar-image" @error="handleAvatarError(data)" />
                                     <span v-else class="user-avatar-fallback">{{ data.displayName?.[0] ?? '?' }}</span>
                                 </span>
                                 <div class="flex flex-col">
@@ -529,22 +506,11 @@ onMounted(() => {
                     <Column field="role" style="width: 9rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'role' }]"
-                                    aria-label="Ordenar por função"
-                                    :aria-sort="ariaSortFor('role')"
-                                    @click="toggleSort('role')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'role' }]" aria-label="Ordenar por função" :aria-sort="ariaSortFor('role')" @click="toggleSort('role')">
                                     <span class="column-title">Função</span>
                                     <i :class="['sort-icon', sortIndicatorFor('role')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: roleFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por função"
-                                    @click="toggleRoleFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: roleFilterSelected.length > 0 }]" aria-label="Filtrar por função" @click="toggleRoleFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="roleFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -564,22 +530,11 @@ onMounted(() => {
                     <Column field="modules">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'modules' }]"
-                                    aria-label="Ordenar por módulos"
-                                    :aria-sort="ariaSortFor('modules')"
-                                    @click="toggleSort('modules')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'modules' }]" aria-label="Ordenar por módulos" :aria-sort="ariaSortFor('modules')" @click="toggleSort('modules')">
                                     <span class="column-title">Módulos</span>
                                     <i :class="['sort-icon', sortIndicatorFor('modules')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por módulos"
-                                    @click="toggleModulesFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
@@ -612,22 +567,11 @@ onMounted(() => {
                     <Column field="active" style="width: 9rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'active' }]"
-                                    aria-label="Ordenar por status"
-                                    :aria-sort="ariaSortFor('active')"
-                                    @click="toggleSort('active')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'active' }]" aria-label="Ordenar por status" :aria-sort="ariaSortFor('active')" @click="toggleSort('active')">
                                     <span class="column-title">Status</span>
                                     <i :class="['sort-icon', sortIndicatorFor('active')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por status"
-                                    @click="toggleStatusFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">

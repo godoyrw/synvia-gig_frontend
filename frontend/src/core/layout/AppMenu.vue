@@ -75,7 +75,7 @@ const findItemKeyForPath = (path) => {
             const item = section.items[i];
             // chave base para o item filho da seção: `${s}-${i}`
             const baseKey = `${s}-${i}`;
-            const found = findInItem(item, baseKey);
+            const found = findInItem(item, baseKey, path);
             if (found) return found;
         }
     }
@@ -83,9 +83,9 @@ const findItemKeyForPath = (path) => {
     return null;
 };
 
-function findInItem(item, keyPrefix) {
+function findInItem(item, keyPrefix, targetPath) {
     // Se o item tem um `to` e corresponde à rota, retorna a chave construída
-    if (item.to && item.to === route.path) {
+    if (item.to && item.to === targetPath) {
         return keyPrefix;
     }
 
@@ -93,34 +93,13 @@ function findInItem(item, keyPrefix) {
         for (let j = 0; j < item.items.length; j++) {
             const child = item.items[j];
             const childKey = `${keyPrefix}-${j}`;
-            const found = findInItem(child, childKey);
+            const found = findInItem(child, childKey, targetPath);
             if (found) return found;
         }
     }
 
     return null;
 }
-
-const matchesRoute = (item, path) => {
-    if (!item) return false;
-
-    if (item.to && item.to === path) {
-        return true;
-    }
-
-    if (item.items) {
-        return item.items.some((child) => matchesRoute(child, path));
-    }
-
-    return false;
-};
-
-const routeMatchesAnyItem = (path) => {
-    return model.value.some((section) => {
-        if (!section.items) return matchesRoute(section, path);
-        return section.items.some((item) => matchesRoute(item, path));
-    });
-};
 
 watch(
     () => route.path,

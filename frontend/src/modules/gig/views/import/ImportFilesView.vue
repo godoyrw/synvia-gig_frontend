@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PageHero from '@core/components/PageHero.vue';
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { onBeforeRouteLeave } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { isAxiosError } from 'axios';
@@ -26,28 +26,9 @@ onBeforeRouteLeave(() => {
         // Fallback para versões antigas
         // @ts-ignore
         toast.removeAllGroups?.();
-        sessionStorage.removeItem(LAST_RESPONSE_KEY);
-    } catch {}
-});
-
-// Restaura o último resultado após HMR/reload para não sumir o resumo
-const LAST_RESPONSE_KEY = 'synvia-import-last-response';
-onMounted(() => {
-    try {
-        const raw = sessionStorage.getItem(LAST_RESPONSE_KEY);
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            if (parsed && typeof parsed === 'object') {
-                response.value = parsed as UploadCsvResponse;
-            }
-        }
-    } catch {}
-});
-
-watch(response, (val) => {
-    try {
-        if (val) sessionStorage.setItem(LAST_RESPONSE_KEY, JSON.stringify(val));
-    } catch {}
+    } catch (error) {
+        console.warn('[ImportFilesView] Unable to clear toast state on route leave', error);
+    }
 });
 
 const hasResult = computed(() => !!response.value);
@@ -75,9 +56,6 @@ const resetSelection = () => {
     if (fileInputRef.value) {
         fileInputRef.value.value = '';
     }
-    try {
-        sessionStorage.removeItem(LAST_RESPONSE_KEY);
-    } catch {}
 };
 
 const handleUpload = async () => {
