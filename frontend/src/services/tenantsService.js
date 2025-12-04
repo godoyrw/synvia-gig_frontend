@@ -1,7 +1,7 @@
 import * as mockService from './tenantsService.mock';
 import * as apiService from './tenantsService.api';
 
-const useMock = (import.meta.env.VITE_USE_MOCK_TENANTS ?? 'true') !== 'false';
+const useMock = (import.meta.env.VITE_USE_MOCK_TENANTS ?? 'true') === 'true';
 const implementation = useMock ? mockService : apiService;
 
 export const listTenants = (params) => implementation.listTenants(params);
