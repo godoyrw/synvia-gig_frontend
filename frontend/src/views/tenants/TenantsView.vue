@@ -631,7 +631,14 @@ onMounted(() => {
                 <div class="tenants-pagination-grid">
                     <div class="page-size-col">
                         <FloatLabel class="w-full page-size-float" variant="on">
-                            <Dropdown v-model="pageSize" input-id="tenantsPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
+                            <Select
+                                v-model="pageSize"
+                                input-id="tenantsPageSize"
+                                :options="pageSizeOptions"
+                                option-label="label"
+                                option-value="value"
+                                class="w-full"
+                            />
                             <label for="tenantsPageSize">Linhas</label>
                         </FloatLabel>
                     </div>
@@ -686,7 +693,15 @@ onMounted(() => {
 
                 <div class="grid gap-2">
                     <label for="tenantPlan" class="font-medium">Plano *</label>
-                    <Dropdown id="tenantPlan" v-model="form.plan" :options="planOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.plan }" />
+                    <Select 
+                        id="tenantPlan" 
+                        v-model="form.plan"
+                        :options="planOptions"
+                        option-label="label"
+                        option-value="value"
+                        placeholder="Selecione"
+                        :class="{ 'p-invalid': formErrors.plan }" 
+                    />
                     <small v-if="formErrors.plan" class="p-error">{{ formErrors.plan }}</small>
                 </div>
 
@@ -782,12 +797,12 @@ onMounted(() => {
 }
 
 .filter-panel :deep(.p-multiselect),
-.filter-panel :deep(.p-dropdown) {
+.filter-panel :deep(.p-select) {
     font-size: 0.85rem;
 }
 
 .filter-panel :deep(.p-multiselect-label),
-.filter-panel :deep(.p-dropdown-label) {
+.filter-panel :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 
@@ -942,11 +957,11 @@ onMounted(() => {
     justify-content: center;
 }
 
-.page-size-float :deep(.p-dropdown-label) {
+.page-size-float :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 
-.page-size-float :deep(.p-dropdown) {
+.page-size-float :deep(.p-select) {
     font-size: 0.85rem;
 }
 
