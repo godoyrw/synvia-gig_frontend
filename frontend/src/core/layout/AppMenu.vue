@@ -7,7 +7,7 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'APLICAÇÕES',
+        label: 'APPs',
         items: [
             {
                 label: 'SYNVIA - GIG',
@@ -15,7 +15,7 @@ const model = ref([
                 items: [
                     {
                         label: 'Dashboard',
-                        icon: 'pi pi-fw pi-compass',
+                        icon: 'pi pi-fw pi-chart-line',
                         to: '/gig'
                     },
                     {
@@ -24,26 +24,36 @@ const model = ref([
                         to: '/gig/import'
                     },
                     {
-                        label: 'Histórico',
+                        label: 'Histórico de Importações',
                         icon: 'pi pi-fw pi-history',
                         to: '/gig/history'
+                    },
+                    {
+                        label: 'Gestão de Processos',
+                        icon: 'pi pi-fw pi-box',
+                        to: '/gig/process'
                     }
                 ]
-            },
+            }
+        ],
+    },
+    {
+        label: 'Administração',
+        items: [
             {
-                label: 'USUÁRIOS',
+                label: 'Usuários',
                 icon: 'pi pi-fw pi-users',
                 to: '/users'
             },
             {
-                label: 'CLIENTES',
+                label: 'Clientes',
                 icon: 'pi pi-fw pi-building',
                 to: '/tenants'
             }
         ]
     },
     {
-        label: 'Documentação Devs',
+        label: 'Desenvolvimento',
         items: [
             {
                 label: 'Front-end',

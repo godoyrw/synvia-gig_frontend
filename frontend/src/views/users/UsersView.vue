@@ -6,6 +6,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FloatLabel from 'primevue/floatlabel';
 import Popover from 'primevue/popover';
+import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -416,6 +417,26 @@ watch(nameFilterSelected, reloadUsers, { deep: true });
 watch(modulesFilterSelected, reloadUsers, { deep: true });
 watch(statusFilterSelected, reloadUsers, { deep: true });
 
+// Names
+const { allSelected: allNamesSelected, toggleAll: toggleAllNames } =
+    useMultiSelectToggle(nameFilterSelected, distinctNameOptions);
+
+// Roles
+const { allSelected: allRolesSelected, toggleAll: toggleAllRoles } =
+    useMultiSelectToggle(roleFilterSelected, roleOptions);
+
+// Modules
+const moduleOptsComputed = computed(() =>
+    distinctModuleOptions.value.length ? distinctModuleOptions.value : moduleOptions
+);
+
+const { allSelected: allModulesSelected, toggleAll: toggleAllModules } =
+    useMultiSelectToggle(modulesFilterSelected, moduleOptsComputed);
+
+// Status
+const { allSelected: allStatusSelected, toggleAll: toggleAllStatus } =
+    useMultiSelectToggle(statusFilterSelected, ref(statusOptions));
+
 onMounted(() => {
     loadUsers();
 });
@@ -477,15 +498,34 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Nome</span>
                                         <Button label="Limpar" size="small" text @click="clearNameFilter" />
                                     </div>
-                                    <MultiSelect v-model="nameFilterSelected" :options="distinctNameOptions" option-label="label" option-value="value" display="chip" class="w-full" placeholder="Qualquer">
-                                        <template #option="{ option }">
-                                            <div class="flex items-center gap-2">
-                                                <Avatar v-if="option.avatar" :image="option.avatar" shape="circle" size="small" />
-                                                <Avatar v-else icon="pi pi-user" shape="circle" size="small" />
-                                                <span>{{ option.label }}</span>
-                                            </div>
-                                        </template>
-                                    </MultiSelect>
+                                <MultiSelect 
+                                    v-model="nameFilterSelected" 
+                                    :options="distinctNameOptions" 
+                                    option-label="label" 
+                                    option-value="value" 
+                                    display="chip" 
+                                    class="w-full" 
+                                    placeholder="Qualquer"
+                                    :show-toggle-all="false"
+                                >
+                                    <template #header>
+                                        <div 
+                                            @click="toggleAllNames" 
+                                            class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                            <Checkbox :modelValue="allNamesSelected" binary readonly />
+                                            <span>{{ allNamesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                        </div>
+                                    </template>
+
+                                    <template #option="{ option }">
+                                        <div class="flex items-center gap-2">
+                                            <Avatar v-if="option.avatar" :image="option.avatar" shape="circle" size="small" />
+                                            <Avatar v-else icon="pi pi-user" shape="circle" size="small" />
+                                            <span>{{ option.label }}</span>
+                                        </div>
+                                    </template>
+                                </MultiSelect>
+
                                 </Popover>
                             </div>
                         </template>
@@ -518,7 +558,25 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Função</span>
                                         <Button label="Limpar" size="small" text @click="clearRoleFilter" />
                                     </div>
-                                    <MultiSelect v-model="roleFilterSelected" :options="roleOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
+                                    <MultiSelect 
+                                        v-model="roleFilterSelected" 
+                                        :options="roleOptions" 
+                                        option-label="label" 
+                                        option-value="value" 
+                                        display="chip" 
+                                        placeholder="Qualquer"
+                                        class="w-full"
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div 
+                                                @click="toggleAllRoles" 
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allRolesSelected" binary readonly />
+                                                <span>{{ allRolesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
                                 </Popover>
                             </div>
                         </template>
@@ -550,7 +608,18 @@ onMounted(() => {
                                         display="chip"
                                         placeholder="Qualquer"
                                         class="w-full"
-                                    />
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div 
+                                                @click="toggleAllModules" 
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allModulesSelected" binary readonly />
+                                                <span>{{ allModulesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+
                                 </Popover>
                             </div>
                         </template>
@@ -579,7 +648,26 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
+                                    <MultiSelect 
+                                        v-model="statusFilterSelected" 
+                                        :options="statusOptions"
+                                        option-label="label" 
+                                        option-value="value" 
+                                        display="chip" 
+                                        placeholder="Qualquer"
+                                        class="w-full"
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div 
+                                                @click="toggleAllStatus" 
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allStatusSelected" binary readonly />
+                                                <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+
                                 </Popover>
                             </div>
                         </template>
