@@ -5,6 +5,7 @@ import { useToast } from 'primevue/usetoast';
 import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@core/config/constants';
 import { useImportHistoryStore } from '@modules/gig/stores/importHistory';
 import FloatLabel from 'primevue/floatlabel';
+import Popover from 'primevue/popover';
 
 // Somente mock: sem chamadas à API nem tipos externos
 const toast = useToast();
@@ -415,7 +416,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         <i class="pi pi-filter" />
                                     </button>
                                 </div>
-                                <OverlayPanel ref="userFilterPanel" style="min-width: 18rem" class="filter-panel">
+                                <Popover ref="userFilterPanel" style="min-width: 18rem" class="filter-panel">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Usuários</span>
                                         <Button label="Limpar" size="small" text @click="clearUserFilter" />
@@ -436,7 +437,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                             </template>
                                         </MultiSelect>
                                     </div>
-                                </OverlayPanel>
+                                </Popover>
                             </template>
                             <template #body="{ data }">
                                 <div class="flex items-center gap-3">
@@ -469,7 +470,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         <i class="pi pi-filter" />
                                     </button>
                                 </div>
-                                <OverlayPanel ref="fileFilterPanel" style="min-width: 18rem" class="filter-panel">
+                                <Popover ref="fileFilterPanel" style="min-width: 18rem" class="filter-panel">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Arquivos</span>
                                         <Button label="Limpar" size="small" text @click="clearFileFilter" />
@@ -482,7 +483,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         </div>
                                         <MultiSelect v-model="fileFilterSelected" :options="distinctFiles" optionLabel="label" optionValue="value" placeholder="Qualquer" class="w-full" display="chip" />
                                     </div>
-                                </OverlayPanel>
+                                </Popover>
                             </template>
                             <template #body="{ data }">
                                 <div>
@@ -540,7 +541,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         <i class="pi pi-filter" />
                                     </button>
                                 </div>
-                                <OverlayPanel ref="statusFilterPanel" style="min-width: 14rem" class="filter-panel">
+                                <Popover ref="statusFilterPanel" style="min-width: 14rem" class="filter-panel">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
@@ -553,7 +554,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                             <Tag :value="value" :class="['status-chip-tag', value === 'Erro' ? 'tag-error' : value === 'Aviso' ? 'tag-warning' : 'tag-success']" />
                                         </template>
                                     </MultiSelect>
-                                </OverlayPanel>
+                                </Popover>
                             </template>
                             <template #body="{ data }">
                                 <Tag class="status-tag" :class="statusTagClass(data.level)" :value="data.statusLabel" :severity="statusTagSeverity(data.level)" />

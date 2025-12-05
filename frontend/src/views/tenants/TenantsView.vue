@@ -5,8 +5,9 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FloatLabel from 'primevue/floatlabel';
-import OverlayPanel from 'primevue/overlaypanel';
+import Popover from 'primevue/popover';
 import Textarea from 'primevue/textarea';
+import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -193,12 +194,19 @@ const validateForm = () => {
         errors.primaryEmail = 'Informe um e-mail válido.';
     }
 
-    if (!form.logoUrl?.trim()) {
-        errors.logoUrl = 'Informe a URL da logo do cliente.';
-    }
-
     if (!form.plan) {
         errors.plan = 'Selecione um plano.';
+    }
+
+    if (!form.logoUrl?.trim()) {
+        errors.logoUrl = 'Informe a URL da logo do cliente.';
+    } else {
+        try {
+            // Validates URL format without fetching the resource
+            new URL(form.logoUrl);
+        } catch (_) {
+            errors.logoUrl = 'Informe uma URL válida.';
+        }
     }
 
     Object.assign(formErrors, errors);
@@ -268,7 +276,7 @@ const confirmDeleteTenant = (tenant) => {
         rejectLabel: 'Cancelar',
         acceptClass: 'p-button-danger',
         accept: () => performDeleteTenant(tenant),
-        reject: () => {}
+        reject: () => { }
     });
 };
 
@@ -385,6 +393,20 @@ watch(planFilterSelected, reloadTenants, { deep: true });
 watch(modulesFilterSelected, reloadTenants, { deep: true });
 watch(statusFilterSelected, reloadTenants, { deep: true });
 
+const { allSelected: allPlansSelected, toggleAll: toggleAllPlans } =
+    useMultiSelectToggle(planFilterSelected, ref(planOptions));
+
+const moduleOptsComputed = computed(() =>
+    distinctModuleOptions.value.length ? distinctModuleOptions.value : moduleOptions
+);
+
+const { allSelected: allModulesSelected, toggleAll: toggleAllModules } =
+    useMultiSelectToggle(modulesFilterSelected, moduleOptsComputed);
+
+const { allSelected: allStatusSelected, toggleAll: toggleAllStatus } =
+    useMultiSelectToggle(statusFilterSelected, ref(statusOptions));
+
+    
 onMounted(() => {
     loadTenants();
 });
@@ -392,7 +414,8 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc=""/>
+        <PageHero label="SYNVIA APP" title="Gestão de Clientes"
+            subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc="" />
 
         <ConfirmDialog />
 
@@ -420,7 +443,9 @@ onMounted(() => {
                     <Column field="id" style="width: 6rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'id' }]" aria-label="Ordenar por ID" :aria-sort="ariaSortFor('id')" @click="toggleSort('id')">
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'id' }]"
+                                    aria-label="Ordenar por ID" :aria-sort="ariaSortFor('id')"
+                                    @click="toggleSort('id')">
                                     <span class="column-title">ID</span>
                                     <i :class="['sort-icon', sortIndicatorFor('id')]" />
                                 </button>
@@ -434,7 +459,9 @@ onMounted(() => {
                     <Column field="name">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'name' }]" aria-label="Ordenar por cliente" :aria-sort="ariaSortFor('name')" @click="toggleSort('name')">
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'name' }]"
+                                    aria-label="Ordenar por cliente" :aria-sort="ariaSortFor('name')"
+                                    @click="toggleSort('name')">
                                     <span class="column-title">Cliente</span>
                                     <i :class="['sort-icon', sortIndicatorFor('name')]" />
                                 </button>
@@ -443,7 +470,8 @@ onMounted(() => {
                         <template #body="{ data }">
                             <div class="flex items-center gap-3">
                                 <span class="tenant-avatar" :aria-label="`Logo de ${data.name}`">
-                                    <img v-if="tenantHasLogo(data)" :src="data.logoUrl" :alt="`Logo de ${data.name}`" class="tenant-avatar-image" @error="handleLogoError(data)" />
+                                    <img v-if="tenantHasLogo(data)" :src="data.logoUrl" :alt="`Logo de ${data.name}`"
+                                        class="tenant-avatar-image" @error="handleLogoError(data)" />
                                     <span v-else class="tenant-avatar-fallback">{{ data.name?.[0] ?? '?' }}</span>
                                 </span>
                                 <div class="flex flex-col">
@@ -457,7 +485,9 @@ onMounted(() => {
                     <Column field="document" style="min-width: 12rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'document' }]" aria-label="Ordenar por documento" :aria-sort="ariaSortFor('document')" @click="toggleSort('document')">
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'document' }]"
+                                    aria-label="Ordenar por documento" :aria-sort="ariaSortFor('document')"
+                                    @click="toggleSort('document')">
                                     <span class="column-title">Documento</span>
                                     <i :class="['sort-icon', sortIndicatorFor('document')]" />
                                 </button>
@@ -471,20 +501,42 @@ onMounted(() => {
                     <Column field="plan" style="width: 10rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'plan' }]" aria-label="Ordenar por plano" :aria-sort="ariaSortFor('plan')" @click="toggleSort('plan')">
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'plan' }]"
+                                    aria-label="Ordenar por plano" :aria-sort="ariaSortFor('plan')"
+                                    @click="toggleSort('plan')">
                                     <span class="column-title">Plano</span>
                                     <i :class="['sort-icon', sortIndicatorFor('plan')]" />
                                 </button>
-                                <button type="button" :class="['filter-trigger', { active: planFilterSelected.length > 0 }]" aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
+                                <button type="button"
+                                    :class="['filter-trigger', { active: planFilterSelected.length > 0 }]"
+                                    aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Plano</span>
                                         <Button label="Limpar" size="small" text @click="clearPlanFilter" />
                                     </div>
-                                    <MultiSelect v-model="planFilterSelected" :options="planOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                    <MultiSelect 
+                                        v-model="planFilterSelected" 
+                                        :options="planOptions"
+                                        option-label="label" 
+                                        option-value="value" 
+                                        display="chip" 
+                                        placeholder="Qualquer"
+                                        class="w-full"
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div 
+                                                @click="toggleAllPlans" 
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allPlansSelected" binary readonly />
+                                                <span>{{ allPlansSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -495,14 +547,18 @@ onMounted(() => {
                     <Column field="modules">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'modules' }]" aria-label="Ordenar por módulos" :aria-sort="ariaSortFor('modules')" @click="toggleSort('modules')">
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'modules' }]"
+                                    aria-label="Ordenar por módulos" :aria-sort="ariaSortFor('modules')"
+                                    @click="toggleSort('modules')">
                                     <span class="column-title">Módulos</span>
                                     <i :class="['sort-icon', sortIndicatorFor('modules')]" />
                                 </button>
-                                <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
+                                <button type="button"
+                                    :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]"
+                                    aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Módulos</span>
                                         <Button label="Limpar" size="small" text @click="clearModulesFilter" />
@@ -515,8 +571,18 @@ onMounted(() => {
                                         display="chip"
                                         placeholder="Qualquer"
                                         class="w-full"
-                                    />
-                                </OverlayPanel>
+                                        :show-toggle-all="false"
+                                    >
+
+                                        <template #header>
+                                            <div @click="toggleAllModules" 
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allModulesSelected" binary readonly />
+                                                <span>{{ allModulesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -524,7 +590,8 @@ onMounted(() => {
                                 <Tag v-for="module in data.modules" :key="module" severity="success" class="text-xs">
                                     {{ module }}
                                 </Tag>
-                                <span v-if="!data.modules?.length" class="text-xs text-surface-500">Nenhum módulo associado</span>
+                                <span v-if="!data.modules?.length" class="text-xs text-surface-500">Nenhum módulo
+                                    associado</span>
                             </div>
                         </template>
                     </Column>
@@ -532,20 +599,41 @@ onMounted(() => {
                     <Column field="active" style="width: 9rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'active' }]" aria-label="Ordenar por status" :aria-sort="ariaSortFor('active')" @click="toggleSort('active')">
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'active' }]"
+                                    aria-label="Ordenar por status" :aria-sort="ariaSortFor('active')"
+                                    @click="toggleSort('active')">
                                     <span class="column-title">Ativo</span>
                                     <i :class="['sort-icon', sortIndicatorFor('active')]" />
                                 </button>
-                                <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
+                                <button type="button"
+                                    :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]"
+                                    aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                    <MultiSelect 
+                                        v-model="statusFilterSelected" 
+                                        :options="statusOptions"
+                                        option-label="label"
+                                        option-value="value"
+                                        display="chip"
+                                        placeholder="Qualquer"
+                                        class="w-full" 
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div @click="toggleAllStatus" 
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allStatusSelected" binary readonly />
+                                                <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -558,17 +646,14 @@ onMounted(() => {
                     <Column header="Ações" style="width: 12rem">
                         <template #body="{ data }">
                             <div class="flex gap-2">
-                                <Button icon="pi pi-pencil" rounded outlined size="small" @click="openEditDialog(data)" />
-                                <Button
-                                    :icon="data.active === false ? 'pi pi-check' : 'pi pi-ban'"
-                                    rounded
-                                    outlined
-                                    size="small"
-                                    :loading="togglingTenantId === data.id"
+                                <Button icon="pi pi-pencil" rounded outlined size="small"
+                                    @click="openEditDialog(data)" />
+                                <Button :icon="data.active === false ? 'pi pi-check' : 'pi pi-ban'" rounded outlined
+                                    size="small" :loading="togglingTenantId === data.id"
                                     :severity="data.active === false ? 'success' : 'warning'"
-                                    @click="handleToggleStatus(data)"
-                                />
-                                <Button icon="pi pi-trash" rounded outlined size="small" severity="danger" :loading="deletingTenantId === data.id" @click="confirmDeleteTenant(data)" />
+                                    @click="handleToggleStatus(data)" />
+                                <Button icon="pi pi-trash" rounded outlined size="small" severity="danger"
+                                    :loading="deletingTenantId === data.id" @click="confirmDeleteTenant(data)" />
                             </div>
                         </template>
                     </Column>
@@ -577,13 +662,15 @@ onMounted(() => {
                 <div class="tenants-pagination-grid">
                     <div class="page-size-col">
                         <FloatLabel class="w-full page-size-float" variant="on">
-                            <Dropdown v-model="pageSize" input-id="tenantsPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
+                            <Dropdown v-model="pageSize" input-id="tenantsPageSize" :options="pageSizeOptions"
+                                option-label="label" option-value="value" class="w-full" />
                             <label for="tenantsPageSize">Linhas</label>
                         </FloatLabel>
                     </div>
                     <div class="paginator-col">
                         <div class="paginator-wrapper">
-                            <Paginator :rows="paginator.rows" :total-records="paginator.total" :first="(paginator.page - 1) * paginator.rows" @page="handlePageChange" />
+                            <Paginator :rows="paginator.rows" :total-records="paginator.total"
+                                :first="(paginator.page - 1) * paginator.rows" @page="handlePageChange" />
                         </div>
                     </div>
                     <div class="summary-col">
@@ -596,7 +683,7 @@ onMounted(() => {
             </template>
         </Card>
 
-        <Dialog v-model="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
+        <Dialog v-model:visible="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
             <div class="grid gap-4">
                 <div class="grid gap-2">
                     <label for="tenantId" class="font-medium">ID</label>
@@ -621,7 +708,8 @@ onMounted(() => {
 
                 <div class="grid gap-2">
                     <label for="tenantEmail" class="font-medium">E-mail principal *</label>
-                    <InputText id="tenantEmail" v-model="form.primaryEmail" :class="{ 'p-invalid': formErrors.primaryEmail }" />
+                    <InputText id="tenantEmail" v-model="form.primaryEmail"
+                        :class="{ 'p-invalid': formErrors.primaryEmail }" />
                     <small v-if="formErrors.primaryEmail" class="p-error">{{ formErrors.primaryEmail }}</small>
                 </div>
 
@@ -632,22 +720,27 @@ onMounted(() => {
 
                 <div class="grid gap-2">
                     <label for="tenantPlan" class="font-medium">Plano *</label>
-                    <Dropdown id="tenantPlan" v-model="form.plan" :options="planOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.plan }" />
+                    <Dropdown id="tenantPlan" v-model="form.plan" :options="planOptions" option-label="label"
+                        option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.plan }" />
                     <small v-if="formErrors.plan" class="p-error">{{ formErrors.plan }}</small>
                 </div>
 
                 <div class="grid gap-2">
                     <label for="tenantModules" class="font-medium">Módulos</label>
-                    <MultiSelect id="tenantModules" v-model="form.modules" :options="moduleOptions" option-label="label" option-value="value" display="chip" />
+                    <MultiSelect id="tenantModules" v-model="form.modules" :options="moduleOptions" option-label="label"
+                        option-value="value" display="chip" />
                 </div>
 
                 <div class="grid gap-2">
                     <label for="tenantLogo" class="font-medium">Logo (URL) *</label>
-                    <InputText id="tenantLogo" v-model="form.logoUrl" placeholder="https://" :class="{ 'p-invalid': formErrors.logoUrl }" />
+                    <InputText id="tenantLogo" v-model="form.logoUrl" placeholder="https://"
+                        :class="{ 'p-invalid': formErrors.logoUrl }" />
                     <small v-if="formErrors.logoUrl" class="p-error">{{ formErrors.logoUrl }}</small>
                     <div v-if="form.logoUrl" class="tenant-logo-preview mt-2">
-                        <span class="tenant-avatar" :aria-label="`Pré-visualização da logo de ${form.name || 'novo cliente'}`">
-                            <img v-if="hasFormLogo" :src="form.logoUrl" :alt="`Logo de ${form.name || 'novo cliente'}`" class="tenant-avatar-image" @error="handleFormLogoError" />
+                        <span class="tenant-avatar"
+                            :aria-label="`Pré-visualização da logo de ${form.name || 'novo cliente'}`">
+                            <img v-if="hasFormLogo" :src="form.logoUrl" :alt="`Logo de ${form.name || 'novo cliente'}`"
+                                class="tenant-avatar-image" @error="handleFormLogoError" />
                             <span v-else class="tenant-avatar-fallback">{{ form.name?.[0] ?? '?' }}</span>
                         </span>
                     </div>
@@ -694,10 +787,7 @@ onMounted(() => {
     justify-content: center;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .filter-trigger:hover {
