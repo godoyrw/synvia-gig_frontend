@@ -596,7 +596,7 @@ onMounted(() => {
             </template>
         </Card>
 
-        <Dialog v-model="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
+        <Dialog v-model:visible="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
             <div class="grid gap-4">
                 <div class="grid gap-2">
                     <label for="tenantId" class="font-medium">ID</label>
