@@ -5,7 +5,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FloatLabel from 'primevue/floatlabel';
-import OverlayPanel from 'primevue/overlaypanel';
+import Popover from 'primevue/popover';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -472,7 +472,7 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: nameFilterSelected.length > 0 }]" aria-label="Filtrar por nome" @click="toggleNameFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="nameFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="nameFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Nome</span>
                                         <Button label="Limpar" size="small" text @click="clearNameFilter" />
@@ -486,7 +486,7 @@ onMounted(() => {
                                             </div>
                                         </template>
                                     </MultiSelect>
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -513,13 +513,13 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: roleFilterSelected.length > 0 }]" aria-label="Filtrar por função" @click="toggleRoleFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="roleFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="roleFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Função</span>
                                         <Button label="Limpar" size="small" text @click="clearRoleFilter" />
                                     </div>
                                     <MultiSelect v-model="roleFilterSelected" :options="roleOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -537,7 +537,7 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Módulos</span>
                                         <Button label="Limpar" size="small" text @click="clearModulesFilter" />
@@ -551,7 +551,7 @@ onMounted(() => {
                                         placeholder="Qualquer"
                                         class="w-full"
                                     />
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -574,13 +574,13 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
                                     <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">

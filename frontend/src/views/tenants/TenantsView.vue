@@ -5,7 +5,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FloatLabel from 'primevue/floatlabel';
-import OverlayPanel from 'primevue/overlaypanel';
+import Popover from 'primevue/popover';
 import Textarea from 'primevue/textarea';
 
 const toast = useToast();
@@ -478,13 +478,13 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: planFilterSelected.length > 0 }]" aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Plano</span>
                                         <Button label="Limpar" size="small" text @click="clearPlanFilter" />
                                     </div>
                                     <MultiSelect v-model="planFilterSelected" :options="planOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -502,7 +502,7 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Módulos</span>
                                         <Button label="Limpar" size="small" text @click="clearModulesFilter" />
@@ -516,7 +516,7 @@ onMounted(() => {
                                         placeholder="Qualquer"
                                         class="w-full"
                                     />
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -539,13 +539,13 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
                                     <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
