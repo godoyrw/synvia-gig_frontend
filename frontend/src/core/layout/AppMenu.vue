@@ -35,7 +35,7 @@ const model = ref([
                     }
                 ]
             }
-        ],
+        ]
     },
     {
         label: 'Administração',
