@@ -193,12 +193,19 @@ const validateForm = () => {
         errors.primaryEmail = 'Informe um e-mail válido.';
     }
 
-    if (!form.logoUrl?.trim()) {
-        errors.logoUrl = 'Informe a URL da logo do cliente.';
-    }
-
     if (!form.plan) {
         errors.plan = 'Selecione um plano.';
+    }
+
+    if (!form.logoUrl?.trim()) {
+        errors.logoUrl = 'Informe a URL da logo do cliente.';
+    } else {
+        try {
+            // Validates URL format without fetching the resource
+            new URL(form.logoUrl);
+        } catch (_) {
+            errors.logoUrl = 'Informe uma URL válida.';
+        }
     }
 
     Object.assign(formErrors, errors);
@@ -392,7 +399,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc=""/>
+        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc="" />
 
         <ConfirmDialog />
 
