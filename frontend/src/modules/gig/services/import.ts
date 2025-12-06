@@ -53,10 +53,25 @@ export interface ImportHistoryResponse {
 
 export async function uploadCsv(
     file: File,
-    options: { onProgress?: (percent: number, event: any) => void } = {}
+    options: {
+        onProgress?: (percent: number, event: any) => void;
+        clientId?: string | number | null;
+        userId?: string | number | null;
+    } = {}
 ): Promise<UploadCsvResponse> {
     const formData = new FormData();
     formData.append('file', file);
+
+    const clientId = options.clientId ?? null;
+    const userId = options.userId ?? null;
+
+    if (clientId !== null && clientId !== undefined) {
+        formData.append('clientId', String(clientId));
+    }
+
+    if (userId !== null && userId !== undefined) {
+        formData.append('userId', String(userId));
+    }
 
     const { data } = await microServiceApi.post('/gig/import/upload', formData, {
         headers: {

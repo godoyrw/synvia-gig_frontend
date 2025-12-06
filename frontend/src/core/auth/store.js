@@ -5,8 +5,50 @@ import router from '@core/router';
 import { login as mockLogin } from '@core/auth/service';
 import { defineStore } from 'pinia';
 
+const sanitizeIdentifier = (value) => {
+    if (value === undefined || value === null) return null;
+    if (typeof value === 'string' && !value.trim()) return null;
+    return value;
+};
+
+const normalizeAuthUser = (user) => {
+    if (!user || typeof user !== 'object') return null;
+
+    const idCandidate = sanitizeIdentifier(
+        user.id ?? user.userId ?? user.user_id ?? user.uid ?? user.identifier
+    );
+
+    const clientIdCandidate = sanitizeIdentifier(
+        user.clientId ?? user.client_id ?? user.organizationId ?? user.tenantId ?? user.tenant_id ?? user.companyId
+    );
+
+    const normalized = {
+        ...user
+    };
+
+    if (idCandidate !== null) {
+        normalized.id = idCandidate;
+    }
+
+    if (clientIdCandidate !== null) {
+        normalized.clientId = clientIdCandidate;
+    } else if (idCandidate !== null && user.clientId === undefined) {
+        normalized.clientId = idCandidate;
+    }
+
+    if (user.id !== undefined && user.clientId !== undefined) {
+        normalized.id = user.id;
+        normalized.clientId = user.clientId;
+    }
+
+    return normalized;
+};
+
 const usersById = usersData.users.reduce((map, user) => {
-    map[user.id] = user;
+    const normalized = normalizeAuthUser(user);
+    if (normalized?.id !== undefined) {
+        map[normalized.id] = normalized;
+    }
     return map;
 }, {});
 
@@ -65,9 +107,10 @@ export const useAuthStore = defineStore('auth', {
             }
 
             const expiresAt = Date.now() + durationMinutes * 60 * 1000;
+            const normalizedUser = normalizeAuthUser(result.user);
 
             this.token = result.token;
-            this.user = result.user;
+            this.user = normalizedUser;
             this.expiresAt = expiresAt;
             this.durationMinutes = durationMinutes;
             this.isLoggedOut = false;
@@ -76,12 +119,12 @@ export const useAuthStore = defineStore('auth', {
             sessionStorage.setItem(
                 'auth_user',
                 JSON.stringify({
-                    id: this.user.id,
-                    clientId: this.user.clientId,
-                    displayName: this.user.displayName,
-                    role: this.user.role,
-                    avatar: this.user.avatar,
-                    permissions: this.user.permissions
+                    id: normalizedUser?.id ?? null,
+                    clientId: normalizedUser?.clientId ?? null,
+                    displayName: normalizedUser?.displayName ?? '',
+                    role: normalizedUser?.role ?? '',
+                    avatar: normalizedUser?.avatar ?? '',
+                    permissions: normalizedUser?.permissions ?? []
                 })
             );
             sessionStorage.setItem('auth_expires', String(expiresAt));

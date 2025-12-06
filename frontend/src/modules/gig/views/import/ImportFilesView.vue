@@ -69,6 +69,8 @@ const handleUpload = async () => {
         uploadProgress.value = 0;
         (toast as any).add({ severity: 'info', summary: 'Processando', detail: 'Iniciando envio do arquivo...', group: 'upload-status', sticky: true, closable: false, life: 0 });
         const result = await uploadCsv(selectedFile.value, {
+            clientId: auth.user?.clientId ?? auth.user?.organizationId ?? auth.user?.id ?? null,
+            userId: auth.user?.id ?? null,
             onProgress: (percent) => {
                 uploadProgress.value = percent;
             }

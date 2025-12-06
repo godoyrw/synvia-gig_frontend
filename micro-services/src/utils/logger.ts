@@ -1,31 +1,40 @@
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import type { Readable } from 'node:stream';
-import { env } from '../config/env.js';
 import { s3Client } from '../config/s3.js';
-import type { ImportLogEntry } from '../types/import.js';
+import { env } from '../config/env.js';
 import { buildLogKey } from './filename.js';
+import { Readable } from 'stream';
 
-export const bodyToString = async (body?: Readable | Uint8Array | string): Promise<string> => {
-  if (!body) return '';
+export interface ImportLogEntry {
+  requestId: string;
+  timestamp: string;
+  level: 'INFO' | 'WARN' | 'ERROR';
+  status: 'UPLOADED' | 'FAILED' | 'VALIDATION_ERROR';
+  userId: string | number;
+  clientId: string | number;
+  fileName: string;
+  fileSizeBytes: number;
+  fileHash: string;
+  totalRows: number;
+  errorRows: number;
+  durationMs: number;
+  s3Bucket: string;
+  s3Key: string;
+  errors?: { line: number; reason: string }[];
+}
 
-  if (typeof body === 'string') {
-    return body;
-  }
 
-  if (body instanceof Uint8Array) {
-    return Buffer.from(body).toString('utf-8');
-  }
+const streamToString = async (stream: Readable): Promise<string> =>
+  await new Promise((resolve, reject) => {
+    const chunks: Uint8Array[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    stream.on('error', reject);
+  });
 
-  const chunks: Uint8Array[] = [];
-  for await (const chunk of body) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-  }
+export const appendImportLog = async (clientId: string | number, entry: ImportLogEntry, date = new Date()) => {
+  const relativeKey = buildLogKey(clientId, date);   // exemplo: logs/1/2025/12/06.log
+  const key = `${env.aws.prefix}${relativeKey}`;     // exemplo: app-homolog/logs/1/2025/12/06.log
 
-  return Buffer.concat(chunks).toString('utf-8');
-};
-
-export const appendImportLog = async (clientId: string, entry: ImportLogEntry, date = new Date()) => {
-  const key = buildLogKey(clientId, date);
   let existingContent = '';
 
   try {
@@ -36,16 +45,24 @@ export const appendImportLog = async (clientId: string, entry: ImportLogEntry, d
       })
     );
 
-    existingContent = await bodyToString(currentLog.Body as Readable | Uint8Array | string | undefined);
-  } catch (error) {
-    if ((error as Error)?.name !== 'NoSuchKey') {
-      throw error;
+    if (currentLog.Body) {
+      existingContent = (await streamToString(currentLog.Body as Readable)).trim();
+    }
+  } catch (err) {
+    // Se não existir o arquivo ainda, criamos do zero
+    if (
+      !(err as any).Code?.includes('NoSuchKey') &&
+      !(err as any).name?.includes('NoSuchKey')
+    ) {
+      console.error('Erro ao ler log:', err);
     }
   }
 
+  // Serialização
   const serializedEntry = JSON.stringify(entry);
   const newBody = existingContent ? `${existingContent}\n${serializedEntry}` : serializedEntry;
 
+  // Upload atualizado
   await s3Client.send(
     new PutObjectCommand({
       Bucket: env.aws.bucket,
