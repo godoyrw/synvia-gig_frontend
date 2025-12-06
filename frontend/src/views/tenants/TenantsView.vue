@@ -11,15 +11,7 @@ import ToggleSwitch from '@core/components/ToggleSwitch.vue';
 import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
 
 // ✅ importa util de validações / formatações
-import {
-    validateEmail,
-    validateCnpj,
-    validatePhone,
-    sanitizeDigits,
-    formatCnpj,
-    formatPhone,
-    onlyDigitKey
-} from '@/core/utils/validations';
+import { validateEmail, validateCnpj, validatePhone, sanitizeDigits, formatCnpj, formatPhone, onlyDigitKey } from '@/core/utils/validations';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -492,13 +484,7 @@ onMounted(() => {
                     <Column field="id" style="width: 6rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'id' }]"
-                                    aria-label="Ordenar por ID"
-                                    :aria-sort="ariaSortFor('id')"
-                                    @click="toggleSort('id')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'id' }]" aria-label="Ordenar por ID" :aria-sort="ariaSortFor('id')" @click="toggleSort('id')">
                                     <span class="column-title">ID</span>
                                     <i :class="['sort-icon', sortIndicatorFor('id')]" />
                                 </button>
@@ -512,13 +498,7 @@ onMounted(() => {
                     <Column field="name">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'name' }]"
-                                    aria-label="Ordenar por cliente"
-                                    :aria-sort="ariaSortFor('name')"
-                                    @click="toggleSort('name')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'name' }]" aria-label="Ordenar por cliente" :aria-sort="ariaSortFor('name')" @click="toggleSort('name')">
                                     <span class="column-title">Cliente</span>
                                     <i :class="['sort-icon', sortIndicatorFor('name')]" />
                                 </button>
@@ -541,13 +521,7 @@ onMounted(() => {
                     <Column field="document" style="min-width: 12rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'document' }]"
-                                    aria-label="Ordenar por documento"
-                                    :aria-sort="ariaSortFor('document')"
-                                    @click="toggleSort('document')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'document' }]" aria-label="Ordenar por documento" :aria-sort="ariaSortFor('document')" @click="toggleSort('document')">
                                     <span class="column-title">Documento</span>
                                     <i :class="['sort-icon', sortIndicatorFor('document')]" />
                                 </button>
@@ -561,22 +535,11 @@ onMounted(() => {
                     <Column field="plan" style="width: 10rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'plan' }]"
-                                    aria-label="Ordenar por plano"
-                                    :aria-sort="ariaSortFor('plan')"
-                                    @click="toggleSort('plan')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'plan' }]" aria-label="Ordenar por plano" :aria-sort="ariaSortFor('plan')" @click="toggleSort('plan')">
                                     <span class="column-title">Plano</span>
                                     <i :class="['sort-icon', sortIndicatorFor('plan')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: planFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por plano"
-                                    @click="togglePlanFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: planFilterSelected.length > 0 }]" aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <Popover ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -584,21 +547,9 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Plano</span>
                                         <Button label="Limpar" size="small" text @click="clearPlanFilter" />
                                     </div>
-                                    <MultiSelect
-                                        v-model="planFilterSelected"
-                                        :options="planOptions"
-                                        option-label="label"
-                                        option-value="value"
-                                        display="chip"
-                                        placeholder="Qualquer"
-                                        class="w-full"
-                                        :show-toggle-all="false"
-                                    >
+                                    <MultiSelect v-model="planFilterSelected" :options="planOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
                                         <template #header>
-                                            <div
-                                                @click="toggleAllPlans"
-                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer"
-                                            >
+                                            <div @click="toggleAllPlans" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
                                                 <Checkbox :modelValue="allPlansSelected" binary readonly />
                                                 <span>{{ allPlansSelected ? 'Nenhum' : 'Todos' }}</span>
                                             </div>
@@ -615,22 +566,11 @@ onMounted(() => {
                     <Column field="modules">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'modules' }]"
-                                    aria-label="Ordenar por módulos"
-                                    :aria-sort="ariaSortFor('modules')"
-                                    @click="toggleSort('modules')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'modules' }]" aria-label="Ordenar por módulos" :aria-sort="ariaSortFor('modules')" @click="toggleSort('modules')">
                                     <span class="column-title">Módulos</span>
                                     <i :class="['sort-icon', sortIndicatorFor('modules')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por módulos"
-                                    @click="toggleModulesFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
@@ -649,10 +589,7 @@ onMounted(() => {
                                         :show-toggle-all="false"
                                     >
                                         <template #header>
-                                            <div
-                                                @click="toggleAllModules"
-                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer"
-                                            >
+                                            <div @click="toggleAllModules" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
                                                 <Checkbox :modelValue="allModulesSelected" binary readonly />
                                                 <span>{{ allModulesSelected ? 'Nenhum' : 'Todos' }}</span>
                                             </div>
@@ -674,22 +611,11 @@ onMounted(() => {
                     <Column field="active" style="width: 9rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button
-                                    type="button"
-                                    :class="['sort-trigger', { active: sortField === 'active' }]"
-                                    aria-label="Ordenar por status"
-                                    :aria-sort="ariaSortFor('active')"
-                                    @click="toggleSort('active')"
-                                >
+                                <button type="button" :class="['sort-trigger', { active: sortField === 'active' }]" aria-label="Ordenar por status" :aria-sort="ariaSortFor('active')" @click="toggleSort('active')">
                                     <span class="column-title">Ativo</span>
                                     <i :class="['sort-icon', sortIndicatorFor('active')]" />
                                 </button>
-                                <button
-                                    type="button"
-                                    :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]"
-                                    aria-label="Filtrar por status"
-                                    @click="toggleStatusFilterPanel($event)"
-                                >
+                                <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
                                 <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -697,21 +623,9 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect
-                                        v-model="statusFilterSelected"
-                                        :options="statusOptions"
-                                        option-label="label"
-                                        option-value="value"
-                                        display="chip"
-                                        placeholder="Qualquer"
-                                        class="w-full"
-                                        :show-toggle-all="false"
-                                    >
+                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
                                         <template #header>
-                                            <div
-                                                @click="toggleAllStatus"
-                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer"
-                                            >
+                                            <div @click="toggleAllStatus" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
                                                 <Checkbox :modelValue="allStatusSelected" binary readonly />
                                                 <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
                                             </div>
@@ -786,16 +700,7 @@ onMounted(() => {
 
                 <div class="grid gap-2">
                     <label for="tenantDocument" class="font-medium">Documento (CNPJ) *</label>
-                    <InputText
-                        id="tenantDocument"
-                        v-model="form.document"
-                        :class="{ 'p-invalid': formErrors.document }"
-                        placeholder="00.000.000/0000-00"
-                        inputmode="numeric"
-                        maxlength="18"
-                        @input="handleCnpjInput"
-                        @keydown="onlyDigitKey"
-                    />
+                    <InputText id="tenantDocument" v-model="form.document" :class="{ 'p-invalid': formErrors.document }" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" @input="handleCnpjInput" @keydown="onlyDigitKey" />
                     <small v-if="formErrors.document" class="p-error">{{ formErrors.document }}</small>
                 </div>
 
@@ -807,16 +712,7 @@ onMounted(() => {
 
                 <div class="grid gap-2">
                     <label for="tenantPhone" class="font-medium">Telefone *</label>
-                    <InputText
-                        id="tenantPhone"
-                        v-model="form.primaryPhone"
-                        placeholder="+55 (11) 99999-0000"
-                        :class="{ 'p-invalid': formErrors.primaryPhone }"
-                        inputmode="tel"
-                        maxlength="19"
-                        @input="handlePhoneInput"
-                        @keydown="onlyDigitKey"
-                    />
+                    <InputText id="tenantPhone" v-model="form.primaryPhone" placeholder="+55 (11) 99999-0000" :class="{ 'p-invalid': formErrors.primaryPhone }" inputmode="tel" maxlength="19" @input="handlePhoneInput" @keydown="onlyDigitKey" />
                     <small v-if="formErrors.primaryPhone" class="p-error">{{ formErrors.primaryPhone }}</small>
                 </div>
 
@@ -884,10 +780,7 @@ onMounted(() => {
     justify-content: center;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .filter-trigger:hover {

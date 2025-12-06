@@ -64,6 +64,17 @@ const model = ref([
                 label: 'Micro Serviços',
                 icon: 'pi pi-fw pi-server',
                 to: '/documentation/micro-services'
+            },
+            {
+                label: 'Servidores',
+                icon: 'pi pi-fw pi-globe',
+                items: [
+                    {
+                        label: 'NGINX / Proxy',
+                        icon: 'pi pi-fw pi-cog',
+                        to: '/documentation/servers'
+                    }
+                ]
             }
         ]
     }

@@ -42,6 +42,12 @@ const generalRoutes: RouteRecordRaw[] = [
         name: 'documentationMicroServices',
         component: () => import('@/views/pages/DocumentationMicroServices.vue'),
         meta: { permission: 'documentation:read' }
+    },
+    {
+        path: '/documentation/servers',
+        name: 'documentationServers',
+        component: () => import('@/views/pages/DocumentationServers.vue'),
+        meta: { permission: 'documentation:read' }
     }
 ];
 
