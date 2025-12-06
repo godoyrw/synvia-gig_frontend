@@ -5,7 +5,9 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FloatLabel from 'primevue/floatlabel';
-import OverlayPanel from 'primevue/overlaypanel';
+import Popover from 'primevue/popover';
+import ToggleSwitch from '@core/components/ToggleSwitch.vue';
+import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -73,6 +75,7 @@ const roleOptions = computed(() => {
 });
 
 const dialogTitle = computed(() => (dialogMode.value === 'edit' ? 'Editar Usuário' : 'Novo Usuário'));
+const showPasswordStrength = computed(() => dialogMode.value === 'create' || !!form.password);
 
 const paginationSummary = computed(() => {
     const total = paginator.total || 0;
@@ -416,6 +419,37 @@ watch(nameFilterSelected, reloadUsers, { deep: true });
 watch(modulesFilterSelected, reloadUsers, { deep: true });
 watch(statusFilterSelected, reloadUsers, { deep: true });
 
+// Names
+const { allSelected: allNamesSelected, toggleAll: toggleAllNames } = useMultiSelectToggle(nameFilterSelected, distinctNameOptions);
+
+// Roles
+const { allSelected: allRolesSelected, toggleAll: toggleAllRoles } = useMultiSelectToggle(roleFilterSelected, roleOptions);
+
+// Modules
+const moduleOptsComputed = computed(() => (distinctModuleOptions.value.length ? distinctModuleOptions.value : moduleOptions));
+
+const { allSelected: allModulesSelected, toggleAll: toggleAllModules } = useMultiSelectToggle(modulesFilterSelected, moduleOptsComputed);
+
+// Status
+const { allSelected: allStatusSelected, toggleAll: toggleAllStatus } = useMultiSelectToggle(statusFilterSelected, ref(statusOptions));
+
+const onUserStatusToggle = async (user, nextValue) => {
+    if (!user) return;
+    if (togglingUserId.value === user.id) return;
+
+    const currentValue = user.active !== false;
+    if (nextValue === currentValue) return;
+
+    const previousValue = user.active;
+    user.active = nextValue;
+
+    try {
+        await handleToggleStatus(user);
+    } catch (error) {
+        user.active = previousValue;
+    }
+};
+
 onMounted(() => {
     loadUsers();
 });
@@ -423,7 +457,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Usuários" subtitle="Gerencie perfis, permissões e acesso aos módulos do SYNVIA-APP." logoSrc=""/>
+        <PageHero label="SYNVIA APP" title="Gestão de Usuários" subtitle="Gerencie perfis, permissões e acesso aos módulos do SYNVIA-APP." logoSrc="" />
 
         <ConfirmDialog />
 
@@ -472,12 +506,19 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: nameFilterSelected.length > 0 }]" aria-label="Filtrar por nome" @click="toggleNameFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="nameFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="nameFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Nome</span>
                                         <Button label="Limpar" size="small" text @click="clearNameFilter" />
                                     </div>
-                                    <MultiSelect v-model="nameFilterSelected" :options="distinctNameOptions" option-label="label" option-value="value" display="chip" class="w-full" placeholder="Qualquer">
+                                    <MultiSelect v-model="nameFilterSelected" :options="distinctNameOptions" option-label="label" option-value="value" display="chip" class="w-full" placeholder="Qualquer" :show-toggle-all="false">
+                                        <template #header>
+                                            <div @click="toggleAllNames" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allNamesSelected" binary readonly />
+                                                <span>{{ allNamesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+
                                         <template #option="{ option }">
                                             <div class="flex items-center gap-2">
                                                 <Avatar v-if="option.avatar" :image="option.avatar" shape="circle" size="small" />
@@ -486,7 +527,7 @@ onMounted(() => {
                                             </div>
                                         </template>
                                     </MultiSelect>
-                                </OverlayPanel>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -513,13 +554,20 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: roleFilterSelected.length > 0 }]" aria-label="Filtrar por função" @click="toggleRoleFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="roleFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="roleFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Função</span>
                                         <Button label="Limpar" size="small" text @click="clearRoleFilter" />
                                     </div>
-                                    <MultiSelect v-model="roleFilterSelected" :options="roleOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                    <MultiSelect v-model="roleFilterSelected" :options="roleOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                        <template #header>
+                                            <div @click="toggleAllRoles" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allRolesSelected" binary readonly />
+                                                <span>{{ allRolesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -537,7 +585,7 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Módulos</span>
                                         <Button label="Limpar" size="small" text @click="clearModulesFilter" />
@@ -550,8 +598,16 @@ onMounted(() => {
                                         display="chip"
                                         placeholder="Qualquer"
                                         class="w-full"
-                                    />
-                                </OverlayPanel>
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div @click="toggleAllModules" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allModulesSelected" binary readonly />
+                                                <span>{{ allModulesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -574,19 +630,24 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                        <template #header>
+                                            <div @click="toggleAllStatus" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allStatusSelected" binary readonly />
+                                                <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
-                            <Tag :severity="data.active === false ? 'danger' : 'success'">
-                                {{ data.active === false ? 'Inativo' : 'Ativo' }}
-                            </Tag>
+                            <ToggleSwitch :model-value="data.active !== false" :disabled="togglingUserId === data.id" @update:modelValue="(value) => onUserStatusToggle(data, value)" />
                         </template>
                     </Column>
 
@@ -612,7 +673,7 @@ onMounted(() => {
                 <div class="users-pagination-grid">
                     <div class="page-size-col">
                         <FloatLabel class="w-full page-size-float" variant="on">
-                            <Dropdown v-model="pageSize" input-id="usersPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
+                            <Select v-model="pageSize" input-id="usersPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
                             <label for="usersPageSize">Linhas</label>
                         </FloatLabel>
                     </div>
@@ -657,7 +718,7 @@ onMounted(() => {
                         v-model="form.password"
                         :toggle-mask="true"
                         input-class="w-full"
-                        :feedback="dialogMode === 'create'"
+                        :feedback="showPasswordStrength"
                         prompt-label="Digite uma senha"
                         weak-label="Fraca"
                         medium-label="Média"
@@ -686,7 +747,7 @@ onMounted(() => {
 
                 <div class="grid gap-2">
                     <label for="role" class="font-medium">Função *</label>
-                    <Dropdown id="role" v-model="form.role" :options="roleOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.role }" />
+                    <Select id="role" v-model="form.role" :options="roleOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.role }" />
                     <small v-if="formErrors.role" class="p-error">{{ formErrors.role }}</small>
                 </div>
 
@@ -777,12 +838,12 @@ onMounted(() => {
 }
 
 .filter-panel :deep(.p-multiselect),
-.filter-panel :deep(.p-dropdown) {
+.filter-panel :deep(.p-select) {
     font-size: 0.85rem;
 }
 
 .filter-panel :deep(.p-multiselect-label),
-.filter-panel :deep(.p-dropdown-label) {
+.filter-panel :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 
@@ -933,11 +994,11 @@ onMounted(() => {
     justify-content: center;
 }
 
-.page-size-float :deep(.p-dropdown-label) {
+.page-size-float :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 
-.page-size-float :deep(.p-dropdown) {
+.page-size-float :deep(.p-select) {
     font-size: 0.85rem;
 }
 

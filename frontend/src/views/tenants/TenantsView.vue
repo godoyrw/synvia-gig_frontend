@@ -5,8 +5,13 @@ import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import FloatLabel from 'primevue/floatlabel';
-import OverlayPanel from 'primevue/overlaypanel';
+import Popover from 'primevue/popover';
 import Textarea from 'primevue/textarea';
+import ToggleSwitch from '@core/components/ToggleSwitch.vue';
+import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
+
+// ✅ importa util de validações / formatações
+import { validateEmail, validateCnpj, validatePhone, sanitizeDigits, formatCnpj, formatPhone, onlyDigitKey } from '@/core/utils/validations';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -163,11 +168,15 @@ const openEditDialog = (tenant) => {
     if (!tenant) return;
     dialogMode.value = 'edit';
     resetForm();
+    const formattedDocument = formatCnpj(sanitizeDigits(tenant.document ?? '').slice(0, 14));
+    const formattedPhone = formatPhone(sanitizeDigits(tenant.primaryPhone ?? '').slice(0, 13));
     Object.assign(form, {
         ...tenant,
         active: tenant.active !== false,
         createdAt: tenant.createdAt || tenant.created_at || new Date().toISOString(),
-        id: tenant.id
+        id: tenant.id,
+        document: formattedDocument,
+        primaryPhone: formattedPhone
     });
     dialogVisible.value = true;
 };
@@ -176,10 +185,26 @@ const closeDialog = () => {
     dialogVisible.value = false;
 };
 
-const validateEmail = (value) => {
-    if (!value) return false;
-    const emailPattern = /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i;
-    return emailPattern.test(value);
+const handleCnpjInput = (event) => {
+    const digits = sanitizeDigits(event.target.value).slice(0, 14);
+    const formatted = formatCnpj(digits);
+    if (event.target.value !== formatted) {
+        event.target.value = formatted;
+    }
+    if (formatted !== form.document) {
+        form.document = formatted;
+    }
+};
+
+const handlePhoneInput = (event) => {
+    const digits = sanitizeDigits(event.target.value).slice(0, 13);
+    const formatted = formatPhone(digits);
+    if (event.target.value !== formatted) {
+        event.target.value = formatted;
+    }
+    if (formatted !== form.primaryPhone) {
+        form.primaryPhone = formatted;
+    }
 };
 
 const validateForm = () => {
@@ -193,12 +218,26 @@ const validateForm = () => {
         errors.primaryEmail = 'Informe um e-mail válido.';
     }
 
-    if (!form.logoUrl?.trim()) {
-        errors.logoUrl = 'Informe a URL da logo do cliente.';
+    if (!validatePhone(form.primaryPhone)) {
+        errors.primaryPhone = 'Informe um telefone válido no formato +55 (11) 99999-0000.';
     }
 
     if (!form.plan) {
         errors.plan = 'Selecione um plano.';
+    }
+
+    if (!validateCnpj(form.document)) {
+        errors.document = 'Informe um CNPJ válido.';
+    }
+
+    if (form.logoUrl?.trim()) {
+        try {
+            new URL(form.logoUrl);
+        } catch (_) {
+            errors.logoUrl = 'Informe uma URL válida.';
+        }
+    } else {
+        delete errors.logoUrl;
     }
 
     Object.assign(formErrors, errors);
@@ -385,6 +424,31 @@ watch(planFilterSelected, reloadTenants, { deep: true });
 watch(modulesFilterSelected, reloadTenants, { deep: true });
 watch(statusFilterSelected, reloadTenants, { deep: true });
 
+const { allSelected: allPlansSelected, toggleAll: toggleAllPlans } = useMultiSelectToggle(planFilterSelected, ref(planOptions));
+
+const moduleOptsComputed = computed(() => (distinctModuleOptions.value.length ? distinctModuleOptions.value : moduleOptions));
+
+const { allSelected: allModulesSelected, toggleAll: toggleAllModules } = useMultiSelectToggle(modulesFilterSelected, moduleOptsComputed);
+
+const { allSelected: allStatusSelected, toggleAll: toggleAllStatus } = useMultiSelectToggle(statusFilterSelected, ref(statusOptions));
+
+const onTenantStatusToggle = async (tenant, nextValue) => {
+    if (!tenant) return;
+    if (togglingTenantId.value === tenant.id) return;
+
+    const currentValue = tenant.active !== false;
+    if (nextValue === currentValue) return;
+
+    const previousValue = tenant.active;
+    tenant.active = nextValue;
+
+    try {
+        await handleToggleStatus(tenant);
+    } catch (error) {
+        tenant.active = previousValue;
+    }
+};
+
 onMounted(() => {
     loadTenants();
 });
@@ -392,7 +456,7 @@ onMounted(() => {
 
 <template>
     <div class="p-4 lg:p-6 space-y-6">
-        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc=""/>
+        <PageHero label="SYNVIA APP" title="Gestão de Clientes" subtitle="Gerencie os clientes (tenants) e seus módulos habilitados." logoSrc="" />
 
         <ConfirmDialog />
 
@@ -478,13 +542,20 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: planFilterSelected.length > 0 }]" aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Plano</span>
                                         <Button label="Limpar" size="small" text @click="clearPlanFilter" />
                                     </div>
-                                    <MultiSelect v-model="planFilterSelected" :options="planOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                    <MultiSelect v-model="planFilterSelected" :options="planOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                        <template #header>
+                                            <div @click="toggleAllPlans" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allPlansSelected" binary readonly />
+                                                <span>{{ allPlansSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -502,7 +573,7 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
+                                <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Módulos</span>
                                         <Button label="Limpar" size="small" text @click="clearModulesFilter" />
@@ -515,8 +586,16 @@ onMounted(() => {
                                         display="chip"
                                         placeholder="Qualquer"
                                         class="w-full"
-                                    />
-                                </OverlayPanel>
+                                        :show-toggle-all="false"
+                                    >
+                                        <template #header>
+                                            <div @click="toggleAllModules" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allModulesSelected" binary readonly />
+                                                <span>{{ allModulesSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
@@ -539,19 +618,24 @@ onMounted(() => {
                                 <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
                                     <i class="pi pi-filter" />
                                 </button>
-                                <OverlayPanel ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
+                                <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" />
-                                </OverlayPanel>
+                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                        <template #header>
+                                            <div @click="toggleAllStatus" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allStatusSelected" binary readonly />
+                                                <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
+                                        </template>
+                                    </MultiSelect>
+                                </Popover>
                             </div>
                         </template>
                         <template #body="{ data }">
-                            <Tag :severity="data.active === false ? 'danger' : 'success'">
-                                {{ data.active === false ? 'Inativo' : 'Ativo' }}
-                            </Tag>
+                            <ToggleSwitch :model-value="data.active !== false" :disabled="togglingTenantId === data.id" @update:modelValue="(value) => onTenantStatusToggle(data, value)" />
                         </template>
                     </Column>
 
@@ -577,7 +661,7 @@ onMounted(() => {
                 <div class="tenants-pagination-grid">
                     <div class="page-size-col">
                         <FloatLabel class="w-full page-size-float" variant="on">
-                            <Dropdown v-model="pageSize" input-id="tenantsPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
+                            <Select v-model="pageSize" input-id="tenantsPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
                             <label for="tenantsPageSize">Linhas</label>
                         </FloatLabel>
                     </div>
@@ -596,7 +680,7 @@ onMounted(() => {
             </template>
         </Card>
 
-        <Dialog v-model="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
+        <Dialog v-model:visible="dialogVisible" modal :header="dialogTitle" :style="{ width: '520px' }">
             <div class="grid gap-4">
                 <div class="grid gap-2">
                     <label for="tenantId" class="font-medium">ID</label>
@@ -615,8 +699,9 @@ onMounted(() => {
                 </div>
 
                 <div class="grid gap-2">
-                    <label for="tenantDocument" class="font-medium">Documento (CNPJ)</label>
-                    <InputText id="tenantDocument" v-model="form.document" placeholder="00.000.000/0000-00" />
+                    <label for="tenantDocument" class="font-medium">Documento (CNPJ) *</label>
+                    <InputText id="tenantDocument" v-model="form.document" :class="{ 'p-invalid': formErrors.document }" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" @input="handleCnpjInput" @keydown="onlyDigitKey" />
+                    <small v-if="formErrors.document" class="p-error">{{ formErrors.document }}</small>
                 </div>
 
                 <div class="grid gap-2">
@@ -626,13 +711,14 @@ onMounted(() => {
                 </div>
 
                 <div class="grid gap-2">
-                    <label for="tenantPhone" class="font-medium">Telefone</label>
-                    <InputText id="tenantPhone" v-model="form.primaryPhone" placeholder="+55 (11) 99999-0000" />
+                    <label for="tenantPhone" class="font-medium">Telefone *</label>
+                    <InputText id="tenantPhone" v-model="form.primaryPhone" placeholder="+55 (11) 99999-0000" :class="{ 'p-invalid': formErrors.primaryPhone }" inputmode="tel" maxlength="19" @input="handlePhoneInput" @keydown="onlyDigitKey" />
+                    <small v-if="formErrors.primaryPhone" class="p-error">{{ formErrors.primaryPhone }}</small>
                 </div>
 
                 <div class="grid gap-2">
                     <label for="tenantPlan" class="font-medium">Plano *</label>
-                    <Dropdown id="tenantPlan" v-model="form.plan" :options="planOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.plan }" />
+                    <Select id="tenantPlan" v-model="form.plan" :options="planOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.plan }" />
                     <small v-if="formErrors.plan" class="p-error">{{ formErrors.plan }}</small>
                 </div>
 
@@ -642,7 +728,7 @@ onMounted(() => {
                 </div>
 
                 <div class="grid gap-2">
-                    <label for="tenantLogo" class="font-medium">Logo (URL) *</label>
+                    <label for="tenantLogo" class="font-medium">Logo (URL)</label>
                     <InputText id="tenantLogo" v-model="form.logoUrl" placeholder="https://" :class="{ 'p-invalid': formErrors.logoUrl }" />
                     <small v-if="formErrors.logoUrl" class="p-error">{{ formErrors.logoUrl }}</small>
                     <div v-if="form.logoUrl" class="tenant-logo-preview mt-2">
@@ -694,10 +780,7 @@ onMounted(() => {
     justify-content: center;
     border-radius: 0.5rem;
     cursor: pointer;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease,
-        border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .filter-trigger:hover {
@@ -728,12 +811,12 @@ onMounted(() => {
 }
 
 .filter-panel :deep(.p-multiselect),
-.filter-panel :deep(.p-dropdown) {
+.filter-panel :deep(.p-select) {
     font-size: 0.85rem;
 }
 
 .filter-panel :deep(.p-multiselect-label),
-.filter-panel :deep(.p-dropdown-label) {
+.filter-panel :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 
@@ -888,11 +971,11 @@ onMounted(() => {
     justify-content: center;
 }
 
-.page-size-float :deep(.p-dropdown-label) {
+.page-size-float :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 
-.page-size-float :deep(.p-dropdown) {
+.page-size-float :deep(.p-select) {
     font-size: 0.85rem;
 }
 

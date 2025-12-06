@@ -5,6 +5,8 @@ import { useToast } from 'primevue/usetoast';
 import { TOAST_DURATION, HISTORY_PAGE_SIZE } from '@core/config/constants';
 import { useImportHistoryStore } from '@modules/gig/stores/importHistory';
 import FloatLabel from 'primevue/floatlabel';
+import Popover from 'primevue/popover';
+import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
 
 // Somente mock: sem chamadas à API nem tipos externos
 const toast = useToast();
@@ -116,6 +118,8 @@ const distinctStatusLabels = computed(() => {
     historySourceItems.value.forEach((raw) => set.add(statusTagLabel(raw)));
     return Array.from(set.values()).map((lbl) => ({ label: lbl, value: lbl }));
 });
+
+const { allSelected: allStatusSelected, toggleAll: toggleAllStatus } = useMultiSelectToggle(statusFilterSelected, distinctStatusLabels);
 
 // Decora usando displayName/avatar do mock, com fallbacks
 const decorateHistoryItem = (item: ImportHistoryItem): DecoratedHistoryItem => ({
@@ -415,18 +419,18 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         <i class="pi pi-filter" />
                                     </button>
                                 </div>
-                                <OverlayPanel ref="userFilterPanel" style="min-width: 18rem" class="filter-panel">
+                                <Popover ref="userFilterPanel" style="min-width: 18rem" class="filter-panel">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Usuários</span>
                                         <Button label="Limpar" size="small" text @click="clearUserFilter" />
                                     </div>
                                     <div class="flex flex-col gap-3">
-                                        <Dropdown v-model="userFilterMode" :options="FILTER_MODES" optionLabel="label" optionValue="value" class="w-full" />
+                                        <Select v-model="userFilterMode" :options="FILTER_MODES" optionLabel="label" optionValue="value" class="w-full" />
                                         <div class="flex gap-2">
                                             <InputText v-model="userFilterManual" placeholder="Digitar valor" class="flex-1" @keyup.enter="addUserManual" />
                                             <Button icon="pi pi-plus" severity="secondary" @click="addUserManual" rounded outlined aria-label="Adicionar valor manual" />
                                         </div>
-                                        <MultiSelect v-model="userFilterSelected" :options="distinctUsers" optionLabel="label" optionValue="value" placeholder="Qualquer" display="chip" class="w-full">
+                                        <MultiSelect v-model="userFilterSelected" :options="distinctUsers" optionLabel="label" optionValue="value" placeholder="Qualquer" display="chip" class="w-full" :show-toggle-all="false">
                                             <template #option="{ option }">
                                                 <div class="flex items-center gap-2">
                                                     <Avatar v-if="option.avatar" :image="option.avatar" shape="circle" size="small" />
@@ -436,7 +440,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                             </template>
                                         </MultiSelect>
                                     </div>
-                                </OverlayPanel>
+                                </Popover>
                             </template>
                             <template #body="{ data }">
                                 <div class="flex items-center gap-3">
@@ -469,20 +473,20 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         <i class="pi pi-filter" />
                                     </button>
                                 </div>
-                                <OverlayPanel ref="fileFilterPanel" style="min-width: 18rem" class="filter-panel">
+                                <Popover ref="fileFilterPanel" style="min-width: 18rem" class="filter-panel">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Arquivos</span>
                                         <Button label="Limpar" size="small" text @click="clearFileFilter" />
                                     </div>
                                     <div class="flex flex-col gap-3">
-                                        <Dropdown v-model="fileFilterMode" :options="FILTER_MODES" optionLabel="label" optionValue="value" class="w-full" />
+                                        <Select v-model="fileFilterMode" :options="FILTER_MODES" optionLabel="label" optionValue="value" class="w-full" />
                                         <div class="flex gap-2">
                                             <InputText v-model="fileFilterManual" placeholder="Digitar valor" class="flex-1" @keyup.enter="addFileManual" />
                                             <Button icon="pi pi-plus" severity="secondary" @click="addFileManual" rounded outlined aria-label="Adicionar valor manual" />
                                         </div>
-                                        <MultiSelect v-model="fileFilterSelected" :options="distinctFiles" optionLabel="label" optionValue="value" placeholder="Qualquer" class="w-full" display="chip" />
+                                        <MultiSelect v-model="fileFilterSelected" :options="distinctFiles" optionLabel="label" optionValue="value" placeholder="Qualquer" class="w-full" display="chip" :show-toggle-all="false" />
                                     </div>
-                                </OverlayPanel>
+                                </Popover>
                             </template>
                             <template #body="{ data }">
                                 <div>
@@ -540,20 +544,21 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                                         <i class="pi pi-filter" />
                                     </button>
                                 </div>
-                                <OverlayPanel ref="statusFilterPanel" style="min-width: 14rem" class="filter-panel">
+                                <Popover ref="statusFilterPanel" style="min-width: 14rem" class="filter-panel">
                                     <div class="flex items-center justify-between mb-2">
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect v-model="statusFilterSelected" :options="distinctStatusLabels" optionLabel="label" optionValue="value" display="chip" placeholder="Qualquer" class="w-full">
-                                        <template #option="{ option }">
-                                            <Tag :value="option.label" :class="['status-option-tag', option.label === 'Erro' ? 'tag-error' : option.label === 'Aviso' ? 'tag-warning' : 'tag-success']" />
-                                        </template>
-                                        <template #chip="{ value }">
-                                            <Tag :value="value" :class="['status-chip-tag', value === 'Erro' ? 'tag-error' : value === 'Aviso' ? 'tag-warning' : 'tag-success']" />
+                                    <MultiSelect v-model="statusFilterSelected" :options="distinctStatusLabels" optionLabel="label" optionValue="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                        <!-- Cabeçalho com toggle -->
+                                        <template #header>
+                                            <div @click="toggleAllStatus" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                                <Checkbox :modelValue="allStatusSelected" binary readonly />
+                                                <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
+                                            </div>
                                         </template>
                                     </MultiSelect>
-                                </OverlayPanel>
+                                </Popover>
                             </template>
                             <template #body="{ data }">
                                 <Tag class="status-tag" :class="statusTagClass(data.level)" :value="data.statusLabel" :severity="statusTagSeverity(data.level)" />
@@ -580,7 +585,7 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
                 <div class="mt-6 history-pagination-grid">
                     <div class="page-size-col">
                         <FloatLabel class="w-full page-size-float" variant="on">
-                            <Dropdown v-model="historyPageSize" inputId="historyPageSize" :options="PAGE_SIZE_OPTIONS" optionLabel="label" optionValue="value" class="w-full" />
+                            <Select v-model="historyPageSize" inputId="historyPageSize" :options="PAGE_SIZE_OPTIONS" optionLabel="label" optionValue="value" class="w-full" />
                             <label for="historyPageSize">Linhas</label>
                         </FloatLabel>
                     </div>
@@ -776,10 +781,10 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
 .filter-panel :deep(.p-multiselect-token) {
     font-size: 0.65rem;
 }
-.filter-panel :deep(.p-dropdown) {
+.filter-panel :deep(.p-select) {
     font-size: 0.75rem;
 }
-.filter-panel :deep(.p-dropdown-label) {
+.filter-panel :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 .filter-panel :deep(.p-inputtext) {
@@ -787,10 +792,10 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
 }
 
 /* FloatLabel page size */
-.page-size-float :deep(.p-dropdown) {
+.page-size-float :deep(.p-select) {
     font-size: 0.75rem;
 }
-.page-size-float :deep(.p-dropdown-label) {
+.page-size-float :deep(.p-select-label) {
     padding: 0.5rem 0.75rem;
 }
 .page-size-float :deep(.p-floatlabel) {
@@ -856,15 +861,5 @@ const buildActionsModel = (item: DecoratedHistoryItem) => [
 }
 :root[class*='app-dark'] .search-bar-wrapper .search-input i {
     color: var(--surface-500);
-}
-
-/* Status filter tags inside options */
-.filter-panel :deep(.status-option-tag) {
-    font-size: 0.65rem;
-    font-weight: 600;
-}
-.filter-panel :deep(.status-chip-tag) {
-    font-size: 0.65rem;
-    font-weight: 600;
 }
 </style>

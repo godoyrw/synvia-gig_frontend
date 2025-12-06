@@ -9,3 +9,21 @@
 .app-dark {
     --primary-color: var(--p-primary-color);
 }
+.multi-select-toggle {
+    color: var(--surface-700);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.multi-select-toggle:hover {
+    background: var(--p-multiselect-option-focus-background);
+    color: var(--p-multiselect-option-focus-color);
+}
+
+.p-error{
+    color: white;
+    background: rgb(187, 59, 59);
+    padding: 6px;
+    width: fit-content;
+    font-weight: bold;
+    border-radius: 6px;
+}
