@@ -18,3 +18,12 @@
     background: var(--p-multiselect-option-focus-background);
     color: var(--p-multiselect-option-focus-color);
 }
+
+.p-error{
+    color: white;
+    background: rgb(187, 59, 59);
+    padding: 6px;
+    width: fit-content;
+    font-weight: bold;
+    border-radius: 6px;
+}

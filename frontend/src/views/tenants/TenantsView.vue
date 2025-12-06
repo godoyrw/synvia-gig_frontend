@@ -10,6 +10,17 @@ import Textarea from 'primevue/textarea';
 import ToggleSwitch from '@core/components/ToggleSwitch.vue';
 import { useMultiSelectToggle } from '@/core/layout/composables/useMultiSelectToggle';
 
+// ✅ importa util de validações / formatações
+import {
+    validateEmail,
+    validateCnpj,
+    validatePhone,
+    sanitizeDigits,
+    formatCnpj,
+    formatPhone,
+    onlyDigitKey
+} from '@/core/utils/validations';
+
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -165,11 +176,15 @@ const openEditDialog = (tenant) => {
     if (!tenant) return;
     dialogMode.value = 'edit';
     resetForm();
+    const formattedDocument = formatCnpj(sanitizeDigits(tenant.document ?? '').slice(0, 14));
+    const formattedPhone = formatPhone(sanitizeDigits(tenant.primaryPhone ?? '').slice(0, 13));
     Object.assign(form, {
         ...tenant,
         active: tenant.active !== false,
         createdAt: tenant.createdAt || tenant.created_at || new Date().toISOString(),
-        id: tenant.id
+        id: tenant.id,
+        document: formattedDocument,
+        primaryPhone: formattedPhone
     });
     dialogVisible.value = true;
 };
@@ -178,10 +193,26 @@ const closeDialog = () => {
     dialogVisible.value = false;
 };
 
-const validateEmail = (value) => {
-    if (!value) return false;
-    const emailPattern = /^[\w-.]+@([\w-]+\.)+[\w-]{2,}$/i;
-    return emailPattern.test(value);
+const handleCnpjInput = (event) => {
+    const digits = sanitizeDigits(event.target.value).slice(0, 14);
+    const formatted = formatCnpj(digits);
+    if (event.target.value !== formatted) {
+        event.target.value = formatted;
+    }
+    if (formatted !== form.document) {
+        form.document = formatted;
+    }
+};
+
+const handlePhoneInput = (event) => {
+    const digits = sanitizeDigits(event.target.value).slice(0, 13);
+    const formatted = formatPhone(digits);
+    if (event.target.value !== formatted) {
+        event.target.value = formatted;
+    }
+    if (formatted !== form.primaryPhone) {
+        form.primaryPhone = formatted;
+    }
 };
 
 const validateForm = () => {
@@ -195,19 +226,26 @@ const validateForm = () => {
         errors.primaryEmail = 'Informe um e-mail válido.';
     }
 
+    if (!validatePhone(form.primaryPhone)) {
+        errors.primaryPhone = 'Informe um telefone válido no formato +55 (11) 99999-0000.';
+    }
+
     if (!form.plan) {
         errors.plan = 'Selecione um plano.';
     }
 
-    if (!form.logoUrl?.trim()) {
-        errors.logoUrl = 'Informe a URL da logo do cliente.';
-    } else {
+    if (!validateCnpj(form.document)) {
+        errors.document = 'Informe um CNPJ válido.';
+    }
+
+    if (form.logoUrl?.trim()) {
         try {
-            // Validates URL format without fetching the resource
             new URL(form.logoUrl);
         } catch (_) {
             errors.logoUrl = 'Informe uma URL válida.';
         }
+    } else {
+        delete errors.logoUrl;
     }
 
     Object.assign(formErrors, errors);
@@ -454,7 +492,13 @@ onMounted(() => {
                     <Column field="id" style="width: 6rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'id' }]" aria-label="Ordenar por ID" :aria-sort="ariaSortFor('id')" @click="toggleSort('id')">
+                                <button
+                                    type="button"
+                                    :class="['sort-trigger', { active: sortField === 'id' }]"
+                                    aria-label="Ordenar por ID"
+                                    :aria-sort="ariaSortFor('id')"
+                                    @click="toggleSort('id')"
+                                >
                                     <span class="column-title">ID</span>
                                     <i :class="['sort-icon', sortIndicatorFor('id')]" />
                                 </button>
@@ -468,7 +512,13 @@ onMounted(() => {
                     <Column field="name">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'name' }]" aria-label="Ordenar por cliente" :aria-sort="ariaSortFor('name')" @click="toggleSort('name')">
+                                <button
+                                    type="button"
+                                    :class="['sort-trigger', { active: sortField === 'name' }]"
+                                    aria-label="Ordenar por cliente"
+                                    :aria-sort="ariaSortFor('name')"
+                                    @click="toggleSort('name')"
+                                >
                                     <span class="column-title">Cliente</span>
                                     <i :class="['sort-icon', sortIndicatorFor('name')]" />
                                 </button>
@@ -491,7 +541,13 @@ onMounted(() => {
                     <Column field="document" style="min-width: 12rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'document' }]" aria-label="Ordenar por documento" :aria-sort="ariaSortFor('document')" @click="toggleSort('document')">
+                                <button
+                                    type="button"
+                                    :class="['sort-trigger', { active: sortField === 'document' }]"
+                                    aria-label="Ordenar por documento"
+                                    :aria-sort="ariaSortFor('document')"
+                                    @click="toggleSort('document')"
+                                >
                                     <span class="column-title">Documento</span>
                                     <i :class="['sort-icon', sortIndicatorFor('document')]" />
                                 </button>
@@ -505,11 +561,22 @@ onMounted(() => {
                     <Column field="plan" style="width: 10rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'plan' }]" aria-label="Ordenar por plano" :aria-sort="ariaSortFor('plan')" @click="toggleSort('plan')">
+                                <button
+                                    type="button"
+                                    :class="['sort-trigger', { active: sortField === 'plan' }]"
+                                    aria-label="Ordenar por plano"
+                                    :aria-sort="ariaSortFor('plan')"
+                                    @click="toggleSort('plan')"
+                                >
                                     <span class="column-title">Plano</span>
                                     <i :class="['sort-icon', sortIndicatorFor('plan')]" />
                                 </button>
-                                <button type="button" :class="['filter-trigger', { active: planFilterSelected.length > 0 }]" aria-label="Filtrar por plano" @click="togglePlanFilterPanel($event)">
+                                <button
+                                    type="button"
+                                    :class="['filter-trigger', { active: planFilterSelected.length > 0 }]"
+                                    aria-label="Filtrar por plano"
+                                    @click="togglePlanFilterPanel($event)"
+                                >
                                     <i class="pi pi-filter" />
                                 </button>
                                 <Popover ref="planFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -517,9 +584,21 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Plano</span>
                                         <Button label="Limpar" size="small" text @click="clearPlanFilter" />
                                     </div>
-                                    <MultiSelect v-model="planFilterSelected" :options="planOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                    <MultiSelect
+                                        v-model="planFilterSelected"
+                                        :options="planOptions"
+                                        option-label="label"
+                                        option-value="value"
+                                        display="chip"
+                                        placeholder="Qualquer"
+                                        class="w-full"
+                                        :show-toggle-all="false"
+                                    >
                                         <template #header>
-                                            <div @click="toggleAllPlans" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                            <div
+                                                @click="toggleAllPlans"
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer"
+                                            >
                                                 <Checkbox :modelValue="allPlansSelected" binary readonly />
                                                 <span>{{ allPlansSelected ? 'Nenhum' : 'Todos' }}</span>
                                             </div>
@@ -536,11 +615,22 @@ onMounted(() => {
                     <Column field="modules">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'modules' }]" aria-label="Ordenar por módulos" :aria-sort="ariaSortFor('modules')" @click="toggleSort('modules')">
+                                <button
+                                    type="button"
+                                    :class="['sort-trigger', { active: sortField === 'modules' }]"
+                                    aria-label="Ordenar por módulos"
+                                    :aria-sort="ariaSortFor('modules')"
+                                    @click="toggleSort('modules')"
+                                >
                                     <span class="column-title">Módulos</span>
                                     <i :class="['sort-icon', sortIndicatorFor('modules')]" />
                                 </button>
-                                <button type="button" :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]" aria-label="Filtrar por módulos" @click="toggleModulesFilterPanel($event)">
+                                <button
+                                    type="button"
+                                    :class="['filter-trigger', { active: modulesFilterSelected.length > 0 }]"
+                                    aria-label="Filtrar por módulos"
+                                    @click="toggleModulesFilterPanel($event)"
+                                >
                                     <i class="pi pi-filter" />
                                 </button>
                                 <Popover ref="modulesFilterPanel" class="filter-panel" style="min-width: 16rem">
@@ -559,7 +649,10 @@ onMounted(() => {
                                         :show-toggle-all="false"
                                     >
                                         <template #header>
-                                            <div @click="toggleAllModules" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                            <div
+                                                @click="toggleAllModules"
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer"
+                                            >
                                                 <Checkbox :modelValue="allModulesSelected" binary readonly />
                                                 <span>{{ allModulesSelected ? 'Nenhum' : 'Todos' }}</span>
                                             </div>
@@ -581,11 +674,22 @@ onMounted(() => {
                     <Column field="active" style="width: 9rem">
                         <template #header>
                             <div class="header-with-filter">
-                                <button type="button" :class="['sort-trigger', { active: sortField === 'active' }]" aria-label="Ordenar por status" :aria-sort="ariaSortFor('active')" @click="toggleSort('active')">
+                                <button
+                                    type="button"
+                                    :class="['sort-trigger', { active: sortField === 'active' }]"
+                                    aria-label="Ordenar por status"
+                                    :aria-sort="ariaSortFor('active')"
+                                    @click="toggleSort('active')"
+                                >
                                     <span class="column-title">Ativo</span>
                                     <i :class="['sort-icon', sortIndicatorFor('active')]" />
                                 </button>
-                                <button type="button" :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]" aria-label="Filtrar por status" @click="toggleStatusFilterPanel($event)">
+                                <button
+                                    type="button"
+                                    :class="['filter-trigger', { active: statusFilterSelected.length > 0 }]"
+                                    aria-label="Filtrar por status"
+                                    @click="toggleStatusFilterPanel($event)"
+                                >
                                     <i class="pi pi-filter" />
                                 </button>
                                 <Popover ref="statusFilterPanel" class="filter-panel" style="min-width: 14rem">
@@ -593,9 +697,21 @@ onMounted(() => {
                                         <span class="text-sm font-semibold">Filtrar Status</span>
                                         <Button label="Limpar" size="small" text @click="clearStatusFilter" />
                                     </div>
-                                    <MultiSelect v-model="statusFilterSelected" :options="statusOptions" option-label="label" option-value="value" display="chip" placeholder="Qualquer" class="w-full" :show-toggle-all="false">
+                                    <MultiSelect
+                                        v-model="statusFilterSelected"
+                                        :options="statusOptions"
+                                        option-label="label"
+                                        option-value="value"
+                                        display="chip"
+                                        placeholder="Qualquer"
+                                        class="w-full"
+                                        :show-toggle-all="false"
+                                    >
                                         <template #header>
-                                            <div @click="toggleAllStatus" class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer">
+                                            <div
+                                                @click="toggleAllStatus"
+                                                class="multi-select-toggle p-clickable flex items-center gap-2 py-2 px-3 mx-1 -mb-1 mt-1 leading-none rounded cursor-pointer"
+                                            >
                                                 <Checkbox :modelValue="allStatusSelected" binary readonly />
                                                 <span>{{ allStatusSelected ? 'Nenhum' : 'Todos' }}</span>
                                             </div>
@@ -631,14 +747,7 @@ onMounted(() => {
                 <div class="tenants-pagination-grid">
                     <div class="page-size-col">
                         <FloatLabel class="w-full page-size-float" variant="on">
-                            <Select
-                                v-model="pageSize"
-                                input-id="tenantsPageSize"
-                                :options="pageSizeOptions"
-                                option-label="label"
-                                option-value="value"
-                                class="w-full"
-                            />
+                            <Select v-model="pageSize" input-id="tenantsPageSize" :options="pageSizeOptions" option-label="label" option-value="value" class="w-full" />
                             <label for="tenantsPageSize">Linhas</label>
                         </FloatLabel>
                     </div>
@@ -676,8 +785,18 @@ onMounted(() => {
                 </div>
 
                 <div class="grid gap-2">
-                    <label for="tenantDocument" class="font-medium">Documento (CNPJ)</label>
-                    <InputText id="tenantDocument" v-model="form.document" placeholder="00.000.000/0000-00" />
+                    <label for="tenantDocument" class="font-medium">Documento (CNPJ) *</label>
+                    <InputText
+                        id="tenantDocument"
+                        v-model="form.document"
+                        :class="{ 'p-invalid': formErrors.document }"
+                        placeholder="00.000.000/0000-00"
+                        inputmode="numeric"
+                        maxlength="18"
+                        @input="handleCnpjInput"
+                        @keydown="onlyDigitKey"
+                    />
+                    <small v-if="formErrors.document" class="p-error">{{ formErrors.document }}</small>
                 </div>
 
                 <div class="grid gap-2">
@@ -687,21 +806,23 @@ onMounted(() => {
                 </div>
 
                 <div class="grid gap-2">
-                    <label for="tenantPhone" class="font-medium">Telefone</label>
-                    <InputText id="tenantPhone" v-model="form.primaryPhone" placeholder="+55 (11) 99999-0000" />
+                    <label for="tenantPhone" class="font-medium">Telefone *</label>
+                    <InputText
+                        id="tenantPhone"
+                        v-model="form.primaryPhone"
+                        placeholder="+55 (11) 99999-0000"
+                        :class="{ 'p-invalid': formErrors.primaryPhone }"
+                        inputmode="tel"
+                        maxlength="19"
+                        @input="handlePhoneInput"
+                        @keydown="onlyDigitKey"
+                    />
+                    <small v-if="formErrors.primaryPhone" class="p-error">{{ formErrors.primaryPhone }}</small>
                 </div>
 
                 <div class="grid gap-2">
                     <label for="tenantPlan" class="font-medium">Plano *</label>
-                    <Select 
-                        id="tenantPlan" 
-                        v-model="form.plan"
-                        :options="planOptions"
-                        option-label="label"
-                        option-value="value"
-                        placeholder="Selecione"
-                        :class="{ 'p-invalid': formErrors.plan }" 
-                    />
+                    <Select id="tenantPlan" v-model="form.plan" :options="planOptions" option-label="label" option-value="value" placeholder="Selecione" :class="{ 'p-invalid': formErrors.plan }" />
                     <small v-if="formErrors.plan" class="p-error">{{ formErrors.plan }}</small>
                 </div>
 
@@ -711,7 +832,7 @@ onMounted(() => {
                 </div>
 
                 <div class="grid gap-2">
-                    <label for="tenantLogo" class="font-medium">Logo (URL) *</label>
+                    <label for="tenantLogo" class="font-medium">Logo (URL)</label>
                     <InputText id="tenantLogo" v-model="form.logoUrl" placeholder="https://" :class="{ 'p-invalid': formErrors.logoUrl }" />
                     <small v-if="formErrors.logoUrl" class="p-error">{{ formErrors.logoUrl }}</small>
                     <div v-if="form.logoUrl" class="tenant-logo-preview mt-2">

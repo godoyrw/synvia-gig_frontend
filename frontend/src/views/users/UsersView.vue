@@ -75,6 +75,7 @@ const roleOptions = computed(() => {
 });
 
 const dialogTitle = computed(() => (dialogMode.value === 'edit' ? 'Editar Usuário' : 'Novo Usuário'));
+const showPasswordStrength = computed(() => dialogMode.value === 'create' || !!form.password);
 
 const paginationSummary = computed(() => {
     const total = paginator.total || 0;
@@ -717,7 +718,7 @@ onMounted(() => {
                         v-model="form.password"
                         :toggle-mask="true"
                         input-class="w-full"
-                        :feedback="dialogMode === 'create'"
+                        :feedback="showPasswordStrength"
                         prompt-label="Digite uma senha"
                         weak-label="Fraca"
                         medium-label="Média"
